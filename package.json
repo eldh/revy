@@ -1,0 +1,7 @@
+{
+  "workspaces": [
+    "pure",
+    "demo"
+  ],
+  "private": true
+}
