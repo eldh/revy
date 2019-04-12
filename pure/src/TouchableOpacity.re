@@ -1,6 +1,6 @@
 [@bs.config {jsx: 3}];
 
-[@react.component __MODULE__]
+[@react.component]
 let make =
     (
       ~tag="div",

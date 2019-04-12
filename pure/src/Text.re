@@ -1,4 +1,3 @@
-[@bs.config {jsx: 3}];
 exception InvalidValue(string);
 
 let useTextStyles =
@@ -23,7 +22,7 @@ let useTextStyles =
   ];
 };
 
-[@react.component __MODULE__]
+[@react.component]
 let make =
     (
       ~weight=Theme.Type.Normal,
@@ -45,6 +44,34 @@ let make =
       )
       ->Css.style
     }>
-    children->React.string
+    children
   </span>;
+};
+
+module String = {
+  [@react.component]
+  let make =
+      (
+        ~weight=Theme.Type.Normal,
+        ~size=0,
+        ~style=?,
+        ~lineHeight=0,
+        ~color=Theme.Color.BodyText,
+        ~children,
+        (),
+      ) => {
+    let styles = useTextStyles(~size, ~lineHeight, ~weight, ~color, ());
+    <span
+      className={
+        (
+          switch (style) {
+          | Some(p) => [styles, p]->List.concat
+          | None => styles
+          }
+        )
+        ->Css.style
+      }>
+      children->React.string
+    </span>;
+  };
 };

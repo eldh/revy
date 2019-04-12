@@ -9,22 +9,18 @@ let highlightBoxShadow =
 
 type variant =
   | Error
-  | ErrorInverted
   | Warning
-  | WarningInverted
   | Success
-  | SuccessInverted
   | Primary
-  | PrimaryInverted
-  | Secondary
-  | SecondaryInverted;
+  | Secondary;
 
 type size =
   | Small
   | Medium
   | Large;
 
-let useButtonStyles = (~variant, ~m, ~size, ~disabled as disabled_, ()) => {
+let useButtonStyles =
+    (~variant, ~outline as outline_, ~m, ~size, ~disabled as _disabled_, ()) => {
   let theme = React.useContext(ThemeContext.context);
   // TODO fix
   let (btnFontSize, paddingV, paddingH) =
@@ -48,46 +44,23 @@ let useButtonStyles = (~variant, ~m, ~size, ~disabled as disabled_, ()) => {
   let variantStyles = v => {
     open Css;
     let (textVariant, bgVariant) =
-      switch (v) {
-      | Warning => (Theme.Color.WarningText, Theme.Color.Warning)
-      | WarningInverted => (
-          Theme.Color.Warning,
-          Theme.Color.BodyBackground,
-          
-        )
-      | Error => (Theme.Color.ErrorText, Theme.Color.Error)
-      | ErrorInverted => (Theme.Color.Error, Theme.Color.BodyBackground)
-      | Success => (Theme.Color.SuccessText, Theme.Color.Success)
-      | SuccessInverted => (
-          Theme.Color.Success,
-          Theme.Color.BodyBackground,
-          
-        )
-      | Primary => (Theme.Color.PrimaryText, Theme.Color.Primary)
-      | PrimaryInverted => (
-          Theme.Color.Primary,
-          Theme.Color.BodyBackground,
-          
-        )
-      | Secondary => (Theme.Color.SecondaryText, Theme.Color.Secondary)
-      | SecondaryInverted => (
-          Theme.Color.Secondary,
-          Theme.Color.BodyBackground,
-          
-        )
-      };
-    let (borderW, bgHighlight) = (switch (v) {
-    | Error
-    | Success
-    | Primary
-    | Secondary
-    | Warning => (0,-20)
-    | ErrorInverted
-    | SuccessInverted
-    | PrimaryInverted
-    | SecondaryInverted
-    | WarningInverted => (2,15)
-    });
+      outline_
+        ? switch (v) {
+          | Warning => (Theme.Color.Warning, Theme.Color.BodyBackground)
+          | Error => (Theme.Color.Error, Theme.Color.BodyBackground)
+          | Success => (Theme.Color.Success, Theme.Color.BodyBackground)
+          | Primary => (Theme.Color.Primary, Theme.Color.BodyBackground)
+          | Secondary => (Theme.Color.Secondary, Theme.Color.BodyBackground)
+          }
+        : (
+          switch (v) {
+          | Warning => (Theme.Color.WarningText, Theme.Color.Warning)
+          | Error => (Theme.Color.ErrorText, Theme.Color.Error)
+          | Success => (Theme.Color.SuccessText, Theme.Color.Success)
+          | Primary => (Theme.Color.PrimaryText, Theme.Color.Primary)
+          | Secondary => (Theme.Color.SecondaryText, Theme.Color.Secondary)
+          }
+        );
     let styleStyles =
       switch (Theme.Flat) {
       | _ => [
@@ -96,10 +69,11 @@ let useButtonStyles = (~variant, ~m, ~size, ~disabled as disabled_, ()) => {
             ~inset=true,
             ~spread=px(1),
             ~blur=px(0),
-            rgba(255, 255, 255, 0.2),
+            outline_
+              ? Css.transparent : theme.color(~highlight=10, bgVariant),
           ),
           borderColor(theme.color(~highlight=10, textVariant)),
-          borderWidth(px(borderW)),
+          borderWidth(px(outline_ ? 2 : 0)),
           borderStyle(`solid),
         ]
       // | Raised => [borderWidth(px(0)), highlightBoxShadow]
@@ -115,12 +89,17 @@ let useButtonStyles = (~variant, ~m, ~size, ~disabled as disabled_, ()) => {
       borderRadius(theme.space(Theme.Space.Single)),
       textTransform(`uppercase),
       backgroundColor(theme.color(bgVariant)),
-      hover([backgroundColor(theme.color(~highlight=disabled_ ? 0 : bgHighlight, bgVariant))]),
+      hover([
+        backgroundColor(
+          theme.color(~highlight=outline_ ? 15 : (-20), bgVariant),
+        ),
+      ]),
+      disabled([
+        opacity(0.7),
+        hover([backgroundColor(theme.color(bgVariant))])]),
       focus([
         outlineStyle(`none),
-        backgroundColor(
-          theme.color(~highlight=30, bgVariant),
-        ),
+        backgroundColor(theme.color(~highlight=30, bgVariant)),
       ]),
       active([backgroundColor(theme.color(~highlight=20, bgVariant))]),
       ...styleStyles,
@@ -130,13 +109,14 @@ let useButtonStyles = (~variant, ~m, ~size, ~disabled as disabled_, ()) => {
   ->List.concat;
 };
 
-[@react.component __MODULE__]
+[@react.component]
 let make =
     (
       ~onClick,
       ~variant=Secondary,
       ~size=Medium,
       ~disabled=false,
+      ~outline=false,
       ~onlyFocusOnTab=true,
       ~m=Theme.margin(NoSpace),
       ~children,
@@ -144,7 +124,7 @@ let make =
     ) => {
   <TouchableOpacity
     tag="button"
-    style={useButtonStyles(~variant, ~m, ~size, ~disabled, ())}
+    style={useButtonStyles(~variant, ~outline, ~m, ~size, ~disabled, ())}
     onPress={e => {
       if (onlyFocusOnTab) {
         let target = e->ReactEvent.Mouse.currentTarget;
@@ -157,13 +137,14 @@ let make =
   </TouchableOpacity>;
 };
 module Link = {
-  [@react.component __MODULE__]
+  [@react.component]
   let make =
       (
         ~onClick,
         ~variant=Primary,
         ~href,
         ~disabled=false,
+        ~outline=false,
         ~size=Medium,
         ~m=Theme.margin(NoSpace),
         ~onlyFocusOnTab=true,
@@ -173,7 +154,8 @@ module Link = {
     <a
       href
       className={
-        useButtonStyles(~variant, ~m, ~size, ~disabled, ())->Css.style
+        useButtonStyles(~variant, ~outline, ~m, ~size, ~disabled, ())
+        ->Css.style
       }
       onClick={e => {
         if (onlyFocusOnTab) {

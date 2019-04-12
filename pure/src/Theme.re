@@ -216,7 +216,6 @@ let cssMargin4 = (~top, ~bottom, ~left, ~right) =>
   );
 
 let responsive = (_theme, (s, m, l)) => {
-  Js.log4("s,m,l", s, m, l);
 
   Css.[media("(min-width: 30em)", m), media("(min-width: 50em)", l), ...s];
 };

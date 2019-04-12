@@ -1,6 +1,5 @@
-[@bs.config {jsx: 3}];
 
-[@react.component __MODULE__]
+[@react.component]
 let make = () =>
   <ThemeContext.Provider value=DefaultTheme.theme>
     <Test />

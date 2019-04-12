@@ -1,4 +1,3 @@
-[@bs.config {jsx: 3}];
 
 let highlightShadow =
   ThemeUtil.Style.shadows(
@@ -56,7 +55,7 @@ let useInputStyles = (~m, ()) => {
   );
 };
 
-[@react.component __MODULE__]
+[@react.component]
 let make =
     (
       ~onClick as _=?,

@@ -19,6 +19,6 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "bs-platform": "^4.0.14"
+    "bs-platform": "^5.0.1"
   }
 }

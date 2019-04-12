@@ -48,7 +48,7 @@ let useBoxStyle =
   ->List.concat;
 };
 
-[@react.component __MODULE__]
+[@react.component]
 let make =
     (
       ~tag="div",

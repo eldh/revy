@@ -147,7 +147,7 @@ let mix = (f, lab1, lab2) => {
 let mixRgb = (f, rgb1, rgb2) =>
   mix(f, fromRGB(rgb1), fromRGB(rgb2)) |> toRGB;
 
-Js.log2(
-  "mixRgb(0.5, (0,0,0,1.), (255,255,255,1.)",
-  mixRgb(0.5, (0, 0, 0, 1.), (255, 255, 255, 1.)),
-);
+// Js.log2(
+//   "mixRgb(0.5, (0,0,0,1.), (255,255,255,1.)",
+//   mixRgb(0.5, (0, 0, 0, 1.), (255, 255, 255, 1.)),
+// );

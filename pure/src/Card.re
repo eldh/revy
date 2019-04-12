@@ -1,8 +1,6 @@
-
 [@bs.send] external blur: Js.t({..}) => unit = "blur";
 
-  [@genType]
-  [@react.component "Card"]
+  [@react.component]
   let make = (~children, ()) => {
       <button
         className=Css.(

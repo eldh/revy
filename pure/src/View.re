@@ -1,6 +1,6 @@
 let defaultStyles = Css.[display(`flex), boxSizing(`borderBox)];
 
-[@react.component __MODULE__]
+[@react.component]
 let make =
     (
       ~tag="div",

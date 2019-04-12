@@ -3,7 +3,7 @@
 external createDOMElement: (string, Js.t({..})) => React.element =
   "createElement";
 
-[@react.component __MODULE__]
+[@react.component]
 let make = (~tag="div", ~props, ()) => {
   createDOMElement(tag, props);
 };

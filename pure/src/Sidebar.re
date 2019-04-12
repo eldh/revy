@@ -1,7 +1,6 @@
-[@bs.config {jsx: 3}];
 
 module Link = {
-  [@react.component __MODULE__]
+  [@react.component]
   let make =
       (
         ~target="_self",
@@ -36,7 +35,7 @@ module Link = {
   };
 };
 
-[@react.component __MODULE__]
+[@react.component]
 let make = () => {
   <View>
     <>
@@ -48,7 +47,7 @@ let make = () => {
         h={Css.vh(100.)}
         style=Css.[position(`fixed), top(px(0)), left(px(0))]>
         <>
-          <Text size=1> "Pure" </Text>
+          <Text.String size=1> "Pure" </Text.String>
           <Link href="#"> "Pure" </Link>
           <Link href="#"> "Pure" </Link>
           <Link href="#"> "Pure" </Link>
