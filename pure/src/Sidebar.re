@@ -1,4 +1,3 @@
-
 module Link = {
   [@react.component]
   let make =
@@ -12,7 +11,6 @@ module Link = {
         ~children,
         (),
       ) => {
-    let theme = React.useContext(ThemeContext.context);
     let textStyle =
       Text.useTextStyles(~color, ~size, ~lineHeight, ~weight, ());
     let linkStyle =
@@ -20,16 +18,24 @@ module Link = {
         width(pct(100.)),
         display(`block),
         textDecoration(`none),
-        fontWeight(theme.fontWeight(Theme.Type.Bold)),
-        padding(theme.space(Theme.Space.Single)),
-        borderBottom(px(1), `solid, hsla(0, 0, 100, 0.2)),
-        hover([Css.color(theme.color(~highlight=20, Theme.Color.Primary))]),
+        fontWeight(Theme.Styles.useFontWeight(Theme.Type.Bold)),
+        padding(Theme.Styles.useSpace(Theme.Space.Single)),
+        borderBottom(
+          px(1),
+          `solid,
+          Theme.Styles.useColor(~highlight=40, Theme.Color.BodyBackground),
+        ),
+        hover([
+          Css.color(
+            Theme.Styles.useColor(~highlight=20, Theme.Color.Primary),
+          ),
+        ]),
       ];
     <Box
       tag="a"
       grow=0.
       domProps={"href": href, "target": target}
-      style={[textStyle, linkStyle]->List.concat}>
+      style={[textStyle, linkStyle]|>List.concat}>
       children->React.string
     </Box>;
   };
@@ -42,8 +48,12 @@ let make = () => {
       <View style=Css.[width(px(200))] />
       <Box
         grow=0.
-        backgroundColor=Theme.Color.HighlightBackground
-        w={Theme.Layout.Px(200)}
+        backgroundColor=Theme.(
+          Color.EscapeHatch(
+            Styles.useColor(~highlight=10, Color.BodyBackground),
+          )
+        )
+        w={Theme.Layout.Css(Css.px(200))}
         h={Css.vh(100.)}
         style=Css.[position(`fixed), top(px(0)), left(px(0))]>
         <>

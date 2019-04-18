@@ -7,18 +7,21 @@ let make =
       ~onPress=None,
       ~a11yTitle as _a11yTitle=?,
       ~style=[],
-      ~domProps=Js.Obj.empty(),
+      ~domProps=None,
       ~children=?,
       (),
     ) => {
-  let props =
-    Js.Obj.assign(
-      domProps,
-      {
-        "children": children,
-        "onClick":onPress,
-        "className": [style, defaultStyles]->List.concat->Css.style,
-      },
-    );
-  EscapeHatch.use(tag, props);
+  let props = {
+    "children": children,
+    "onClick": onPress,
+    "className": [style, defaultStyles] |> List.concat |> Css.style,
+  };
+
+  EscapeHatch.use(
+    tag,
+    switch (domProps) {
+    | Some(p) => Js.Obj.assign(p, props)
+    | None => props
+    },
+  );
 };

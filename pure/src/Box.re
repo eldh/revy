@@ -2,50 +2,47 @@
 
 let useBoxStyle =
     (
-      ~align as alignProp,
-      ~alignSelf as alignSelfProp,
-      ~alignContent as alignContentProp,
-      ~backgroundColor as backgroundColorProp,
-      ~color as colorProp,
-      ~grow as growProp,
-      ~wrap as wrapProp,
-      ~shrink as shrinkProp,
-      ~justify as justifyProp,
-      ~direction as directionProp,
+      ~align as align_,
+      ~alignSelf as alignSelf_,
+      ~alignContent as alignContent_,
+      ~backgroundColor as backgroundColor_: Theme.Color.t,
+      ~color as color_: Theme.Color.t,
+      ~grow as grow_,
+      ~wrap as wrap_,
+      ~shrink as shrink_,
+      ~justify as justify_,
+      ~direction as direction_,
       ~p,
       ~m,
-      ~h as heightProp,
-      ~w as widthProp,
-      ~overflow as overflowProp,
-      ~borderRadius as borderRadiusProp,
+      ~h as height_,
+      ~w as width_,
+      ~overflow as overflow_,
+      ~borderRadius as borderRadius_,
       (),
     ) => {
-  let theme = React.useContext(ThemeContext.context);
-  let marginStyles = Theme.Styles.margin(theme, m);
-  let paddingStyles = Theme.Styles.padding(theme, p);
-  let widthStyles = Theme.Styles.width(theme, widthProp);
+  let widthStyles = Theme.Styles.useWidth(width_);
 
   [
     Css.[
-      alignSelf(alignSelfProp),
-      alignItems(alignProp),
-      alignContent(alignContentProp),
-      backgroundColor(theme.color(backgroundColorProp)),
-      color(theme.color(colorProp)),
-      height(heightProp),
-      overflow(overflowProp),
-      borderRadius(borderRadiusProp),
-      flexShrink(shrinkProp),
-      flexDirection(directionProp),
-      flexGrow(growProp),
-      flexWrap(wrapProp),
-      justifyContent(justifyProp),
+      alignSelf(alignSelf_),
+      alignItems(align_),
+      backgroundColor(Theme.Styles.useColor(backgroundColor_)),
+      alignContent(alignContent_),
+      color(Theme.Styles.useColor(color_)),
+      height(height_),
+      overflow(overflow_),
+      borderRadius(borderRadius_),
+      flexShrink(shrink_),
+      flexDirection(direction_),
+      flexGrow(grow_),
+      flexWrap(wrap_),
+      justifyContent(justify_),
+      Theme.Styles.useMargin(m),
+      Theme.Styles.usePadding(p),
     ],
-    marginStyles,
-    paddingStyles,
     widthStyles,
   ]
-  ->List.concat;
+  |>List.concat;
 };
 
 [@react.component]
@@ -53,7 +50,7 @@ let make =
     (
       ~tag="div",
       ~a11yTitle as _a11yTitle=?,
-      ~style as styleProp=[],
+      ~style as style_=[],
       ~align=`flexStart,
       ~alignSelf=`flexStart,
       ~alignContent=`flexStart,
@@ -64,13 +61,13 @@ let make =
       ~shrink=0,
       ~justify=`flexStart,
       ~direction=`column,
-      ~p=Theme.padding(NoSpace),
-      ~m=Theme.margin(NoSpace),
+      ~p=Theme.Space.NoSpace,
+      ~m=Theme.Space.NoSpace,
       ~h=`auto,
       ~w=Theme.Layout.Auto,
       ~overflow=`auto,
       ~borderRadius=Css.px(0),
-      ~domProps=Js.Obj.empty(),
+      ~domProps=?,
       ~children=?,
       (),
     ) => {
@@ -95,9 +92,9 @@ let make =
         ~borderRadius,
         (),
       ),
-      styleProp,
+      style_,
     ]
-    ->List.concat;
+    |>List.concat;
 
   <View tag style domProps> children </View>;
 };

@@ -18,7 +18,7 @@ let clamp = (minVal, maxVal, v) =>
     v;
   };
 
-let toInt = f => (f +. 0.5)->int_of_float;
+let toInt = f => f +. 0.5 |> int_of_float;
 
 module Constants = {
   // Corresponds roughly to RGB brighter/darker
@@ -41,23 +41,26 @@ let lab_xyz = t => {
   t > Constants.t1 ? t *. t *. t : Constants.t2 *. (t -. Constants.t0);
 };
 
-let labToXyz = ((l, a, b, alpha)) => {
+let labToXyz = ((l, a, b)) => {
   let y0 = (l +. 16.) /. 116.;
   let x0 = y0 +. a /. 500.;
   let z0 = y0 -. b /. 200.;
 
-  let y = Constants.yn *. lab_xyz(y0);
+  // y = LAB_CONSTANTS.Yn * lab_xyz(y);
+  // x = LAB_CONSTANTS.Xn * lab_xyz(x);
+  // z = LAB_CONSTANTS.Zn * lab_xyz(z);
+
   let x = Constants.xn *. lab_xyz(x0);
+  let y = Constants.yn *. lab_xyz(y0);
   let z = Constants.zn *. lab_xyz(z0);
-  (x, y, z, alpha);
+  (x, y, z);
 };
 
-let xyzToRgb = ((x, y, z, alpha)) => {
+let xyzToRgb = ((x, y, z)) => {
   (
-    xyz_rgb(3.2404542 *. x -. 1.5371385 *. y -. 0.4985314 *. z)->toInt,
-    xyz_rgb((-0.9692660) *. x +. 1.8760108 *. y +. 0.0415560 *. z)->toInt,
-    xyz_rgb(0.0556434 *. x -. 0.2040259 *. y +. 1.0572252 *. z)->toInt,
-    alpha,
+    xyz_rgb(3.2404542 *. x -. 1.5371385 *. y -. 0.4985314 *. z) |> toInt,
+    xyz_rgb((-0.9692660) *. x +. 1.8760108 *. y +. 0.0415560 *. z) |> toInt,
+    xyz_rgb(0.0556434 *. x -. 0.2040259 *. y +. 1.0572252 *. z) |> toInt,
   );
 };
 
@@ -66,8 +69,8 @@ let toRGB = lab => {
 };
 
 let toCssRGB = t => {
-  let (r, g, b, a) = toRGB(t);
-  Css.rgba(r, g, b, a);
+  let (r, g, b) = toRGB(t);
+  Css.rgb(r, g, b);
 };
 
 let rgb_xyz = r => {
@@ -86,10 +89,10 @@ let xyz_lab = t =>
     t /. Constants.t2 +. Constants.t0;
   };
 
-let rgbToXyz = ((r_, g_, b_, alpha)) => {
-  let r = rgb_xyz(r_->float_of_int);
-  let g = rgb_xyz(g_->float_of_int);
-  let b = rgb_xyz(b_->float_of_int);
+let rgbToXyz = ((r_, g_, b_)) => {
+  let r = rgb_xyz(r_ |> float_of_int);
+  let g = rgb_xyz(g_ |> float_of_int);
+  let b = rgb_xyz(b_ |> float_of_int);
 
   let x =
     xyz_lab(
@@ -103,12 +106,12 @@ let rgbToXyz = ((r_, g_, b_, alpha)) => {
     xyz_lab(
       (0.0193339 *. r +. 0.1191920 *. g +. 0.9503041 *. b) /. Constants.zn,
     );
-  (x, y, z, alpha);
+  (x, y, z);
 };
 
-let xyzToLab = ((x, y, z, alpha)) => {
+let xyzToLab = ((x, y, z)) => {
   let l = 116. *. y -. 16.;
-  (l < 0. ? 0. : l, 500. *. (x -. y), 200. *. (y -. z), alpha);
+  (l < 0. ? 0. : l, 500. *. (x -. y), 200. *. (y -. z));
 };
 
 let fromRGB = rgb => {
@@ -117,29 +120,24 @@ let fromRGB = rgb => {
 
 let fromCssRGB = rgb => {
   switch (rgb) {
-  | `rgb(r, g, b) => fromRGB((r, g, b, 1.))
-  | `rgba(r, g, b, a) => fromRGB((r, g, b, a))
+  | `rgb(r, g, b) => fromRGB((r, g, b))
+  | `rgba(r, g, b, _a) => fromRGB((r, g, b))
   // | _ => raise(InvalidValue("Not an rgb value"))
   };
 };
 
-let lighten = (factor, (l, a, b, alpha)) => {
-  (clamp(0., 100., l +. factor->float_of_int), a, b, alpha);
+let lighten = (factor, (l, a, b)) => {
+  (clamp(0., 100., l +. (factor |> float_of_int)), a, b);
 };
 
-let highlight = (factor, (l, a, b, alpha)) => {
-  lighten((l > 50. ? (-1) : 1) * factor, (l, a, b, alpha));
+let highlight = (factor, (l, a, b)) => {
+  lighten((l > 50. ? (-1) : 1) * factor, (l, a, b));
 };
 
 let mix = (f, lab1, lab2) => {
-  let (x1, y1, z1, alpha1) = lab1 |> labToXyz;
-  let (x2, y2, z2, alpha2) = lab2 |> labToXyz;
-  (
-    x1 +. f *. (x2 -. x1),
-    y1 +. f *. (y2 -. y1),
-    z1 +. f *. (z2 -. z1),
-    (alpha1 +. alpha2) /. 2.,
-  )
+  let (x1, y1, z1) = lab1 |> labToXyz;
+  let (x2, y2, z2) = lab2 |> labToXyz;
+  (x1 +. f *. (x2 -. x1), y1 +. f *. (y2 -. y1), z1 +. f *. (z2 -. z1))
   |> xyzToRgb
   |> fromRGB;
 };
@@ -147,7 +145,4 @@ let mix = (f, lab1, lab2) => {
 let mixRgb = (f, rgb1, rgb2) =>
   mix(f, fromRGB(rgb1), fromRGB(rgb2)) |> toRGB;
 
-// Js.log2(
-//   "mixRgb(0.5, (0,0,0,1.), (255,255,255,1.)",
-//   mixRgb(0.5, (0, 0, 0, 1.), (255, 255, 255, 1.)),
-// );
+// Js.log2("labToXyz((2.,23.,120.))", labToXyz((2., 23., 120.)));

@@ -38,19 +38,18 @@ module Color = {
     | `hsla(_h, _s, l, _a) =>
       l > 50 ? darken(factor, hsl) : lighten(factor, hsl)
     | `rgb(r, g, b) =>
-      Lab.(fromRGB((r, g, b, 1.)) |> highlight(factor) |> toCssRGB)
-    | `rgba(r, g, b, a) =>
-      Lab.(fromRGB((r, g, b, a)) |> highlight(factor) |> toCssRGB)
+      Lab.(fromRGB((r, g, b)) |> highlight(factor) |> toCssRGB)
+    | `rgba(r, g, b, _a) =>
+      Lab.(fromRGB((r, g, b)) |> highlight(factor) |> toCssRGB)
     | _ => lighten(factor, hsl)
     };
   let isLight = (hsl: Css.color) =>
     switch (hsl) {
     | `hsl(_h, _s, l) => l > 50
     | `hsla(_h, _s, l, _a) => l > 50
-    | `rgb(r, g, b) =>
-      Lab.fromRGB((r, g, b, 1.)) |> (((l, _a, _b, _al)) => l > 50.)
-    | `rgba(r, g, b, a) =>
-      Lab.fromRGB((r, g, b, a)) |> (((l, _a, _b, _al)) => l > 50.)
+    | `rgb(r, g, b) => Lab.fromRGB((r, g, b)) |> (((l, _a, _b)) => l > 50.)
+    | `rgba(r, g, b, _a) =>
+      Lab.fromRGB((r, g, b)) |> (((l, _a, _b)) => l > 50.)
     | _ => true
     };
 
@@ -92,5 +91,55 @@ module Font = {
 
   let fontSize = (~baseFontSize=14, ~factor=1.25, n) => {
     factor *. baseFontSize->float_of_int ** n->float_of_int;
+  };
+};
+
+module Hooks = {
+  let setBodyStyle: Js.Json.t => unit = [%raw
+    rule => "{
+  let k = Object.keys(rule)[0].replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+  window.document.body.style[k] = rule[Object.keys(rule)[0]]
+  }"
+  ];
+  type listenerId;
+  type mediaQueryList = {
+    .
+    "matches": bool,
+    "addListener": [@bs.meth] ((unit => unit) => listenerId),
+    "removeListener": [@bs.meth] (listenerId => unit),
+  };
+  [@bs.val] [@bs.scope "window"]
+  external matchMedia: string => mediaQueryList = "matchMedia";
+
+  // Hook
+  let useMatchesMedia = query => {
+    // Array containing a media query list for each query
+    let mql = matchMedia(query);
+
+    // State and setter for matched value
+    let (value, setValue) = React.useState(() => mql##matches);
+
+    React.useLayoutEffect1(
+      () => {
+        let handler = mql##addListener(() => setValue(_ => mql##matches));
+        Some(() => mql##removeListener(handler));
+      },
+      [||],
+    );
+
+    value;
+  };
+
+  let usePrefersDarkMode = () =>
+    useMatchesMedia("(prefers-color-scheme: dark)");
+
+  let useBodyStyle = rules => {
+    React.useLayoutEffect1(
+      () => {
+        List.map(rule => setBodyStyle(Css.toJson([rule])), rules) |> ignore;
+        None;
+      },
+      rules |> Array.of_list,
+    );
   };
 };

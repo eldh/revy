@@ -5,7 +5,7 @@ let make =
     (
       ~tag="div",
       ~a11yTitle as _a11yTitle=?,
-      ~style as styleProp=[],
+      ~style as style_=[],
       ~align=`flexStart,
       ~alignSelf=`flexStart,
       ~alignContent=`flexStart,
@@ -16,18 +16,17 @@ let make =
       ~shrink=0,
       ~justify=`flexStart,
       ~direction=`column,
-      ~p=Theme.padding(NoSpace),
-      ~m=Theme.margin(NoSpace),
+      ~p=Theme.Space.NoSpace,
+      ~m=Theme.Space.NoSpace,
       ~h=`auto,
       ~w=Theme.Layout.Auto,
       ~overflow=`auto,
       ~borderRadius=Css.px(0),
       ~onPress=?,
-      ~domProps=Js.Obj.empty(),
+      ~domProps=?,
       ~children=?,
       (),
     ) => {
-  
   let style =
     [
       Box.useBoxStyle(
@@ -49,8 +48,8 @@ let make =
         ~borderRadius,
         (),
       ),
-      styleProp,
+      style_,
     ]
-    ->List.concat;
+    |>List.concat;
   <View tag style domProps onPress> children </View>;
 };

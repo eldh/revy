@@ -1,81 +1,112 @@
-
-let highlightShadow =
-  ThemeUtil.Style.shadows(
-    Css.[
-      boxShadow(~y=px(-1), ~blur=px(0), ~inset=true, hsla(0, 0, 100, 0.2)),
-      boxShadow(~y=px(1), ~blur=px(0), ~inset=true, hsla(0, 0, 0, 0.2)),
-    ],
-  );
+// let highlightShadow =
+//   ThemeUtil.Style.shadows(
+//     Css.[
+//       boxShadow(~y=px(-1), ~blur=px(0), ~inset=true, hsla(0, 0, 100, 0.2)),
+//       boxShadow(~y=px(1), ~blur=px(0), ~inset=true, hsla(0, 0, 0, 0.2)),
+//     ],
+//   );
 
 let useInputStyles = (~m, ()) => {
-  let theme = React.useContext(ThemeContext.context);
-  let styleStyles =
-    switch (Theme.Flat) {
-    | Flat => []
-    | Raised => [highlightShadow]
-    | Layers =>
-      Css.[
-        boxShadow(
-          ~y=px(3),
-          ~blur=px(5),
-          ~inset=true,
-          hsla(0, 0, 0, 0.15),
-        ),
-      ]
-    };
   Theme.(
     Css.[
-      [
-        Css.padding2(
-          ~v=theme.space(~borderAdjust=0, Space.Single),
-          ~h=theme.space(~borderAdjust=0, Space.Single),
+      Css.padding2(
+        ~v=Styles.useSpace(~borderAdjust=0, Space.Single),
+        ~h=Styles.useSpace(~borderAdjust=0, Space.Single),
+      ),
+      textDecoration(`none),
+      cursor(`pointer),
+      lineHeight(Styles.useLineHeight(~fontSize=Styles.useFontSize(0), ())),
+      fontSize(Styles.useFontSize(0)),
+      fontFamily(Styles.useFontFamily(Theme.Type.Body)),
+      borderWidth(px(0)),
+      borderColor(Styles.useColor(Color.Transparent)),
+      borderRadius(Css.px(6)),
+      borderStyle(`solid),
+      Styles.useMargin(m),
+      backgroundColor(
+        Styles.useIsLight()
+          ? Css.rgba(0, 0, 0, 0.05) : Css.rgba(255, 255, 255, 0.05),
+      ),
+      color(Styles.useColor(Color.BodyText)),
+      boxShadow(
+        ~y=px(0),
+        ~blur=px(0),
+        ~spread=px(1),
+        ~inset=true,
+        Styles.useIsLight()
+          ? Css.rgba(0, 0, 0, 0.07) : Css.rgba(255, 255, 255, 0.07),
+      ),
+      focus([
+        outlineStyle(`none),
+        boxShadow(
+          ~y=px(0),
+          ~blur=px(0),
+          ~spread=px(1),
+          ~inset=true,
+          Styles.useColor(Color.Primary),
         ),
-        textDecoration(`none),
-        cursor(`pointer),
-        lineHeight(theme.lineHeight(~fontSize=theme.fontSize(0), ())),
-        fontSize(theme.fontSize(0)),
-        fontFamily(theme.fontFamily(Theme.Type.Body)),
-        borderWidth(px(0)),
-        borderColor(theme.color(Color.Transparent)),
-        borderRadius(theme.space(Theme.Space.Single)),
-        borderStyle(`solid),
-        backgroundColor(theme.color(~highlight=20, Color.BodyBackground)),
-        color(theme.color(Color.BodyText)),
-        focus([
-          outlineStyle(`none),
-          borderColor(theme.color(Color.Primary)),
-        ]),
-        // highlightShadow,
-      ],
-      Theme.Styles.margin(theme, m),
-      styleStyles,
+      ]),
+      disabled([opacity(0.7)]),
     ]
-    ->List.concat
-    ->Css.style
   );
 };
+module Input = {
+  [@react.component]
+  let make =
+      (
+        ~onClick as _=?,
+        ~onChange,
+        ~label,
+        ~id="",
+        ~type_="text",
+        ~disabled=false,
+        ~styles=?,
+        ~onFocus=ignore,
+        ~onBlur=ignore,
+        ~placeholder="",
+        ~m=Theme.Space.NoSpace,
+        ~value,
+        (),
+      ) => {
+    <input
+      value
+      id
+      placeholder
+      disabled
+      onChange
+      onFocus
+      onBlur
+      label
+      className={
+        (
+          switch (styles) {
+          | None => useInputStyles(~m, ())
+          | Some(l) => [useInputStyles(~m, ()), l] |> List.concat
+          }
+        )
+        |> Css.style
+      }
+      type_
+    />;
+  };
+};
 
-[@react.component]
-let make =
-    (
-      ~onClick as _=?,
-      ~onChange,
-      ~type_="text",
-      ~disabled=false,
-      ~onFocus=ignore,
-      ~onBlur=ignore,
-      ~placeholder="",
-      ~m=Theme.margin(NoSpace),
-      ~value,
-      (),
-    ) => {
-  <input
-    value
-    placeholder
-    disabled
-    onChange
-    onFocus
-    className={useInputStyles(~m, ())}
-    type_
-  />;
+module Label = {
+  [@react.component]
+  let make = (~children, ~htmlFor, ()) => {
+    <label
+      htmlFor
+      className={
+        Text.useTextStyles(
+          ~size=-1,
+          ~color=Theme.Color.QuietText,
+          ~lineHeight=1,
+          ~weight=Theme.Type.Normal,
+          (),
+        )
+        |> Css.style
+      }>
+      children
+    </label>;
+  };
 };

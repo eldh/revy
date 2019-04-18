@@ -1,11 +1,6 @@
 [@bs.config {jsx: 3}];
 
 [@bs.send] external blur: Js.t({..}) => unit = "blur";
-let highlightBoxShadow =
-  Css.unsafe(
-    "box-shadow",
-    "0 1px 0 hsla(0,0%,100%, 0.2) inset, 0 -1px 0 hsla(0,0%,0%, 0.2) inset",
-  );
 
 type variant =
   | Error
@@ -21,24 +16,29 @@ type size =
 
 let useButtonStyles =
     (~variant, ~outline as outline_, ~m, ~size, ~disabled as _disabled_, ()) => {
-  let theme = React.useContext(ThemeContext.context);
   // TODO fix
   let (btnFontSize, paddingV, paddingH) =
     Theme.(
       switch (size) {
-      | Small => (theme.fontSize(-1), Space.Half, Space.Single)
-      | Medium => (theme.fontSize(0), Space.Single, Space.Double)
-      | Large => (theme.fontSize(1), Space.Double, Space.Triple)
+      | Small => (Theme.Styles.useFontSize(-1), Space.Half, Space.Single)
+      | Medium => (Theme.Styles.useFontSize(0), Space.Single, Space.Double)
+      | Large => (Theme.Styles.useFontSize(1), Space.Double, Space.Triple)
       }
     );
   let sharedStyles =
     Css.[
-      padding2(~v=theme.space(paddingV), ~h=theme.space(paddingH)),
+      padding2(
+        ~v=Theme.Styles.useSpace(paddingV),
+        ~h=Theme.Styles.useSpace(paddingH),
+      ),
       textDecoration(`none),
+      textAlign(`center),
+      alignContent(`center),
+      flexGrow(0.),
       cursor(`pointer),
       transition(~duration=200, "all"),
       fontSize(btnFontSize),
-      lineHeight(theme.lineHeight(~fontSize=btnFontSize, ())),
+      lineHeight(Theme.Styles.useLineHeight(~fontSize=btnFontSize, ())),
       fontWeight(`bold),
     ];
   let variantStyles = v => {
@@ -46,11 +46,11 @@ let useButtonStyles =
     let (textVariant, bgVariant) =
       outline_
         ? switch (v) {
-          | Warning => (Theme.Color.Warning, Theme.Color.BodyBackground)
-          | Error => (Theme.Color.Error, Theme.Color.BodyBackground)
-          | Success => (Theme.Color.Success, Theme.Color.BodyBackground)
-          | Primary => (Theme.Color.Primary, Theme.Color.BodyBackground)
-          | Secondary => (Theme.Color.Secondary, Theme.Color.BodyBackground)
+          | Warning => (Theme.Color.Warning, Theme.Color.Transparent)
+          | Error => (Theme.Color.Error, Theme.Color.Transparent)
+          | Success => (Theme.Color.Success, Theme.Color.Transparent)
+          | Primary => (Theme.Color.Primary, Theme.Color.Transparent)
+          | Secondary => (Theme.Color.Secondary, Theme.Color.Transparent)
           }
         : (
           switch (v) {
@@ -64,49 +64,72 @@ let useButtonStyles =
     let styleStyles =
       switch (Theme.Flat) {
       | _ => [
-          boxShadow(
-            ~y=px(0),
-            ~inset=true,
-            ~spread=px(1),
-            ~blur=px(0),
-            outline_
-              ? Css.transparent : theme.color(~highlight=10, bgVariant),
-          ),
-          borderColor(theme.color(~highlight=10, textVariant)),
-          borderWidth(px(outline_ ? 2 : 0)),
+          outline_
+            ? boxShadow(
+                ~y=px(0),
+                ~inset=true,
+                ~spread=px(2),
+                ~blur=px(0),
+                Theme.Styles.useColor(~highlight=50, textVariant),
+              )
+            : boxShadow(
+                ~y=px(0),
+                ~inset=true,
+                ~spread=px(1),
+                ~blur=px(0),
+                Theme.Styles.useColor(~highlight=15, bgVariant),
+              ),
+          // boxShadow(
+          //   ~y=px(0),
+          //   ~inset=true,
+          //   ~spread=px(1),
+          //   ~blur=px(0),
+          //   outline_
+          //     ? Css.transparent : Theme.Styles.useColor(~highlight=10, bgVariant),
+          // ),
+          // borderColor(Theme.Styles.useColor(~highlight=10, textVariant)),
+          borderWidth(px(0)),
           borderStyle(`solid),
         ]
-      // | Raised => [borderWidth(px(0)), highlightBoxShadow]
-      // | Layers => [
-      //     boxShadow(~y=px(4), ~blur=px(5), hsla(0, 0, 0, 0.15)),
-      //     borderWidth(px(0)),
-      //   ]
       };
+    let outlineHighlightBg =
+      Theme.Styles.useIsLight() ? rgba(0, 0, 0) : rgba(255, 255, 255);
 
     [
-      fontFamily(theme.fontFamily(Theme.Type.Body)),
-      color(theme.color(textVariant)),
-      borderRadius(theme.space(Theme.Space.Single)),
+      fontFamily(Theme.Styles.useFontFamily(Theme.Type.Body)),
+      color(
+        Theme.Styles.useColor(~highlight=outline_ ? 50 : 0, textVariant),
+      ),
+      borderRadius(Css.px(6)),
       textTransform(`uppercase),
-      backgroundColor(theme.color(bgVariant)),
+      backgroundColor(Theme.Styles.useColor(bgVariant)),
       hover([
         backgroundColor(
-          theme.color(~highlight=outline_ ? 15 : (-20), bgVariant),
+          outline_
+            ? outlineHighlightBg(0.05)
+            : Theme.Styles.useColor(~highlight=-20, bgVariant),
         ),
       ]),
       disabled([
         opacity(0.7),
-        hover([backgroundColor(theme.color(bgVariant))])]),
+        hover([backgroundColor(Theme.Styles.useColor(bgVariant))]),
+      ]),
       focus([
         outlineStyle(`none),
-        backgroundColor(theme.color(~highlight=30, bgVariant)),
+        backgroundColor(
+          outline_
+            ? outlineHighlightBg(0.1)
+            : Theme.Styles.useColor(~highlight=30, bgVariant),
+        ),
       ]),
-      active([backgroundColor(theme.color(~highlight=20, bgVariant))]),
+      active([
+        backgroundColor(Theme.Styles.useColor(~highlight=20, bgVariant)),
+      ]),
+      Theme.Styles.useMargin(m),
       ...styleStyles,
     ];
   };
-  [Theme.Styles.margin(theme, m), sharedStyles, variantStyles(variant)]
-  ->List.concat;
+  [sharedStyles, variantStyles(variant)] |> List.concat;
 };
 
 [@react.component]
@@ -118,7 +141,7 @@ let make =
       ~disabled=false,
       ~outline=false,
       ~onlyFocusOnTab=true,
-      ~m=Theme.margin(NoSpace),
+      ~m=Theme.Space.(NoSpace),
       ~children,
       (),
     ) => {
@@ -146,7 +169,7 @@ module Link = {
         ~disabled=false,
         ~outline=false,
         ~size=Medium,
-        ~m=Theme.margin(NoSpace),
+        ~m=Theme.Space.(NoSpace),
         ~onlyFocusOnTab=true,
         ~children,
         (),
@@ -162,7 +185,7 @@ module Link = {
           let target = e->ReactEvent.Mouse.currentTarget;
           blur(target);
         };
-        onClick();
+        onClick(e);
       }}>
       children
     </a>;

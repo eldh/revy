@@ -104,13 +104,14 @@ module Layout = {
     | Third
     | Half
     | Full
-    | Px(int)
+    | Css(cssWidth)
     | Auto
     | Responsive(t, t, t);
 };
 
 module Space = {
   type t =
+    | Auto
     | NoSpace
     | Half
     | Single
@@ -142,7 +143,6 @@ module Color = {
     | Warning
     | Error
     | BodyBackground
-    | HighlightBackground
     | PrimaryText
     | SecondaryText
     | WarningText
@@ -167,6 +167,9 @@ type padding =
   | Padding4(Space.t, Space.t, Space.t, Space.t)
   | ResponsivePadding(padding, padding, padding);
 
+/**
+  Base type for themes
+ */
 type t = {
   color: (~alpha: float=?, ~highlight: int=?, Color.t) => Css.color,
   // length: length => Css.length,
@@ -174,6 +177,7 @@ type t = {
   fontSize: int => cssFontSize,
   fontWeight: Type.fontWeight => cssFontWeight,
   width: int,
+  isLight: bool,
   space: (~borderAdjust: int=?, Space.t) => Css.length,
   lineHeight:
     (~fontSize: cssFontSize=?, ~extraHeight: int=?, unit) => cssLineHeight,
@@ -216,7 +220,6 @@ let cssMargin4 = (~top, ~bottom, ~left, ~right) =>
   );
 
 let responsive = (_theme, (s, m, l)) => {
-
   Css.[media("(min-width: 30em)", m), media("(min-width: 50em)", l), ...s];
 };
 
@@ -229,7 +232,177 @@ let padding2 = (~v, ~h) => Padding2(v, h);
 let padding4 = (~top, ~bottom, ~left, ~right) =>
   Padding4(top, bottom, left, right);
 
+let make =
+    (
+      ~fontScale: float,
+      ~fonts as fontsArg: fonts,
+      ~colors as colorsArg: colors,
+      ~baseFontSize: int,
+      ~baseGridUnit: int,
+      ~gridWidth=960,
+      (),
+    ) => {
+  open Css;
+
+  let isLight = ThemeUtil.Color.isLight(colorsArg.bodyBackground);
+
+  let color = (~alpha=1., ~highlight=0, v) => {
+    open Color;
+    let highlightFn =
+      (isLight ? ThemeUtil.Color.darken : ThemeUtil.Color.lighten)(highlight);
+    (
+      switch (v) {
+      | Primary => colorsArg.primary
+      | Secondary => colorsArg.secondary
+      | Success => colorsArg.success
+      | Warning => colorsArg.warning
+      | Error => colorsArg.error
+      | BodyBackground => colorsArg.bodyBackground
+      | PrimaryText => colorsArg.primaryText
+      | SecondaryText => colorsArg.secondaryText
+      | WarningText => colorsArg.warningText
+      | ErrorText => colorsArg.errorText
+      | SuccessText => colorsArg.successText
+      | BodyText => colorsArg.bodyText
+      | QuietText => colorsArg.quietText
+      | Transparent => `transparent
+      | EscapeHatch(c) => c
+      }
+    )
+    |> highlightFn
+    |> (
+      switch (alpha) {
+      | 1. => (a => a)
+      | a => ThemeUtil.Color.alpha(a)
+      }
+    );
+  };
+
+  let fontFamily = v =>
+    Type.(
+      switch (v) {
+      | Title => fontsArg.title
+      | Mono => fontsArg.mono
+      | Body => fontsArg.body
+      | Alt => fontsArg.alt
+      }
+    )
+    |> String.concat(", ");
+
+  let fontSize = n => {
+    (fontScale ** n->float_of_int *. baseFontSize->float_of_int)
+    ->int_of_float
+    ->px;
+  };
+  let fontWeight = v => {
+    Type.(
+      switch (v) {
+      | ExtraLight => `extraLight
+      | Light => `light
+      | Bold => `bold
+      | Normal => `normal
+      | ExtraBold => `extraBold
+      }
+    );
+  };
+
+  let space = (~borderAdjust=0, v) => {
+    let length = v => px(baseGridUnit * v - borderAdjust);
+    switch (v) {
+    | Space.Auto => Obj.magic(Css.auto)
+    | NoSpace => Css.px(0)
+    | Half => 1->length
+    | Single => 2->length
+    | Double => 3->length
+    | Triple => 4->length
+    | Responsive(_, _, _) => 6->length // TODO Fix
+    };
+  };
+
+  let rec findMinStep = (test, i) => {
+    test(i) ? i : findMinStep(test, i + 1);
+  };
+
+  let getPx = v =>
+    switch (v) {
+    | `px(i) => i
+    | _ => raise(InvalidValue("Not a pixel value"))
+    };
+
+  let lineHeight = (~fontSize=px(0), ~extraHeight=0, _) => {
+    let length = v => px(baseGridUnit * v);
+    let va =
+      findMinStep(
+        i =>
+          (i * baseGridUnit)->float_of_int > fontSize->getPx->float_of_int
+          *. 1.25,
+        0,
+      );
+    (va + extraHeight)->length;
+  };
+
+  let width = gridWidth;
+
+  {
+    color,
+    fontFamily,
+    fontSize,
+    fontWeight,
+    isLight,
+    lineHeight,
+    space,
+    width,
+  };
+};
+module DefaultTheme = {
+  let theme =
+    make(
+      ~fontScale=1.25,
+      ~baseFontSize=14,
+      ~baseGridUnit=5,
+      ~fonts={
+        body: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        title: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        mono: ["monospace"],
+        alt: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],
+      },
+      ~colors=
+        Css.{
+          primary: Lab.(fromRGB((36, 133, 222)) |> lighten(25) |> toCssRGB),
+          primaryText: rgb(0, 0, 0),
+          secondary:
+            Lab.(fromRGB((20, 10, 0)) |> lighten(25) |> toCssRGB),
+          secondaryText: rgb(255, 255, 255),
+          warning: Lab.(fromRGB((214, 149, 5)) |> lighten(25) |> toCssRGB),
+          warningText: rgb(0, 0, 0),
+          success: Lab.(fromRGB((44, 173, 2)) |> lighten(25) |> toCssRGB),
+          successText: rgb(0, 0, 0),
+          error: Lab.(fromRGB((211, 26, 26)) |> lighten(25) |> toCssRGB),
+          errorText: rgb(0, 0, 0),
+          bodyBackground: rgb(255, 255, 255),
+          bodyText: rgb(40, 40, 40),
+          quietText: rgb(70, 70, 70),
+        },
+      (),
+    );
+};
+
+module Context = {
+  let context = React.createContext(DefaultTheme.theme);
+  let provider = React.Context.provider(context);
+
+  module Provider = {
+    [@react.component]
+    let make = (~value, ~children) => {
+      EscapeHatch.use(
+        Obj.magic(provider),
+        {"value": value, "children": children},
+      );
+    };
+  };
+};
 module Styles = {
+  let marginSpace = (theme, v) => Obj.magic(theme.space(v));
   let rec marginStyles_ = (theme, p) => {
     let marginSpace = v => Obj.magic(theme.space(v));
     switch (p) {
@@ -292,7 +465,7 @@ module Styles = {
     | Half => Css.[width(pct(100. /. 2.))]
     | Full => Css.[maxWidth(px(w)), width(pct(100.))]
     | Auto => Css.[width(`auto)]
-    | Px(i) => Css.[width(px(i))]
+    | Css(i) => Css.[width(i)]
     | Responsive(s, m, l) =>
       responsive(
         theme,
@@ -304,115 +477,72 @@ module Styles = {
       )
     };
   };
-  let padding = paddingStyles_;
-  let margin = marginStyles_;
-  let width = widthStyles_;
-};
 
-let make =
-    (
-      ~fontScale: float,
-      ~fonts as fontsArg: fonts,
-      ~colors as colorsArg: colors,
-      ~baseFontSize: int,
-      ~baseGridUnit: int,
-      ~gridWidth=960,
-      (),
-    ) => {
-  open Css;
-
-  let color = (~alpha as _=?, ~highlight=0, v) => {
-    open Color;
-    let fn =
-      ThemeUtil.Color.(isLight(colorsArg.bodyBackground) ? darken : lighten)(
-        highlight,
-      );
-    switch (v) {
-    | Primary => fn(colorsArg.primary)
-    | Secondary => fn(colorsArg.secondary)
-    | Success => fn(colorsArg.success)
-    | Warning => fn(colorsArg.warning)
-    | Error => fn(colorsArg.error)
-    | BodyBackground => fn(colorsArg.bodyBackground)
-    | HighlightBackground =>
-      fn(ThemeUtil.Color.highlight(10, colorsArg.bodyBackground))
-    | PrimaryText => fn(colorsArg.primaryText)
-    | SecondaryText => fn(colorsArg.secondaryText)
-    | WarningText => fn(colorsArg.warningText)
-    | ErrorText => fn(colorsArg.errorText)
-    | SuccessText => fn(colorsArg.successText)
-    | BodyText => fn(colorsArg.bodyText)
-    | QuietText => fn(colorsArg.quietText)
-    | Transparent => fn(`transparent)
-    | EscapeHatch(c) => fn(c)
-    };
+  let usePadding = p => {
+    let theme = React.useContext(Context.context);
+    Css.padding(theme.space(p));
   };
 
-  let fontFamily = v =>
-    Type.(
-      switch (v) {
-      | Title => fontsArg.title
-      | Mono => fontsArg.mono
-      | Body => fontsArg.body
-      | Alt => fontsArg.alt
-      }
-    )
-    |> String.concat(", ");
-
-  let fontSize = n => {
-    (fontScale ** n->float_of_int *. baseFontSize->float_of_int)
-    ->int_of_float
-    ->px;
+  let useMargin = m => {
+    let space = marginSpace(React.useContext(Context.context));
+    Css.margin(space(m));
   };
-  let fontWeight = v => {
-    Type.(
-      switch (v) {
-      | ExtraLight => `extraLight
-      | Light => `light
-      | Bold => `bold
-      | Normal => `normal
-      | ExtraBold => `extraBold
-      }
+  let usePadding2 = (~v, ~h) => {
+    let theme = React.useContext(Context.context);
+    Css.padding2(~v=theme.space(v), ~h=theme.space(h));
+  };
+
+  let useMargin2 = (~v, ~h) => {
+    let space = marginSpace(React.useContext(Context.context));
+    Css.margin2(~v=space(v), ~h=space(h));
+  };
+  let usePadding4 = (~top, ~bottom, ~left, ~right) => {
+    let theme = React.useContext(Context.context);
+    Css.padding4(
+      ~top=theme.space(top),
+      ~bottom=theme.space(bottom),
+      ~left=theme.space(left),
+      ~right=theme.space(right),
+    );
+  };
+  let margin4 = (~top, ~bottom, ~left, ~right) => {
+    let space = marginSpace(React.useContext(Context.context));
+    Css.margin4(
+      ~top=space(top),
+      ~bottom=space(bottom),
+      ~left=space(left),
+      ~right=space(right),
     );
   };
 
-  let space = (~borderAdjust=0, v) => {
-    let length = v => px(baseGridUnit * v - borderAdjust);
-    Space.(
-      switch (v) {
-      | NoSpace => Css.px(0)
-      | Half => 1->length
-      | Single => 2->length
-      | Double => 3->length
-      | Triple => 4->length
-      | Responsive(_, _, _) => 6->length // TODO Fix
-      }
-    );
+  /** Width styles yo */
+  let useWidth = w => widthStyles_(React.useContext(Context.context), w);
+
+  let useColor = (~highlight=0, ~alpha=1., color) => {
+    React.useContext(Context.context).color(~highlight, ~alpha, color);
   };
 
-  let rec findMinStep = (test, i) => {
-    test(i) ? i : findMinStep(test, i + 1);
+  let useSpace = (~borderAdjust=0, space) => {
+    React.useContext(Context.context).space(~borderAdjust, space);
   };
 
-  let getPx = v =>
-    switch (v) {
-    | `px(i) => i
-    | _ => raise(InvalidValue("Not a pixel value"))
-    };
-
-  let lineHeight = (~fontSize=px(0), ~extraHeight=0, _) => {
-    let length = v => px(baseGridUnit * v);
-    let va =
-      findMinStep(
-        i =>
-          (i * baseGridUnit)->float_of_int > fontSize->getPx->float_of_int
-          *. 1.25,
-        0,
-      );
-    (va + extraHeight)->length;
+  let useFontFamily = f => {
+    React.useContext(Context.context).fontFamily(f);
   };
 
-  let width = gridWidth;
+  let useFontSize = f => {
+    React.useContext(Context.context).fontSize(f);
+  };
 
-  {color, space, lineHeight, width, fontFamily, fontSize, fontWeight};
+  let useFontWeight = f => {
+    React.useContext(Context.context).fontWeight(f);
+  };
+
+  let useLineHeight = (~fontSize=Css.px(0), ~extraHeight=0, f) => {
+    React.useContext(Context.context).lineHeight(~fontSize, ~extraHeight, f);
+  };
+
+  let useIsLight = () => {
+    React.useContext(Context.context).isLight;
+  };
 };

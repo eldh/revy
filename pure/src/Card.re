@@ -1,21 +1,42 @@
-[@bs.send] external blur: Js.t({..}) => unit = "blur";
+[@bs.config {jsx: 3}];
 
-  [@react.component]
-  let make = (~children, ()) => {
-      <button
-        className=Css.(
-          style([
-            borderWidth(px(0)),
-            cursor(`pointer),
-            fontWeight(`bold),
-            focus([
-              outlineStyle(`none),
-              backgroundColor(rgb(20, 150, 70)),
-            ]),
-            active([backgroundColor(rgb(200, 200, 200))]),
-          ])
-        )>
-        children
-      </button>
-    ;
-  };
+let useCardStyle = (~p, ~m, ()) => {
+  Css.[
+    backgroundColor(
+      Theme.Styles.useColor(~highlight=15, Theme.Color.BodyBackground),
+    ),
+    flexWrap(`wrap),
+    borderRadius(Css.px(6)),
+    borderWidth(px(1)),
+    borderColor(
+      Theme.Styles.useColor(~highlight=25, Theme.Color.BodyBackground),
+    ),
+    borderStyle(`solid),
+    boxShadow(
+      ~y=px(4),
+      ~blur=px(10),
+      hsla(0, 0, 0, Theme.Styles.useIsLight() ? 0.15 : 0.45),
+    ),
+    Theme.Styles.useMargin(m),
+    Theme.Styles.usePadding(p),
+  ];
+};
+
+[@react.component]
+let make =
+    (
+      ~tag="div",
+      ~a11yTitle as _a11yTitle=?,
+      ~style as style_=[],
+      ~color=Theme.Color.PrimaryText,
+      ~grow=1.,
+      ~p=(Theme.Space.Single),
+      ~m=(Theme.Space.NoSpace),
+      ~domProps=?,
+      ~children=?,
+      (),
+    ) => {
+  let style = [useCardStyle(~p, ~m, ()), style_]|>List.concat;
+
+  <View tag style domProps> children </View>;
+};

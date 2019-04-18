@@ -3,22 +3,25 @@ exception InvalidValue(string);
 let useTextStyles =
     (
       ~size,
-      ~color as colorProp,
-      ~lineHeight as lineHeightProp,
-      ~weight as weightProp,
+      ~color as color_,
+      ~lineHeight as lineHeight_,
+      ~weight as weight_,
       (),
     ) => {
-  let theme = React.useContext(ThemeContext.context);
-  let sizeVal = theme.fontSize(size);
+  let sizeVal = Theme.Styles.useFontSize(size);
   Css.[
-    color(theme.color(colorProp)),
+    color(Theme.Styles.useColor(color_)),
     fontSize(sizeVal),
     overflow(`hidden),
-    fontFamily(theme.fontFamily(Theme.Type.Body)),
+    fontFamily(Theme.Styles.useFontFamily(Theme.Type.Body)),
     lineHeight(
-      theme.lineHeight(~fontSize=sizeVal, ~extraHeight=lineHeightProp, ()),
+      Theme.Styles.useLineHeight(
+        ~fontSize=sizeVal,
+        ~extraHeight=lineHeight_,
+        (),
+      ),
     ),
-    fontWeight(theme.fontWeight(weightProp)),
+    fontWeight(Theme.Styles.useFontWeight(weight_)),
   ];
 };
 
@@ -27,6 +30,7 @@ let make =
     (
       ~weight=Theme.Type.Normal,
       ~size=0,
+      ~tag="span",
       ~style=?,
       ~lineHeight=0,
       ~color=Theme.Color.BodyText,
@@ -34,18 +38,21 @@ let make =
       (),
     ) => {
   let styles = useTextStyles(~size, ~lineHeight, ~weight, ~color, ());
-  <span
-    className={
-      (
-        switch (style) {
-        | Some(p) => [styles, p]->List.concat
-        | None => styles
-        }
-      )
-      ->Css.style
-    }>
-    children
-  </span>;
+  EscapeHatch.use(
+    tag,
+    {
+      "class": {
+        (
+          switch (style) {
+          | Some(p) => [styles, p] |> List.concat
+          | None => styles
+          }
+        )
+        |> Css.style;
+      },
+      "children": children,
+    },
+  );
 };
 
 module String = {
@@ -53,6 +60,7 @@ module String = {
   let make =
       (
         ~weight=Theme.Type.Normal,
+        ~tag="span",
         ~size=0,
         ~style=?,
         ~lineHeight=0,
@@ -61,17 +69,20 @@ module String = {
         (),
       ) => {
     let styles = useTextStyles(~size, ~lineHeight, ~weight, ~color, ());
-    <span
-      className={
-        (
-          switch (style) {
-          | Some(p) => [styles, p]->List.concat
-          | None => styles
-          }
-        )
-        ->Css.style
-      }>
-      children->React.string
-    </span>;
+    EscapeHatch.use(
+      tag,
+      {
+        "className": {
+          (
+            switch (style) {
+            | Some(p) => [styles, p] |> List.concat
+            | None => styles
+            }
+          )
+          |> Css.style;
+        },
+        "children": children |> React.string,
+      },
+    );
   };
 };
