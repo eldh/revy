@@ -22,5 +22,8 @@ Pre-alpha. Still figuring out the details. No docs as of yet.
 ## Todos
 
 - Better high level color utils (makeReadable, mix, tint, etc)
+- Motion stuff
+- Elevation helpers (box-shadow etc)
+- Perf improvments
 - More components
 - Figure out separation between theming and component library

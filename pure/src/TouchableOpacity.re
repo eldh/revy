@@ -1,4 +1,4 @@
-[@bs.config {jsx: 3}];
+[@bs.send] external blur: Js.t({..}) => unit = "blur";
 
 [@react.component]
 let make =
@@ -7,7 +7,7 @@ let make =
       ~a11yTitle as _a11yTitle=?,
       ~style as style_=[],
       ~align=`flexStart,
-      ~alignSelf=`flexStart,
+      ~alignSelf=`auto,
       ~alignContent=`flexStart,
       ~backgroundColor=Theme.Color.Transparent,
       ~color=Theme.Color.PrimaryText,
@@ -16,8 +16,9 @@ let make =
       ~shrink=0,
       ~justify=`flexStart,
       ~direction=`column,
-      ~p=Theme.Space.NoSpace,
-      ~m=Theme.Space.NoSpace,
+      ~onlyFocusOnTab=true,
+      ~p=Theme.(Padding(Space.NoSpace)),
+      ~m=Theme.(Margin(Space.NoSpace)),
       ~h=`auto,
       ~w=Theme.Layout.Auto,
       ~overflow=`auto,
@@ -50,6 +51,26 @@ let make =
       ),
       style_,
     ]
-    |>List.concat;
-  <View tag style domProps onPress> children </View>;
+    |> List.concat;
+  <View
+    tag
+    style
+    domProps
+    onPress={
+      switch (onPress) {
+      | Some(fn) =>
+        Some(
+          e => {
+            if (onlyFocusOnTab) {
+              let target = e->ReactEvent.Mouse.currentTarget;
+              blur(target);
+            };
+            fn(e);
+          },
+        )
+      | None => None
+      }
+    }>
+    children
+  </View>;
 };

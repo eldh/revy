@@ -1,7 +1,3 @@
-[@bs.config {jsx: 3}];
-
-[@bs.send] external blur: Js.t({..}) => unit = "blur";
-
 type variant =
   | Error
   | Warning
@@ -125,11 +121,11 @@ let useButtonStyles =
       active([
         backgroundColor(Theme.Styles.useColor(~highlight=20, bgVariant)),
       ]),
-      Theme.Styles.useMargin(m),
       ...styleStyles,
     ];
   };
-  [sharedStyles, variantStyles(variant)] |> List.concat;
+  [Theme.Styles.useMargin(m), sharedStyles, variantStyles(variant)]
+  |> List.concat;
 };
 
 [@react.component]
@@ -141,20 +137,15 @@ let make =
       ~disabled=false,
       ~outline=false,
       ~onlyFocusOnTab=true,
-      ~m=Theme.Space.(NoSpace),
+      ~m=Theme.(Margin(Space.NoSpace)),
       ~children,
       (),
     ) => {
   <TouchableOpacity
     tag="button"
+    onlyFocusOnTab
     style={useButtonStyles(~variant, ~outline, ~m, ~size, ~disabled, ())}
-    onPress={e => {
-      if (onlyFocusOnTab) {
-        let target = e->ReactEvent.Mouse.currentTarget;
-        blur(target);
-      };
-      onClick();
-    }}
+    onPress=onClick
     domProps={"disabled": disabled}>
     children
   </TouchableOpacity>;
@@ -169,7 +160,7 @@ module Link = {
         ~disabled=false,
         ~outline=false,
         ~size=Medium,
-        ~m=Theme.Space.(NoSpace),
+        ~m=Theme.(Margin(Space.NoSpace)),
         ~onlyFocusOnTab=true,
         ~children,
         (),
@@ -182,8 +173,8 @@ module Link = {
       }
       onClick={e => {
         if (onlyFocusOnTab) {
-          let target = e->ReactEvent.Mouse.currentTarget;
-          blur(target);
+          let target = e |> ReactEvent.Mouse.currentTarget;
+          target |> TouchableOpacity.blur;
         };
         onClick(e);
       }}>

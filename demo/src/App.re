@@ -31,21 +31,17 @@ let make = () => {
   };
   ThemeUtil.Hooks.useBodyStyle(
     Css.[
-      backgroundColor(themeObj.color(Theme.Color.BodyBackground)),
+      backgroundColor(themeObj.colors.bodyBackground),
       margin(px(0)),
       padding(px(0)),
     ],
   );
   <Theme.Context.Provider value=themeObj>
-    <Box direction=`row wrap=`nowrap>
-      <>
-        <Sidebar />
-        <Box
-          alignContent=`center
-          style=Css.[maxWidth(Calc.(-)(vw(100.), px(200)))]>
-          <> <Test toggleTheme /> </>
-        </Box>
-      </>
+  <>
+    <Topbar toggleTheme />
+    <Box alignContent=`center m={Theme.Margin(Theme.Space.Auto)}>
+      <Test toggleTheme />
     </Box>
+  </>
   </Theme.Context.Provider>;
 };

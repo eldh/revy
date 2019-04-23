@@ -4,22 +4,25 @@ let make = () => {
   let onChange =
     React.useCallback(e => {
       let v = e->ReactEvent.Form.currentTarget##value;
-      // Js.log2("e", v);
       setValue(_ => v);
     });
   <ComponentsCard title="Inputs">
-    <Box direction=`column m=Theme.Space.Single>
-      <TextInput.Label htmlFor="foo"> "Foo"->React.string </TextInput.Label>
+    <Box
+      direction=`column
+      m=Theme.(Space.(Margin4(NoSpace, NoSpace, Single, Single)))>
+      <TextInput.Label htmlFor="foo"> "Enabled"->React.string </TextInput.Label>
       <TextInput.Input
         label="String"
         id="foo"
-        placeholder="String"
+        placeholder="Type something nice"
         value
         onChange
       />
     </Box>
-    <Box direction=`column m=Theme.Space.Single>
-      <TextInput.Label htmlFor="bar"> "Bar"->React.string </TextInput.Label>
+    <Box
+      direction=`column
+      m=Theme.(Space.(Margin4(NoSpace, NoSpace, Single, Single)))>
+      <TextInput.Label htmlFor="bar"> "Disabled"->React.string </TextInput.Label>
       <TextInput.Input
         disabled=true
         label="Bar"

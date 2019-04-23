@@ -1,5 +1,6 @@
 {
-  "name": "@eldh/pure",
+  "name": "Pure",
+  // "namespace": true,
   "bsc-flags": ["-bs-no-version-header", "-bs-super-errors"],
   "sources": [
     "src",

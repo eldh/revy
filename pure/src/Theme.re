@@ -117,6 +117,9 @@ module Space = {
     | Single
     | Double
     | Triple
+    | Quad
+    | Quint
+    | Number(int)
     | Responsive(t, t, t);
 };
 
@@ -157,12 +160,20 @@ module Color = {
 type margin =
   | Auto
   | Margin(Space.t)
+  | MarginTop(Space.t)
+  | MarginBottom(Space.t)
+  | MarginLeft(Space.t)
+  | MarginRight(Space.t)
   | Margin2(Space.t, Space.t)
   | Margin4(Space.t, Space.t, Space.t, Space.t)
   | ResponsiveMargin(margin, margin, margin);
 
 type padding =
   | Padding(Space.t)
+  | PaddingTop(Space.t)
+  | PaddingBottom(Space.t)
+  | PaddingLeft(Space.t)
+  | PaddingRight(Space.t)
   | Padding2(Space.t, Space.t)
   | Padding4(Space.t, Space.t, Space.t, Space.t)
   | ResponsivePadding(padding, padding, padding);
@@ -170,18 +181,7 @@ type padding =
 /**
   Base type for themes
  */
-type t = {
-  color: (~alpha: float=?, ~highlight: int=?, Color.t) => Css.color,
-  // length: length => Css.length,
-  fontFamily: Type.font => string,
-  fontSize: int => cssFontSize,
-  fontWeight: Type.fontWeight => cssFontWeight,
-  width: int,
-  isLight: bool,
-  space: (~borderAdjust: int=?, Space.t) => Css.length,
-  lineHeight:
-    (~fontSize: cssFontSize=?, ~extraHeight: int=?, unit) => cssLineHeight,
-};
+
 type fonts = {
   body: list(string),
   title: list(string),
@@ -205,66 +205,42 @@ type colors = {
   quietText: Css.color,
 };
 
-let cssMargin = m => m->Obj.magic->Css.margin;
-let cssMarginLeft = m => m->Obj.magic->Css.marginLeft;
-let cssMarginRight = m => m->Obj.magic->Css.marginRight;
-let cssMarginTop = m => m->Obj.magic->Css.marginTop;
-let cssMarginBottom = m => m->Obj.magic->Css.marginBottom;
-let cssMargin2 = (~v, ~h) => Css.margin2(~v=Obj.magic(v), ~h=Obj.magic(h));
-let cssMargin4 = (~top, ~bottom, ~left, ~right) =>
-  Css.margin4(
-    ~top=Obj.magic(top),
-    ~bottom=Obj.magic(bottom),
-    ~left=Obj.magic(left),
-    ~right=Obj.magic(right),
-  );
+type t = {
+  colors,
+  fonts,
+  fontScale: float,
+  baseFontSize: int,
+  baseGridUnit: int,
+  width: int,
+};
 
 let responsive = (_theme, (s, m, l)) => {
   Css.[media("(min-width: 30em)", m), media("(min-width: 50em)", l), ...s];
 };
+module Private = {
+  let isLight = theme => ThemeUtil.Color.isLight(theme.colors.bodyBackground);
 
-let margin = v => Margin(v);
-let margin2 = (~v, ~h) => Margin2(v, h);
-let margin4 = (~top, ~bottom, ~left, ~right) =>
-  Margin4(top, bottom, left, right);
-let padding = v => Padding(v);
-let padding2 = (~v, ~h) => Padding2(v, h);
-let padding4 = (~top, ~bottom, ~left, ~right) =>
-  Padding4(top, bottom, left, right);
-
-let make =
-    (
-      ~fontScale: float,
-      ~fonts as fontsArg: fonts,
-      ~colors as colorsArg: colors,
-      ~baseFontSize: int,
-      ~baseGridUnit: int,
-      ~gridWidth=960,
-      (),
-    ) => {
-  open Css;
-
-  let isLight = ThemeUtil.Color.isLight(colorsArg.bodyBackground);
-
-  let color = (~alpha=1., ~highlight=0, v) => {
+  let color = (~theme, ~alpha=1., ~highlight=0, v) => {
     open Color;
     let highlightFn =
-      (isLight ? ThemeUtil.Color.darken : ThemeUtil.Color.lighten)(highlight);
+      (theme |> isLight ? ThemeUtil.Color.darken : ThemeUtil.Color.lighten)(
+        highlight,
+      );
     (
       switch (v) {
-      | Primary => colorsArg.primary
-      | Secondary => colorsArg.secondary
-      | Success => colorsArg.success
-      | Warning => colorsArg.warning
-      | Error => colorsArg.error
-      | BodyBackground => colorsArg.bodyBackground
-      | PrimaryText => colorsArg.primaryText
-      | SecondaryText => colorsArg.secondaryText
-      | WarningText => colorsArg.warningText
-      | ErrorText => colorsArg.errorText
-      | SuccessText => colorsArg.successText
-      | BodyText => colorsArg.bodyText
-      | QuietText => colorsArg.quietText
+      | Primary => theme.colors.primary
+      | Secondary => theme.colors.secondary
+      | Success => theme.colors.success
+      | Warning => theme.colors.warning
+      | Error => theme.colors.error
+      | BodyBackground => theme.colors.bodyBackground
+      | PrimaryText => theme.colors.primaryText
+      | SecondaryText => theme.colors.secondaryText
+      | WarningText => theme.colors.warningText
+      | ErrorText => theme.colors.errorText
+      | SuccessText => theme.colors.successText
+      | BodyText => theme.colors.bodyText
+      | QuietText => theme.colors.quietText
       | Transparent => `transparent
       | EscapeHatch(c) => c
       }
@@ -278,23 +254,24 @@ let make =
     );
   };
 
-  let fontFamily = v =>
+  let fontFamily = (~theme, v) =>
     Type.(
       switch (v) {
-      | Title => fontsArg.title
-      | Mono => fontsArg.mono
-      | Body => fontsArg.body
-      | Alt => fontsArg.alt
+      | Title => theme.fonts.title
+      | Mono => theme.fonts.mono
+      | Body => theme.fonts.body
+      | Alt => theme.fonts.alt
       }
     )
     |> String.concat(", ");
 
-  let fontSize = n => {
-    (fontScale ** n->float_of_int *. baseFontSize->float_of_int)
+  let fontSize = (~theme, n) => {
+    (theme.fontScale ** n->float_of_int *. theme.baseFontSize->float_of_int)
     ->int_of_float
-    ->px;
+    ->Css.px;
   };
-  let fontWeight = v => {
+
+  let fontWeight = (~theme as _, v) => {
     Type.(
       switch (v) {
       | ExtraLight => `extraLight
@@ -306,16 +283,20 @@ let make =
     );
   };
 
-  let space = (~borderAdjust=0, v) => {
-    let length = v => px(baseGridUnit * v - borderAdjust);
+  let space = (~theme, ~borderAdjust=0, v) => {
+    open Css;
+    let length = v => px(theme.baseGridUnit * v - borderAdjust);
     switch (v) {
     | Space.Auto => Obj.magic(Css.auto)
     | NoSpace => Css.px(0)
-    | Half => 1->length
-    | Single => 2->length
-    | Double => 3->length
-    | Triple => 4->length
-    | Responsive(_, _, _) => 6->length // TODO Fix
+    | Half => 1 |> length
+    | Single => 2 |> length
+    | Double => 3 |> length
+    | Triple => 6 |> length
+    | Quad => 8 |> length
+    | Quint => 10 |> length
+    | Number(i) => i |> length
+    | Responsive(_, _, _) => 6 |> length // TODO Fix
     };
   };
 
@@ -329,66 +310,62 @@ let make =
     | _ => raise(InvalidValue("Not a pixel value"))
     };
 
-  let lineHeight = (~fontSize=px(0), ~extraHeight=0, _) => {
-    let length = v => px(baseGridUnit * v);
+  let lineHeight = (~theme, ~fontSize=Css.px(0), ~extraHeight=0, _) => {
+    let length = v => Css.px(theme.baseGridUnit * v);
     let va =
       findMinStep(
         i =>
-          (i * baseGridUnit)->float_of_int > fontSize->getPx->float_of_int
+          (i * theme.baseGridUnit)->float_of_int
+          > fontSize->getPx->float_of_int
           *. 1.25,
         0,
       );
-    (va + extraHeight)->length;
-  };
-
-  let width = gridWidth;
-
-  {
-    color,
-    fontFamily,
-    fontSize,
-    fontWeight,
-    isLight,
-    lineHeight,
-    space,
-    width,
+    va + extraHeight |> length;
   };
 };
-module DefaultTheme = {
-  let theme =
-    make(
+let make =
+    (
       ~fontScale=1.25,
-      ~baseFontSize=14,
-      ~baseGridUnit=5,
+      ~baseFontSize=16,
+      ~baseGridUnit=4,
       ~fonts={
-        body: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],
-        title: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],
-        mono: ["monospace"],
-        alt: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],
-      },
-      ~colors=
-        Css.{
-          primary: Lab.(fromRGB((36, 133, 222)) |> lighten(25) |> toCssRGB),
-          primaryText: rgb(0, 0, 0),
-          secondary:
-            Lab.(fromRGB((20, 10, 0)) |> lighten(25) |> toCssRGB),
-          secondaryText: rgb(255, 255, 255),
-          warning: Lab.(fromRGB((214, 149, 5)) |> lighten(25) |> toCssRGB),
-          warningText: rgb(0, 0, 0),
-          success: Lab.(fromRGB((44, 173, 2)) |> lighten(25) |> toCssRGB),
-          successText: rgb(0, 0, 0),
-          error: Lab.(fromRGB((211, 26, 26)) |> lighten(25) |> toCssRGB),
-          errorText: rgb(0, 0, 0),
-          bodyBackground: rgb(255, 255, 255),
-          bodyText: rgb(40, 40, 40),
-          quietText: rgb(70, 70, 70),
-        },
+               body: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],
+               title: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],
+               mono: ["monospace"],
+               alt: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],
+             },
+      ~colors=Css.{
+                primary:
+                  Lab.(fromRGB((36, 133, 222)) |> lighten(25) |> toCssRGB),
+                primaryText: rgb(0, 0, 0),
+                secondary:
+                  Lab.(fromRGB((20, 10, 0)) |> lighten(25) |> toCssRGB),
+                secondaryText: rgb(255, 255, 255),
+                warning:
+                  Lab.(fromRGB((214, 149, 5)) |> lighten(25) |> toCssRGB),
+                warningText: rgb(0, 0, 0),
+                success:
+                  Lab.(fromRGB((44, 173, 2)) |> lighten(25) |> toCssRGB),
+                successText: rgb(0, 0, 0),
+                error:
+                  Lab.(fromRGB((211, 26, 26)) |> lighten(25) |> toCssRGB),
+                errorText: rgb(0, 0, 0),
+                bodyBackground: rgb(255, 255, 255),
+                bodyText: rgb(40, 40, 40),
+                quietText: rgb(130, 130, 130),
+              },
+      ~gridWidth as width=960,
       (),
-    );
+    ) => {
+  {colors, fonts, fontScale, baseFontSize, baseGridUnit, width};
+};
+
+module DefaultTheme = {
+  let theme = make();
 };
 
 module Context = {
-  let context = React.createContext(DefaultTheme.theme);
+  let context = React.createContext(make());
   let provider = React.Context.provider(context);
 
   module Provider = {
@@ -402,12 +379,16 @@ module Context = {
   };
 };
 module Styles = {
-  let marginSpace = (theme, v) => Obj.magic(theme.space(v));
+  let marginSpace = (theme, v) => Obj.magic(Private.space(~theme, v));
   let rec marginStyles_ = (theme, p) => {
-    let marginSpace = v => Obj.magic(theme.space(v));
+    let marginSpace = v => Obj.magic(Private.space(~theme, v));
     switch (p) {
     | Auto => [Css.margin(`auto)]
     | Margin(i) => [Css.margin(marginSpace(i))]
+    | MarginTop(i) => [Css.marginTop(marginSpace(i))]
+    | MarginBottom(i) => [Css.marginBottom(marginSpace(i))]
+    | MarginLeft(i) => [Css.marginLeft(marginSpace(i))]
+    | MarginRight(i) => [Css.marginRight(marginSpace(i))]
     | Margin2(x, y) => [Css.margin2(~v=marginSpace(y), ~h=marginSpace(x))]
     | Margin4(l, t, r, b) => [
         Css.margin4(
@@ -430,16 +411,23 @@ module Styles = {
   };
   let rec paddingStyles_ = (theme, p) => {
     switch (p) {
-    | Padding(i) => [Css.padding(theme.space(i))]
+    | Padding(i) => [Css.padding(Private.space(~theme, i))]
+    | PaddingTop(i) => [Css.paddingTop(Private.space(~theme, i))]
+    | PaddingBottom(i) => [Css.paddingBottom(Private.space(~theme, i))]
+    | PaddingLeft(i) => [Css.paddingLeft(Private.space(~theme, i))]
+    | PaddingRight(i) => [Css.paddingRight(Private.space(~theme, i))]
     | Padding2(x, y) => [
-        Css.padding2(~v=theme.space(y), ~h=theme.space(x)),
+        Css.padding2(
+          ~v=Private.space(~theme, y),
+          ~h=Private.space(~theme, x),
+        ),
       ]
     | Padding4(l, t, r, b) => [
         Css.padding4(
-          ~top=theme.space(t),
-          ~bottom=theme.space(b),
-          ~right=theme.space(r),
-          ~left=theme.space(l),
+          ~top=Private.space(~theme, t),
+          ~bottom=Private.space(~theme, b),
+          ~right=Private.space(~theme, r),
+          ~left=Private.space(~theme, l),
         ),
       ]
     | ResponsivePadding(s, m, l) =>
@@ -478,71 +466,58 @@ module Styles = {
     };
   };
 
+  let useMargin = m => {
+    let theme = React.useContext(Context.context);
+    marginStyles_(theme, m);
+  };
+
   let usePadding = p => {
     let theme = React.useContext(Context.context);
-    Css.padding(theme.space(p));
-  };
-
-  let useMargin = m => {
-    let space = marginSpace(React.useContext(Context.context));
-    Css.margin(space(m));
-  };
-  let usePadding2 = (~v, ~h) => {
-    let theme = React.useContext(Context.context);
-    Css.padding2(~v=theme.space(v), ~h=theme.space(h));
-  };
-
-  let useMargin2 = (~v, ~h) => {
-    let space = marginSpace(React.useContext(Context.context));
-    Css.margin2(~v=space(v), ~h=space(h));
-  };
-  let usePadding4 = (~top, ~bottom, ~left, ~right) => {
-    let theme = React.useContext(Context.context);
-    Css.padding4(
-      ~top=theme.space(top),
-      ~bottom=theme.space(bottom),
-      ~left=theme.space(left),
-      ~right=theme.space(right),
-    );
-  };
-  let margin4 = (~top, ~bottom, ~left, ~right) => {
-    let space = marginSpace(React.useContext(Context.context));
-    Css.margin4(
-      ~top=space(top),
-      ~bottom=space(bottom),
-      ~left=space(left),
-      ~right=space(right),
-    );
+    paddingStyles_(theme, p);
   };
 
   /** Width styles yo */
   let useWidth = w => widthStyles_(React.useContext(Context.context), w);
 
-  let useColor = (~highlight=0, ~alpha=1., color) => {
-    React.useContext(Context.context).color(~highlight, ~alpha, color);
+  let useColor = (~highlight=0, ~alpha=1., c) => {
+    Private.color(
+      ~theme=React.useContext(Context.context),
+      ~highlight,
+      ~alpha,
+      c,
+    );
   };
 
-  let useSpace = (~borderAdjust=0, space) => {
-    React.useContext(Context.context).space(~borderAdjust, space);
+  let useSpace = (~borderAdjust=0, s) => {
+    Private.space(
+      ~theme=React.useContext(Context.context),
+      ~borderAdjust,
+      s,
+    );
   };
 
   let useFontFamily = f => {
-    React.useContext(Context.context).fontFamily(f);
+    Private.fontFamily(~theme=React.useContext(Context.context), f);
   };
 
   let useFontSize = f => {
-    React.useContext(Context.context).fontSize(f);
+    Private.fontSize(~theme=React.useContext(Context.context), f);
   };
 
   let useFontWeight = f => {
-    React.useContext(Context.context).fontWeight(f);
+    Private.fontWeight(~theme=React.useContext(Context.context), f);
   };
 
   let useLineHeight = (~fontSize=Css.px(0), ~extraHeight=0, f) => {
-    React.useContext(Context.context).lineHeight(~fontSize, ~extraHeight, f);
+    Private.lineHeight(
+      ~theme=React.useContext(Context.context),
+      ~fontSize,
+      ~extraHeight,
+      f,
+    );
   };
 
   let useIsLight = () => {
-    React.useContext(Context.context).isLight;
+    Private.isLight(React.useContext(Context.context));
   };
 };

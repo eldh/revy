@@ -37,12 +37,12 @@ let useBoxStyle =
       flexGrow(grow_),
       flexWrap(wrap_),
       justifyContent(justify_),
-      Theme.Styles.useMargin(m),
-      Theme.Styles.usePadding(p),
     ],
+    Theme.Styles.useMargin(m),
+    Theme.Styles.usePadding(p),
     widthStyles,
   ]
-  |>List.concat;
+  |> List.concat;
 };
 
 [@react.component]
@@ -52,7 +52,7 @@ let make =
       ~a11yTitle as _a11yTitle=?,
       ~style as style_=[],
       ~align=`flexStart,
-      ~alignSelf=`flexStart,
+      ~alignSelf=`auto,
       ~alignContent=`flexStart,
       ~backgroundColor=Theme.Color.Transparent,
       ~color=Theme.Color.PrimaryText,
@@ -61,8 +61,8 @@ let make =
       ~shrink=0,
       ~justify=`flexStart,
       ~direction=`column,
-      ~p=Theme.Space.NoSpace,
-      ~m=Theme.Space.NoSpace,
+      ~p=Theme.(Padding(Space.NoSpace)),
+      ~m=Theme.(Margin(Space.NoSpace)),
       ~h=`auto,
       ~w=Theme.Layout.Auto,
       ~overflow=`auto,
@@ -94,7 +94,7 @@ let make =
       ),
       style_,
     ]
-    |>List.concat;
+    |> List.concat;
 
   <View tag style domProps> children </View>;
 };

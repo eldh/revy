@@ -8,46 +8,51 @@
 
 let useInputStyles = (~m, ()) => {
   Theme.(
-    Css.[
-      Css.padding2(
-        ~v=Styles.useSpace(~borderAdjust=0, Space.Single),
-        ~h=Styles.useSpace(~borderAdjust=0, Space.Single),
-      ),
-      textDecoration(`none),
-      cursor(`pointer),
-      lineHeight(Styles.useLineHeight(~fontSize=Styles.useFontSize(0), ())),
-      fontSize(Styles.useFontSize(0)),
-      fontFamily(Styles.useFontFamily(Theme.Type.Body)),
-      borderWidth(px(0)),
-      borderColor(Styles.useColor(Color.Transparent)),
-      borderRadius(Css.px(6)),
-      borderStyle(`solid),
-      Styles.useMargin(m),
-      backgroundColor(
-        Styles.useIsLight()
-          ? Css.rgba(0, 0, 0, 0.05) : Css.rgba(255, 255, 255, 0.05),
-      ),
-      color(Styles.useColor(Color.BodyText)),
-      boxShadow(
-        ~y=px(0),
-        ~blur=px(0),
-        ~spread=px(1),
-        ~inset=true,
-        Styles.useIsLight()
-          ? Css.rgba(0, 0, 0, 0.07) : Css.rgba(255, 255, 255, 0.07),
-      ),
-      focus([
-        outlineStyle(`none),
+    [
+      Css.[
+        Css.padding2(
+          ~v=Styles.useSpace(~borderAdjust=0, Space.Single),
+          ~h=Styles.useSpace(~borderAdjust=0, Space.Single),
+        ),
+        textDecoration(`none),
+        cursor(`pointer),
+        lineHeight(
+          Styles.useLineHeight(~fontSize=Styles.useFontSize(0), ()),
+        ),
+        fontSize(Styles.useFontSize(0)),
+        fontFamily(Styles.useFontFamily(Theme.Type.Body)),
+        borderWidth(px(0)),
+        borderColor(Styles.useColor(Color.Transparent)),
+        borderRadius(Css.px(6)),
+        borderStyle(`solid),
+        backgroundColor(
+          Styles.useIsLight()
+            ? Css.rgba(0, 0, 0, 0.05) : Css.rgba(255, 255, 255, 0.05),
+        ),
+        color(Styles.useColor(Color.BodyText)),
         boxShadow(
           ~y=px(0),
           ~blur=px(0),
           ~spread=px(1),
           ~inset=true,
-          Styles.useColor(Color.Primary),
+          Styles.useIsLight()
+            ? Css.rgba(0, 0, 0, 0.07) : Css.rgba(255, 255, 255, 0.07),
         ),
-      ]),
-      disabled([opacity(0.7)]),
+        focus([
+          outlineStyle(`none),
+          boxShadow(
+            ~y=px(0),
+            ~blur=px(0),
+            ~spread=px(1),
+            ~inset=true,
+            Styles.useColor(Color.Primary),
+          ),
+        ]),
+        disabled([opacity(0.7)]),
+      ],
+      Styles.useMargin(m),
     ]
+    |> List.concat
   );
 };
 module Input = {
@@ -64,7 +69,7 @@ module Input = {
         ~onFocus=ignore,
         ~onBlur=ignore,
         ~placeholder="",
-        ~m=Theme.Space.NoSpace,
+        ~m=Theme.(Margin(Space.NoSpace)),
         ~value,
         (),
       ) => {

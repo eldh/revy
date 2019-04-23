@@ -99,6 +99,7 @@ module Hooks = {
     rule => "{
   let k = Object.keys(rule)[0].replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
   window.document.body.style[k] = rule[Object.keys(rule)[0]]
+  return /* () */0
   }"
   ];
   type listenerId;
@@ -111,12 +112,8 @@ module Hooks = {
   [@bs.val] [@bs.scope "window"]
   external matchMedia: string => mediaQueryList = "matchMedia";
 
-  // Hook
   let useMatchesMedia = query => {
-    // Array containing a media query list for each query
     let mql = matchMedia(query);
-
-    // State and setter for matched value
     let (value, setValue) = React.useState(() => mql##matches);
 
     React.useLayoutEffect1(
