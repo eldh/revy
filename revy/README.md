@@ -1,3 +1,3 @@
-# Pure
+# Revy
 
 Theming for ReasonReact

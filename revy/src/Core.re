@@ -154,6 +154,7 @@ module Color = {
     | BodyText
     | QuietText
     | Transparent
+    | Highlight(int, t)
     | EscapeHatch(Css.color);
 };
 
@@ -218,12 +219,77 @@ let responsive = (_theme, (s, m, l)) => {
   Css.[media("(min-width: 30em)", m), media("(min-width: 50em)", l), ...s];
 };
 module Private = {
-  let isLight = theme => ThemeUtil.Color.isLight(theme.colors.bodyBackground);
+  let clamp = (minVal, maxVal, v) =>
+    if (v < minVal) {
+      minVal;
+    } else if (v > maxVal) {
+      maxVal;
+    } else {
+      v;
+    };
 
-  let color = (~theme, ~alpha=1., ~highlight=0, v) => {
+  let rgbClamp = clamp(0, 255);
+  let hslClamp = clamp(0, 100);
+  let lighten = (factor, color: Css.color) =>
+    switch (color) {
+    | `hsl(h, s, l) => `hsl((h, s, hslClamp(l + factor)))
+    | `hsla(h, s, l, a) => `hsla((h, s, hslClamp(l + factor), a))
+    | `rgb(r, g, b) =>
+      `rgb((
+        rgbClamp(r + factor),
+        rgbClamp(g + factor),
+        rgbClamp(b + factor),
+      ))
+    | `rgba(r, g, b, a) =>
+      `rgba((
+        rgbClamp(r + factor),
+        rgbClamp(g + factor),
+        rgbClamp(b + factor),
+        a,
+      ))
+    | _ => color // TODO: Error / handle
+    };
+
+  let darken = (factor, rgb) => lighten(factor * (-1), rgb);
+
+  let highlight = (factor, hsl: Css.color) =>
+    switch (hsl) {
+    | `hsl(_h, _s, l) => l > 50 ? darken(factor, hsl) : lighten(factor, hsl)
+    | `hsla(_h, _s, l, _a) =>
+      l > 50 ? darken(factor, hsl) : lighten(factor, hsl)
+    | `rgb(r, g, b) =>
+      Lab.(fromRGB((r, g, b)) |> highlight(factor) |> toCssRGB)
+    | `rgba(r, g, b, _a) =>
+      Lab.(fromRGB((r, g, b)) |> highlight(factor) |> toCssRGB)
+    | _ => lighten(factor, hsl)
+    };
+  let isLight = theme => {
+    switch (theme.colors.bodyBackground) {
+    | `hsl(_h, _s, l) => l > 50
+    | `hsla(_h, _s, l, _a) => l > 50
+    | `rgb(r, g, b) => Lab.fromRGB((r, g, b)) |> (((l, _a, _b)) => l > 50.)
+    | `rgba(r, g, b, _a) =>
+      Lab.fromRGB((r, g, b)) |> (((l, _a, _b)) => l > 50.)
+    | _ => true
+    };
+  };
+
+  let alphaFn = (v, c) => {
+    Css.(
+      switch (c) {
+      | `hsl(h, s, l) => hsla(h, s, l, v)
+      | `hsla(h, s, l, _a) => hsla(h, s, l, v)
+      | `rgba(r, g, b, _a) => rgba(r, g, b, v)
+      | `rgb(r, g, b) => rgba(r, g, b, v)
+      | _ => c
+      }
+    );
+  };
+
+  let rec color = (~theme, ~alpha=1., ~highlight=0, v) => {
     open Color;
     let highlightFn =
-      (theme |> isLight ? ThemeUtil.Color.darken : ThemeUtil.Color.lighten)(
+      (theme |> isLight ? darken : lighten)(
         highlight,
       );
     (
@@ -241,6 +307,7 @@ module Private = {
       | SuccessText => theme.colors.successText
       | BodyText => theme.colors.bodyText
       | QuietText => theme.colors.quietText
+      | Highlight(i, c) => color(~theme, ~highlight=i, c)
       | Transparent => `transparent
       | EscapeHatch(c) => c
       }
@@ -249,7 +316,7 @@ module Private = {
     |> (
       switch (alpha) {
       | 1. => (a => a)
-      | a => ThemeUtil.Color.alpha(a)
+      | a => alphaFn(a)
       }
     );
   };
@@ -519,5 +586,50 @@ module Styles = {
 
   let useIsLight = () => {
     Private.isLight(React.useContext(Context.context));
+  };
+
+  let setBodyStyle: Js.Json.t => unit = [%raw
+    rule => "{
+  let k = Object.keys(rule)[0].replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+  window.document.body.style[k] = rule[Object.keys(rule)[0]]
+  return /* () */0
+  }"
+  ];
+  type listenerId;
+  type mediaQueryList = {
+    .
+    "matches": bool,
+    "addListener": [@bs.meth] ((unit => unit) => listenerId),
+    "removeListener": [@bs.meth] (listenerId => unit),
+  };
+  [@bs.val] [@bs.scope "window"]
+  external matchMedia: string => mediaQueryList = "matchMedia";
+
+  let useMatchesMedia = query => {
+    let mql = matchMedia(query);
+    let (value, setValue) = React.useState(() => mql##matches);
+
+    React.useLayoutEffect1(
+      () => {
+        let handler = mql##addListener(() => setValue(_ => mql##matches));
+        Some(() => mql##removeListener(handler));
+      },
+      [||],
+    );
+
+    value;
+  };
+
+  let usePrefersDarkMode = () =>
+    useMatchesMedia("(prefers-color-scheme: dark)");
+
+  let useBodyStyle = rules => {
+    React.useLayoutEffect1(
+      () => {
+        List.map(rule => setBodyStyle(Css.toJson([rule])), rules) |> ignore;
+        None;
+      },
+      rules |> Array.of_list,
+    );
   };
 };

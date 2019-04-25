@@ -1,10 +1,11 @@
+open Revy; 
 type themes =
   | Light
   | Dark;
 
 [@react.component]
 let make = () => {
-  let default = ThemeUtil.Hooks.usePrefersDarkMode() ? Dark : Light;
+  let default = Core.Styles.usePrefersDarkMode() ? Dark : Light;
   let (theme, setTheme) = React.useState(() => None);
 
   let toggleTheme = () =>
@@ -26,22 +27,22 @@ let make = () => {
   let themeObj = {
     switch (selected) {
     | Dark => DarkTheme.theme
-    | Light => Theme.DefaultTheme.theme
+    | Light => Core.DefaultTheme.theme
     };
   };
-  ThemeUtil.Hooks.useBodyStyle(
+  Core.Styles.useBodyStyle(
     Css.[
       backgroundColor(themeObj.colors.bodyBackground),
       margin(px(0)),
       padding(px(0)),
     ],
   );
-  <Theme.Context.Provider value=themeObj>
+  <Core.Context.Provider value=themeObj>
   <>
     <Topbar toggleTheme />
-    <Box alignContent=`center m={Theme.Margin(Theme.Space.Auto)}>
+    <Box alignContent=`center m={Core.Margin(Core.Space.Auto)}>
       <Test toggleTheme />
     </Box>
   </>
-  </Theme.Context.Provider>;
+  </Core.Context.Provider>;
 };

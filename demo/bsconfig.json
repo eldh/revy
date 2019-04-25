@@ -1,6 +1,6 @@
 {
-  "name": "Pure.Demo",
-  // "namespace": true,
+  "name": "revy-demo",
+  "namespace": false,
   "bsc-flags": ["-bs-no-version-header", "-bs-super-errors"],
   "sources": [
     "src",
@@ -19,6 +19,6 @@
       "in-source": true
     }
   ],
-  "bs-dependencies": ["bs-css", "@glennsl/bs-jest", "reason-react", "@eldh/pure"],
+  "bs-dependencies": ["bs-css", "@glennsl/bs-jest", "reason-react", "revy"],
   "refmt": 3
 }

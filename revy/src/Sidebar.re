@@ -4,10 +4,10 @@ module Link = {
       (
         ~target="_self",
         ~href,
-        ~color=Theme.Color.Primary,
+        ~color=Revy.Core.Color.Primary,
         ~size=0,
         ~lineHeight=0,
-        ~weight=Theme.Type.Normal,
+        ~weight=Revy.Core.Type.Normal,
         ~children,
         (),
       ) => {
@@ -18,16 +18,16 @@ module Link = {
         width(pct(100.)),
         display(`block),
         textDecoration(`none),
-        fontWeight(Theme.Styles.useFontWeight(Theme.Type.Bold)),
-        padding(Theme.Styles.useSpace(Theme.Space.Single)),
+        fontWeight(Revy.Core.Styles.useFontWeight(Revy.Core.Type.Bold)),
+        padding(Revy.Core.Styles.useSpace(Revy.Core.Space.Single)),
         borderBottom(
           px(1),
           `solid,
-          Theme.Styles.useColor(~highlight=40, Theme.Color.BodyBackground),
+          Revy.Core.Styles.useColor(~highlight=40, Revy.Core.Color.BodyBackground),
         ),
         hover([
           Css.color(
-            Theme.Styles.useColor(~highlight=20, Theme.Color.Primary),
+            Revy.Core.Styles.useColor(~highlight=20, Revy.Core.Color.Primary),
           ),
         ]),
       ];
@@ -48,21 +48,21 @@ let make = () => {
       <View style=Css.[width(px(200))] />
       <Box
         grow=0.
-        backgroundColor=Theme.(
+        backgroundColor=Revy.Core.(
           Color.EscapeHatch(
             Styles.useColor(~highlight=10, Color.BodyBackground),
           )
         )
-        w={Theme.Layout.Css(Css.px(200))}
+        w={Revy.Core.Layout.Css(Css.px(200))}
         h={Css.vh(100.)}
         style=Css.[position(`fixed), top(px(0)), left(px(0))]>
         <>
-          <Text.String size=1> "Pure" </Text.String>
-          <Link href="#"> "Pure" </Link>
-          <Link href="#"> "Pure" </Link>
-          <Link href="#"> "Pure" </Link>
-          <Link href="#"> "Pure" </Link>
-          <Link href="#"> "Pure" </Link>
+          <Text.String size=1> "Revy" </Text.String>
+          <Link href="#"> "Revy" </Link>
+          <Link href="#"> "Revy" </Link>
+          <Link href="#"> "Revy" </Link>
+          <Link href="#"> "Revy" </Link>
+          <Link href="#"> "Revy" </Link>
         </>
       </Box>
     </>

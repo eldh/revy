@@ -75,6 +75,15 @@ let useButtonStyles =
                 ~blur=px(0),
                 Revy.Core.Styles.useColor(~highlight=15, bgVariant),
               ),
+          // boxShadow(
+          //   ~y=px(0),
+          //   ~inset=true,
+          //   ~spread=px(1),
+          //   ~blur=px(0),
+          //   outline_
+          //     ? Css.transparent : Revy.Core.Styles.useColor(~highlight=10, bgVariant),
+          // ),
+          // borderColor(Revy.Core.Styles.useColor(~highlight=10, textVariant)),
           borderWidth(px(0)),
           borderStyle(`solid),
         ]

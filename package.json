@@ -1,6 +1,6 @@
 {
   "workspaces": [
-    "pure",
+    "revy",
     "demo"
   ],
   "private": true

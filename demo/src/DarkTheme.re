@@ -1,5 +1,6 @@
 open Css;
-open Theme;
+open Revy;
+open Revy.Core;
 
 let fonts = {
   body: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],
@@ -29,5 +30,6 @@ let theme =
     ~baseGridUnit=4,
     ~fonts,
     ~colors,
+    ~gridWidth=700,
     (),
   );

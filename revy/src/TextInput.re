@@ -1,13 +1,5 @@
-// let highlightShadow =
-//   ThemeUtil.Style.shadows(
-//     Css.[
-//       boxShadow(~y=px(-1), ~blur=px(0), ~inset=true, hsla(0, 0, 100, 0.2)),
-//       boxShadow(~y=px(1), ~blur=px(0), ~inset=true, hsla(0, 0, 0, 0.2)),
-//     ],
-//   );
-
 let useInputStyles = (~m, ()) => {
-  Theme.(
+  Revy.Core.(
     [
       Css.[
         Css.padding2(
@@ -20,7 +12,7 @@ let useInputStyles = (~m, ()) => {
           Styles.useLineHeight(~fontSize=Styles.useFontSize(0), ()),
         ),
         fontSize(Styles.useFontSize(0)),
-        fontFamily(Styles.useFontFamily(Theme.Type.Body)),
+        fontFamily(Styles.useFontFamily(Revy.Core.Type.Body)),
         borderWidth(px(0)),
         borderColor(Styles.useColor(Color.Transparent)),
         borderRadius(Css.px(6)),
@@ -69,7 +61,7 @@ module Input = {
         ~onFocus=ignore,
         ~onBlur=ignore,
         ~placeholder="",
-        ~m=Theme.(Margin(Space.NoSpace)),
+        ~m=Revy.Core.(Margin(Space.NoSpace)),
         ~value,
         (),
       ) => {
@@ -104,9 +96,9 @@ module Label = {
       className={
         Text.useTextStyles(
           ~size=-1,
-          ~color=Theme.Color.QuietText,
+          ~color=Revy.Core.Color.QuietText,
           ~lineHeight=1,
-          ~weight=Theme.Type.Normal,
+          ~weight=Revy.Core.Type.Normal,
           (),
         )
         |> Css.style

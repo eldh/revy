@@ -1,4 +1,5 @@
-open Theme;
+open Revy;
+open Revy.Core;
 
 [@react.component]
 let make = () => {

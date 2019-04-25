@@ -5,8 +5,8 @@ let useBoxStyle =
       ~align as align_,
       ~alignSelf as alignSelf_,
       ~alignContent as alignContent_,
-      ~backgroundColor as backgroundColor_: Theme.Color.t,
-      ~color as color_: Theme.Color.t,
+      ~backgroundColor as backgroundColor_: Core.Color.t,
+      ~color as color_: Core.Color.t,
       ~grow as grow_,
       ~wrap as wrap_,
       ~shrink as shrink_,
@@ -20,15 +20,15 @@ let useBoxStyle =
       ~borderRadius as borderRadius_,
       (),
     ) => {
-  let widthStyles = Theme.Styles.useWidth(width_);
+  let widthStyles = Core.Styles.useWidth(width_);
 
   [
     Css.[
       alignSelf(alignSelf_),
       alignItems(align_),
-      backgroundColor(Theme.Styles.useColor(backgroundColor_)),
+      backgroundColor(Core.Styles.useColor(backgroundColor_)),
       alignContent(alignContent_),
-      color(Theme.Styles.useColor(color_)),
+      color(Core.Styles.useColor(color_)),
       height(height_),
       overflow(overflow_),
       borderRadius(borderRadius_),
@@ -38,8 +38,8 @@ let useBoxStyle =
       flexWrap(wrap_),
       justifyContent(justify_),
     ],
-    Theme.Styles.useMargin(m),
-    Theme.Styles.usePadding(p),
+    Core.Styles.useMargin(m),
+    Core.Styles.usePadding(p),
     widthStyles,
   ]
   |> List.concat;
@@ -54,17 +54,17 @@ let make =
       ~align=`flexStart,
       ~alignSelf=`auto,
       ~alignContent=`flexStart,
-      ~backgroundColor=Theme.Color.Transparent,
-      ~color=Theme.Color.PrimaryText,
+      ~backgroundColor=Core.Color.Transparent,
+      ~color=Core.Color.PrimaryText,
       ~grow=1.,
       ~wrap=`wrap,
       ~shrink=0,
       ~justify=`flexStart,
       ~direction=`column,
-      ~p=Theme.(Padding(Space.NoSpace)),
-      ~m=Theme.(Margin(Space.NoSpace)),
+      ~p=Core.(Padding(Space.NoSpace)),
+      ~m=Core.(Margin(Space.NoSpace)),
       ~h=`auto,
-      ~w=Theme.Layout.Auto,
+      ~w=Core.Layout.Auto,
       ~overflow=`auto,
       ~borderRadius=Css.px(0),
       ~domProps=?,

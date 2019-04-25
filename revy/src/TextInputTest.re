@@ -9,7 +9,7 @@ let make = () => {
   <ComponentsCard title="Inputs">
     <Box
       direction=`column
-      m=Theme.(Space.(Margin4(NoSpace, NoSpace, Single, Single)))>
+      m=Revy.Core.(Space.(Margin4(NoSpace, NoSpace, Single, Single)))>
       <TextInput.Label htmlFor="foo"> "Enabled"->React.string </TextInput.Label>
       <TextInput.Input
         label="String"
@@ -21,7 +21,7 @@ let make = () => {
     </Box>
     <Box
       direction=`column
-      m=Theme.(Space.(Margin4(NoSpace, NoSpace, Single, Single)))>
+      m=Revy.Core.(Space.(Margin4(NoSpace, NoSpace, Single, Single)))>
       <TextInput.Label htmlFor="bar"> "Disabled"->React.string </TextInput.Label>
       <TextInput.Input
         disabled=true
