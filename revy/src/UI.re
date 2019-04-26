@@ -1,0 +1,12 @@
+module Box = { include Box; };
+module Button = { include Button; };
+module Card = { include Card; };
+module ComponentsCard = { include ComponentsCard; };
+module EscapeHatch = { include EscapeHatch; };
+module Heading = { include Heading; };
+module Hero = { include Hero; };
+module Link = { include Link; };
+module Text = { include Text; };
+module TextInput = { include TextInput; };
+module TouchableOpacity = { include TouchableOpacity; };
+module View = { include View; };

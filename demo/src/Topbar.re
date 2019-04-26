@@ -1,4 +1,6 @@
 open Revy.Core;
+open Revy.UI;
+
 [@react.component]
 let make = (~toggleTheme=ignore, ()) => {
   <View>

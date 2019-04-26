@@ -1,3 +1,5 @@
+open Revy.UI;
+
 [@react.component]
 let make = () => {
   let (value, setValue) = React.useState(() => "");
@@ -10,7 +12,9 @@ let make = () => {
     <Box
       direction=`column
       m=Revy.Core.(Space.(Margin4(NoSpace, NoSpace, Single, Single)))>
-      <TextInput.Label htmlFor="foo"> "Enabled"->React.string </TextInput.Label>
+      <TextInput.Label htmlFor="foo">
+        "Enabled"->React.string
+      </TextInput.Label>
       <TextInput.Input
         label="String"
         id="foo"
@@ -22,7 +26,9 @@ let make = () => {
     <Box
       direction=`column
       m=Revy.Core.(Space.(Margin4(NoSpace, NoSpace, Single, Single)))>
-      <TextInput.Label htmlFor="bar"> "Disabled"->React.string </TextInput.Label>
+      <TextInput.Label htmlFor="bar">
+        "Disabled"->React.string
+      </TextInput.Label>
       <TextInput.Input
         disabled=true
         label="Bar"

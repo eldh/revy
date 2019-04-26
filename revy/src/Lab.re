@@ -114,10 +114,14 @@ let xyzToLab = ((x, y, z)) => {
   (l < 0. ? 0. : l, 500. *. (x -. y), 200. *. (y -. z));
 };
 
+/**
+ Takes an (r, g, b) color and returns the corresponding (l, a, b) color */
 let fromRGB = rgb => {
   rgb |> rgbToXyz |> xyzToLab;
 };
 
+/**
+ Takes a Css.rgb value and returns the corresponding (l, a, b) color */
 let fromCssRGB = rgb => {
   switch (rgb) {
   | `rgb(r, g, b) => fromRGB((r, g, b))

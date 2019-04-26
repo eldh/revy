@@ -1,6 +1,16 @@
 [@bs.send] external blur: Js.t({..}) => unit = "blur";
 
+/**
+ This is the first line. _Italicized_ word.
+
+ * This is a bullet point.
+ * This is the second point. */
 [@react.component]
+/**
+ This is the first line. _Italicized_ word.
+
+ * This is a bullet point.
+ * This is the second point. */
 let make =
     (
       ~tag="div",
@@ -9,18 +19,18 @@ let make =
       ~align=`flexStart,
       ~alignSelf=`auto,
       ~alignContent=`flexStart,
-      ~backgroundColor=Revy.Core.Color.Transparent,
-      ~color=Revy.Core.Color.PrimaryText,
+      ~backgroundColor=Core.Color.Transparent,
+      ~color=Core.Color.PrimaryText,
       ~grow=1.,
       ~wrap=`wrap,
       ~shrink=0,
       ~justify=`flexStart,
       ~direction=`column,
       ~onlyFocusOnTab=true,
-      ~p=Revy.Core.(Padding(Space.NoSpace)),
-      ~m=Revy.Core.(Margin(Space.NoSpace)),
+      ~p=Core.(Padding(Space.NoSpace)),
+      ~m=Core.(Margin(Space.NoSpace)),
       ~h=`auto,
-      ~w=Revy.Core.Layout.Auto,
+      ~w=Core.Layout.Auto,
       ~overflow=`auto,
       ~borderRadius=Css.px(0),
       ~onPress=?,
