@@ -2250,10 +2250,10 @@ bs-css@^8.0.0, bs-css@^8.0.2:
   dependencies:
     emotion "^9.2.12"
 
-bs-platform@^5.0.2:
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-5.0.2.tgz#f10380a6f9accba0e150015ede343bae15db699b"
-  integrity sha512-lj0uCwhu3tJdUOUp1pX/MG6ar19wbK5kKvs9FMzg0RqloKhtoZ0CgE2CFxNY+i01IhblJeEADGjucvXeO5TgdQ==
+bs-platform@^5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-5.0.3.tgz#2b167603ef52574cb9534fabab702f6013715e6c"
+  integrity sha512-GAeypBebeDGTay5kJ3v5Z3Whp1Q4zQ0hAttflVtPG3zps88xDZnVAlS3JGIIBDmJFEMyNtv5947a/IWKvWXcPw==
 
 bs-react-scripts@0.0.13:
   version "0.0.13"
