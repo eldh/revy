@@ -21,7 +21,7 @@ let make = (~toggleTheme=ignore, ()) => {
           "Consistency, colors, typography, motion... A lot of things are hard to manage in a design system. Revy aims to make these things easier."
         </Text.Paragraph>
         <Text.Paragraph>
-          {j|You create a theme by providing some input to `Revy.Core.make()`. Then you access everything included in the theme – colors, fonts, space variables etc. – via a set of variants and functions supplied by Revy. Revy.Core provides functions for color manipulation, layout, spacing, typography and more and makes it easy to build consistent, accessible and beautiful user interfaces.|j}
+          {j|You create a theme by providing some input to `Revy.Core.createTheme()`. Then you access everything included in the theme – colors, fonts, space variables etc. – via a set of variants and functions supplied by Revy. Revy.Core provides functions for color manipulation, layout, spacing, typography and more and makes it easy to build consistent, accessible and beautiful user interfaces.|j}
         </Text.Paragraph>
         <Text.Paragraph>
           "It's easy to create multiple themes, if you want to provide different branding styles (or a dark mode like this page). You can even use different themes at the same time, which could be useful for sidebars or other pop-in content."
@@ -31,7 +31,7 @@ let make = (~toggleTheme=ignore, ()) => {
           "This is just a trivial example of how to create a theme and add it to your app. More examples are coming soon..."
         </Text.Paragraph>
         <Text.Code>
-          {|let theme = Revy.Core.make();
+          {|let theme = Revy.Core.createTheme();
 
 [@react.component]
 let make = () => {
@@ -52,6 +52,7 @@ let make = () => {
           "Revy makes it easy to build your own components, but it also comes with a set of components of its own. You can use them as a starting point for your design system, an inspiration or a cautionary example."
         </Text.Paragraph>
       </Box>
+      <ColorTest />
       <TextInputTest />
       <ButtonTest />
       <TypeTest />

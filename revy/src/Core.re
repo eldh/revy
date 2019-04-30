@@ -104,7 +104,7 @@ module Layout = {
     | Third
     | Half
     | Full
-    | Css(cssWidth)
+    | EscapeHatch(cssWidth)
     | Auto
     | Responsive(t, t, t);
 };
@@ -120,6 +120,7 @@ module Space = {
     | Quad
     | Quint
     | Number(int)
+    | EscapeHatch(Css.length)
     | Responsive(t, t, t);
 };
 
@@ -351,8 +352,7 @@ module Private = {
   };
 
   let space = (~theme, ~borderAdjust=0, v) => {
-    open Css;
-    let length = v => px(theme.baseGridUnit * v - borderAdjust);
+    let length = v => Css.px(theme.baseGridUnit * v - borderAdjust);
     switch (v) {
     | Space.Auto => Obj.magic(Css.auto)
     | NoSpace => Css.px(0)
@@ -363,6 +363,7 @@ module Private = {
     | Quad => 8 |> length
     | Quint => 10 |> length
     | Number(i) => i |> length
+    | EscapeHatch(v) => Obj.magic(v)
     | Responsive(_, _, _) => 6 |> length // TODO Fix
     };
   };
@@ -390,7 +391,7 @@ module Private = {
     va + extraHeight |> length;
   };
 };
-let make =
+let createTheme =
     (
       ~fontScale=1.25,
       ~baseFontSize=16,
@@ -427,12 +428,23 @@ let make =
   {colors, fonts, fontScale, baseFontSize, baseGridUnit, width};
 };
 
+// let standardColors = [| `primary]
+
 module DefaultTheme = {
-  let theme = make();
+  let theme = createTheme();
+};
+
+module type ThemeDef = {
+  type colorDef;
+  let getColor: (colorDef) => Css.color;
+};
+
+module MakeTheme = (Defs: ThemeDef) => {
+  let getColor = Defs.getColor;
 };
 
 module Context = {
-  let context = React.createContext(make());
+  let context = React.createContext(DefaultTheme.theme);
   let provider = React.Context.provider(context);
 
   module Provider = {
@@ -520,7 +532,7 @@ module Styles = {
     | Half => Css.[width(pct(100. /. 2.))]
     | Full => Css.[maxWidth(px(w)), width(pct(100.))]
     | Auto => Css.[width(`auto)]
-    | Css(i) => Css.[width(i)]
+    | EscapeHatch(i) => Css.[width(i)]
     | Responsive(s, m, l) =>
       responsive(
         theme,

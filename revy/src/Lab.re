@@ -18,6 +18,7 @@ let clamp = (minVal, maxVal, v) =>
     v;
   };
 
+let rgbClamp = clamp(0, 255);
 let toInt = f => f +. 0.5 |> int_of_float;
 
 module Constants = {
@@ -58,9 +59,9 @@ let labToXyz = ((l, a, b)) => {
 
 let xyzToRgb = ((x, y, z)) => {
   (
-    xyz_rgb(3.2404542 *. x -. 1.5371385 *. y -. 0.4985314 *. z) |> toInt,
-    xyz_rgb((-0.9692660) *. x +. 1.8760108 *. y +. 0.0415560 *. z) |> toInt,
-    xyz_rgb(0.0556434 *. x -. 0.2040259 *. y +. 1.0572252 *. z) |> toInt,
+    xyz_rgb(3.2404542 *. x -. 1.5371385 *. y -. 0.4985314 *. z) |> toInt |> rgbClamp,
+    xyz_rgb((-0.9692660) *. x +. 1.8760108 *. y +. 0.0415560 *. z) |> toInt |> rgbClamp,
+    xyz_rgb(0.0556434 *. x -. 0.2040259 *. y +. 1.0572252 *. z) |> toInt |> rgbClamp,
   );
 };
 
@@ -149,4 +150,69 @@ let mix = (f, lab1, lab2) => {
 let mixRgb = (f, rgb1, rgb2) =>
   mix(f, fromRGB(rgb1), fromRGB(rgb2)) |> toRGB;
 
-// Js.log2("labToXyz((2.,23.,120.))", labToXyz((2., 23., 120.)));
+let luminance_x = x => {
+  let x1 = (x |> float_of_int) /. 255.;
+  x1 <= 0.03928 ? x1 /. 12.92 : ((x1 +. 0.055) /. 1.055) ** 2.4;
+};
+
+let luminance = ((r, g, b)) => {
+  let rl = r |> luminance_x;
+  let gl = g |> luminance_x;
+  let bl = b |> luminance_x;
+  0.2126 *. rl +. 0.7152 *. gl +. 0.0722 *. bl;
+};
+
+let contrast = (l1, l2) =>
+  l1 > l2 ? (l1 +. 0.05) /. (l2 +. 0.05) : (l2 +. 0.05) /. (l1 +. 0.05);
+// let contrastLab = ((l1, _, _), (l2, _, _)) => l1 > l2 ? (l1 +. 5.) /. (l2 +. 5.) : (l2 +. 5.) /. (l1 +. 5.);
+
+let rgbContrast = (r1, r2) => contrast(r1 |> luminance, r2 |> luminance);
+// let rgbContrastLab = (r1, r2) => contrastLab(r1 |> fromRGB, r2 |> fromRGB);
+type a11yLevel =
+  | AA
+  | AAA;
+
+type a11yTextSize =
+  | Normal
+  | Large;
+
+let isContrastOk = (~level=AA, ~size=Normal, r1, r2) => {
+  let limit =
+    switch (level, size) {
+    | (AA, Large) => 3.
+    | (AA, Normal) => 4.5
+    | (AAA, Large) => 4.5
+    | (AAA, Normal) => 7.
+    };
+  rgbContrast(r1, r2) > limit;
+};
+
+let getContrastColor = rgb => {
+  Js.log2("luminance(rgb)", luminance(rgb));
+  let labC = rgb |> fromRGB;
+  let (_l, a, b) = labC;
+  // let isDark = rgb |> luminance < 0.5;
+  let darkLabC = (0., a, b);
+  let lightLabC = (100., a, b);
+  Js.log2("labC", labC);
+  Js.log2("darkLabC", darkLabC |> toRGB |> rgbContrast(rgb));
+  Js.log2("lightLabC", lightLabC |> toRGB |> rgbContrast(rgb));
+};
+Js.log2("getContrastColor(())", getContrastColor((110, 181, 247)));
+
+Js.log2(
+  "rgbContrast((110, 181, 247), (0,0, 0))",
+  rgbContrast((110, 181, 247), (255, 255, 255)),
+);
+Js.log2(
+  "isContrastOk((50, 50, 50), (255, 192, 0))",
+  isContrastOk((50, 50, 50), (255, 192, 0)),
+);
+Js.log2(
+  "isContrastOk((75, 75, 75), (255, 192, 0))",
+  isContrastOk((75, 75, 75), (255, 192, 0)),
+);
+Js.log2(
+  "isContrastOk((0, 192, 255), (255, 192, 0))",
+  isContrastOk((0, 192, 255), (255, 192, 0)),
+);

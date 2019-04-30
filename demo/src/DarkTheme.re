@@ -24,7 +24,7 @@ let colors = {
   quietText: rgb(180, 180, 180),
 };
 let theme =
-  make(
+  createTheme(
     ~fontScale=1.2,
     ~baseFontSize=16,
     ~baseGridUnit=4,

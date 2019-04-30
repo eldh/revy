@@ -14,7 +14,7 @@ let make = (~toggleTheme=ignore, ()) => {
             20, Color.BodyBackground)
         }
         p={Padding(Space.Single)}
-        w={Layout.Css(Css.vw(100.))}
+        w={Layout.EscapeHatch(Css.vw(100.))}
         direction=`row
         align=`center
         alignContent=`center
