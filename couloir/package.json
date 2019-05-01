@@ -1,33 +1,43 @@
 {
   "name": "couloir",
-  "version": "0.1.0",
-  "description": "Example Reason Esy Project",
-  "license": "MIT",
+  "version": "0.0.0",
+  "description": "My Project",
   "esy": {
-    "build": "refmterr dune build -p #{self.name}",
-    "NOTE": "Optional release Section. Customizes result of `esy release`",
+    "build": "pesy",
     "release": {
-      "bin": [
-        "Couloir"
+      "releasedBinaries": [
+        "CouloirApp.exe"
       ]
     }
   },
+  "buildDirs": {
+    "test": {
+      "require": ["couloir.lib"],
+      "main": "TestCouloir",
+      "name": "TestCouloir.exe"
+    },
+    "library": {
+      "name": "couloir.lib",
+      "namespace": "Couloir"
+    },
+    "executable": {
+      "require": ["couloir.lib"],
+      "main": "CouloirApp",
+      "name": "CouloirApp.exe"
+    }
+  },
   "scripts": {
-    "test": "esy x Couloir",
-    "doc": "esy dune build @doc"
+    "pesy": "bash -c 'env PESY_MODE=update pesy'",
+    "test": "esy x TestCouloir.exe"
   },
   "dependencies": {
-    "@esy-ocaml/reason": ">= 3.4.0 < 3.5.0",
-    "@opam/dune": "*",
-    "@reason-native/console": "*",
-    "@reason-native/pastel": "*",
-    "@reason-native/rely": "^2.1.0",
-    "ocaml": "~4.6.0",
-    "refmterr": "*"
+    "@opam/dune": ">=1.6.0",
+    "@esy-ocaml/reason": "*",
+    "refmterr": "*",
+    "ocaml": "^4.4.0",
+    "pesy": "*"
   },
   "devDependencies": {
-    "@opam/merlin": "*",
-    "ocaml": "~4.6.0",
-    "@opam/odoc": "*"
+    "@opam/merlin": "*"
   }
 }

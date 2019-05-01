@@ -1,55 +1,50 @@
 # couloir
 
-[![Build Status](https://dev.azure.com/esy-ocaml/esy-ocaml/_apis/build/status/esy-ocaml.couloir?branchName=master)](https://dev.azure.com/esy-ocaml/esy-ocaml/_build/latest?definitionId=1?branchName=master)
 
-A project which demonstrates a Reason workflow with [Esy][].
+[![CircleCI](https://circleci.com/gh/yourgithubhandle/couloir/tree/master.svg?style=svg)](https://circleci.com/gh/yourgithubhandle/couloir/tree/master)
 
-[esy]: https://github.com/esy-ocaml/esy
 
-## Usage
+**Contains the following libraries and executables:**
 
-You need Esy, you can install the beta using [npm](https://npmjs.com):
+```
+couloir@0.0.0
+│
+├─test/
+│   name:    TestCouloir.exe
+│   main:    TestCouloir
+│   require: couloir.lib
+│
+├─library/
+│   library name: couloir.lib
+│   namespace:    Couloir
+│   require:
+│
+└─executable/
+    name:    CouloirApp.exe
+    main:    CouloirApp
+    require: couloir.lib
+```
 
-    % npm install -g esy@latest
+## Developing:
 
-> NOTE: Make sure `esy --version` returns at least `0.5.4` for this project to build.
+```
+npm install -g esy
+git clone <this-repo>
+esy install
+esy build
+```
 
-Then run the `esy` command from this project root to install and build depenencies.
+## Running Binary:
 
-    % esy
+After building the project, you can run the main binary that is produced.
 
-Now you can run your editor within the environment (which also includes merlin):
+```
+esy x CouloirApp.exe 
+```
 
-    % esy $EDITOR
-    % esy vim
+## Running Tests:
 
-Alternatively you can try [vim-reasonml](https://github.com/jordwalke/vim-reasonml)
-which loads esy project environments automatically.
-
-After you make some changes to source code, you can re-run project's build
-again with the same simple `esy` command.
-
-    % esy
-
-And test compiled executable (runs `scripts.tests` specified in
-`package.json`):
-
-    % esy test
-
-Documentation for the libraries in the project can be generated with:
-
-    % esy doc
-    % esy open '#{self.target_dir}/default/_doc/_html/index.html'
-
-Shell into environment:
-
-    % esy shell
-
-## Create Prebuilt Release:
-
-`esy` allows creating prebuilt binary packages for your current platform, with
-no dependencies.
-
-    % esy npm-release
-    % cd _release
-    % npm publish
+```
+# Runs the "test" command in `package.json`.
+esy test
+```

@@ -1,5 +1,0 @@
-(executable
-  (package couloir)
-  (name Couloir)
-  (public_name Couloir)
-  (libraries lib))
