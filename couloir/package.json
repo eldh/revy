@@ -11,31 +11,50 @@
     }
   },
   "buildDirs": {
+    "test/lib": {
+      "require": [
+        "couloir.lib",
+        "rely.lib"
+      ],
+      "flags": [
+        "-linkall"
+      ],
+      "namespace": "CouloirTest",
+      "name": "couloir.test.lib"
+    },
     "test": {
-      "require": ["couloir.lib"],
-      "main": "TestCouloir",
-      "name": "TestCouloir.exe"
+      "require": [
+        "couloir.test.lib"
+      ],
+      "package": "my-test",
+      "main": "RunTests",
+      "name": "RunTests.exe"
     },
     "library": {
       "name": "couloir.lib",
       "namespace": "Couloir"
     },
     "executable": {
-      "require": ["couloir.lib"],
+      "require": [
+        "couloir.lib"
+      ],
       "main": "CouloirApp",
       "name": "CouloirApp.exe"
     }
   },
   "scripts": {
     "pesy": "bash -c 'env PESY_MODE=update pesy'",
-    "test": "esy x TestCouloir.exe"
+    "test": "esy x RunTests.exe",
+    "watch": "bsb -clean-world -make-world -w",
+    "build": "bsb -clean-world -make-world"
   },
   "dependencies": {
-    "@opam/dune": ">=1.6.0",
     "@esy-ocaml/reason": "*",
-    "refmterr": "*",
+    "@opam/dune": ">=1.6.0",
+    "@reason-native/rely": "^2.1.0",
     "ocaml": "^4.4.0",
-    "pesy": "*"
+    "pesy": "*",
+    "refmterr": "*"
   },
   "devDependencies": {
     "@opam/merlin": "*"

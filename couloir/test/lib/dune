@@ -2,10 +2,11 @@
 ; !!!! This dune file is generated from the package.json file by pesy. If you modify it by hand
 ; !!!! your changes will be undone! Instead, edit the package.json and then rerun 'esy pesy' at the project root.
 ; !!!! If you want to stop using pesy and manage this file by hand, change pacakge.json's 'esy.build' command to: refmterr dune build -p  couloir
-(executable
-   ; The entrypoint module
-   (name RunTests)  ;  From package.json main field
-   ; The name of the executable (runnable via esy x RunTests.exe) 
-   (public_name RunTests.exe)  ;  From package.json name field
-   (libraries  couloir.test.lib ) ;  From package.json require field (array of strings)
+(library
+   ; The namespace that other packages/libraries will access this library through
+   (name CouloirTest)
+   ; Other libraries list this name in their package.json 'require' field to use this library.
+   (public_name couloir.test.lib)
+   (libraries  couloir.lib rely.lib )
+   (flags ( -linkall ))  ; From package.json flags field
 )

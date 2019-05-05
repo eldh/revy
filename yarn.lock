@@ -2251,9 +2251,9 @@ bs-css@^8.0.0, bs-css@^8.0.2:
     emotion "^9.2.12"
 
 bs-platform@^5.0.3:
-  version "5.0.3"
-  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-5.0.3.tgz#2b167603ef52574cb9534fabab702f6013715e6c"
-  integrity sha512-GAeypBebeDGTay5kJ3v5Z3Whp1Q4zQ0hAttflVtPG3zps88xDZnVAlS3JGIIBDmJFEMyNtv5947a/IWKvWXcPw==
+  version "5.0.4"
+  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-5.0.4.tgz#d406ef43c12d1b19d8546884d8b5b4e0fb709372"
+  integrity sha512-rXM+ztN8wYXQ4ojfFGylvPOf8GRLOvM94QJsMMV9VpsLChKCjesWMNybTZvpoyNsESu2nC5q+C9soG+BPhuUFQ==
 
 bs-react-scripts@0.0.13:
   version "0.0.13"
