@@ -14,9 +14,11 @@
   },
   "scripts": {
     "start": "bsb -clean-world -make-world -w",
+    "test": "jest ./__tests__ --watch",
     "build": "bsb -clean-world -make-world"
   },
   "devDependencies": {
+    "@glennsl/bs-jest": "^0.4.8",
     "bs-platform": "^5.0.3"
   },
   "author": "andreas.eldh@gmail.com",
