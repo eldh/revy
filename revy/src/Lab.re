@@ -9,6 +9,14 @@ exception InvalidValue(string);
  * b [-100..100]
  */
 
+type a11yLevel =
+  | AA
+  | AAA;
+
+type a11yTextSize =
+  | Normal
+  | Large;
+
 let clamp = (minVal, maxVal, v) =>
   if (v < minVal) {
     minVal;
@@ -42,7 +50,11 @@ let lab_xyz = t => {
   t > Constants.t1 ? t *. t *. t : Constants.t2 *. (t -. Constants.t0);
 };
 
-let labToXyz = ((l, a, b)) => {
+let labToXyz = lab => {
+  let (l, a, b) =
+    switch (lab) {
+    | `lab(l, a, b) => (l, a, b)
+    };
   let y0 = (l +. 16.) /. 116.;
   let x0 = y0 +. a /. 500.;
   let z0 = y0 -. b /. 200.;
@@ -58,21 +70,24 @@ let labToXyz = ((l, a, b)) => {
 };
 
 let xyzToRgb = ((x, y, z)) => {
-  (
-    xyz_rgb(3.2404542 *. x -. 1.5371385 *. y -. 0.4985314 *. z) |> toInt |> rgbClamp,
-    xyz_rgb((-0.9692660) *. x +. 1.8760108 *. y +. 0.0415560 *. z) |> toInt |> rgbClamp,
-    xyz_rgb(0.0556434 *. x -. 0.2040259 *. y +. 1.0572252 *. z) |> toInt |> rgbClamp,
-  );
+  `rgb((
+    xyz_rgb(3.2404542 *. x -. 1.5371385 *. y -. 0.4985314 *. z)
+    |> toInt
+    |> rgbClamp,
+    xyz_rgb((-0.9692660) *. x +. 1.8760108 *. y +. 0.0415560 *. z)
+    |> toInt
+    |> rgbClamp,
+    xyz_rgb(0.0556434 *. x -. 0.2040259 *. y +. 1.0572252 *. z)
+    |> toInt
+    |> rgbClamp,
+  ));
 };
 
 let toRGB = lab => {
   lab |> labToXyz |> xyzToRgb;
 };
 
-let toCssRGB = t => {
-  let (r, g, b) = toRGB(t);
-  Css.rgb(r, g, b);
-};
+let toCssRGB = toRGB;
 
 let rgb_xyz = r => {
   let r2 = r /. 255.;
@@ -112,31 +127,28 @@ let rgbToXyz = ((r_, g_, b_)) => {
 
 let xyzToLab = ((x, y, z)) => {
   let l = 116. *. y -. 16.;
-  (l < 0. ? 0. : l, 500. *. (x -. y), 200. *. (y -. z));
+  `lab((l < 0. ? 0. : l, 500. *. (x -. y), 200. *. (y -. z)));
 };
 
 /**
  Takes an (r, g, b) color and returns the corresponding (l, a, b) color */
 let fromRGB = rgb => {
-  rgb |> rgbToXyz |> xyzToLab;
-};
-
-/**
- Takes a Css.rgb value and returns the corresponding (l, a, b) color */
-let fromCssRGB = rgb => {
   switch (rgb) {
-  | `rgb(r, g, b) => fromRGB((r, g, b))
-  | `rgba(r, g, b, _a) => fromRGB((r, g, b))
-  // | _ => raise(InvalidValue("Not an rgb value"))
+  | `rgb(r, g, b) => (r, g, b) |> rgbToXyz |> xyzToLab
   };
 };
 
-let lighten = (factor, (l, a, b)) => {
-  (clamp(0., 100., l +. (factor |> float_of_int)), a, b);
+let lighten = (factor, lab) => {
+  switch (lab) {
+  | `lab(l, a, b) =>
+    `lab((clamp(0., 100., l +. (factor |> float_of_int)), a, b))
+  };
 };
 
-let highlight = (factor, (l, a, b)) => {
-  lighten((l > 50. ? (-1) : 1) * factor, (l, a, b));
+let highlight = (factor, lab) => {
+  switch (lab) {
+  | `lab(l, _a, _b) => lighten((l > 50. ? (-1) : 1) * factor, lab)
+  };
 };
 
 let mix = (f, lab1, lab2) => {
@@ -155,64 +167,70 @@ let luminance_x = x => {
   x1 <= 0.03928 ? x1 /. 12.92 : ((x1 +. 0.055) /. 1.055) ** 2.4;
 };
 
-let luminance = ((r, g, b)) => {
-  let rl = r |> luminance_x;
-  let gl = g |> luminance_x;
-  let bl = b |> luminance_x;
-  0.2126 *. rl +. 0.7152 *. gl +. 0.0722 *. bl;
+let luminanceRGB = rgb => {
+  switch (rgb) {
+  | `rgb(r, g, b) =>
+    let rl = r |> luminance_x;
+    let gl = g |> luminance_x;
+    let bl = b |> luminance_x;
+    0.2126 *. rl +. 0.7152 *. gl +. 0.0722 *. bl;
+  };
 };
 
-let contrast = (l1, l2) =>
-  l1 > l2 ? (l1 +. 0.05) /. (l2 +. 0.05) : (l2 +. 0.05) /. (l1 +. 0.05);
-// let contrastLab = ((l1, _, _), (l2, _, _)) => l1 > l2 ? (l1 +. 5.) /. (l2 +. 5.) : (l2 +. 5.) /. (l1 +. 5.);
+let luminance = c => {
+  (
+    switch (c) {
+    | `rgb(_, _, _) as rgb => rgb
+    | `lab(_, _, _) as lab => lab |> toRGB
+    }
+  )
+  |> luminanceRGB;
+};
 
-let rgbContrast = (r1, r2) => contrast(r1 |> luminance, r2 |> luminance);
-// let rgbContrastLab = (r1, r2) => contrastLab(r1 |> fromRGB, r2 |> fromRGB);
-type a11yLevel =
-  | AA
-  | AAA;
+let contrast = (luminance1, luminance2) =>{
+  Js.log2("luminance1", luminance1);
+  
+  luminance1 > luminance2
+    ? (luminance1 +. 0.05) /. (luminance2 +. 0.05)
+    : (luminance2 +. 0.05) /. (luminance1 +. 0.05)};
 
-type a11yTextSize =
-  | Normal
-  | Large;
+let rgbContrast = (r1, r2) =>
+  contrast(r1 |> luminanceRGB, r2 |> luminanceRGB);
+
+let getContrastLimit = (level, size) =>
+  switch (level, size) {
+  | (AA, Large) => 3.
+  | (AA, Normal) => 4.5
+  | (AAA, Large) => 4.5
+  | (AAA, Normal) => 7.
+  };
 
 let isContrastOk = (~level=AA, ~size=Normal, r1, r2) => {
-  let limit =
-    switch (level, size) {
-    | (AA, Large) => 3.
-    | (AA, Normal) => 4.5
-    | (AAA, Large) => 4.5
-    | (AAA, Normal) => 7.
-    };
-  rgbContrast(r1, r2) > limit;
+  rgbContrast(r1, r2) > getContrastLimit(level, size);
 };
 
-let getContrastColor = rgb => {
-  Js.log2("luminance(rgb)", luminance(rgb));
-  let labC = rgb |> fromRGB;
-  let (_l, a, b) = labC;
-  // let isDark = rgb |> luminance < 0.5;
-  let darkLabC = (0., a, b);
-  let lightLabC = (100., a, b);
-  Js.log2("labC", labC);
-  Js.log2("darkLabC", darkLabC |> toRGB |> rgbContrast(rgb));
-  Js.log2("lightLabC", lightLabC |> toRGB |> rgbContrast(rgb));
+let getContrastColorLab = lab => {
+  switch (lab) {
+  | `lab(_, a, b) as c =>
+    let rgb = c |> toRGB;
+    let darkLab = `lab((0., a, b));
+    let lightLab = `lab((100., a, b));
+    darkLab
+    |> toRGB
+    |> rgbContrast(rgb) > (lightLab |> toRGB |> rgbContrast(rgb))
+      ? darkLab : lightLab;
+  };
 };
-Js.log2("getContrastColor(())", getContrastColor((110, 181, 247)));
 
-Js.log2(
-  "rgbContrast((110, 181, 247), (0,0, 0))",
-  rgbContrast((110, 181, 247), (255, 255, 255)),
-);
-Js.log2(
-  "isContrastOk((50, 50, 50), (255, 192, 0))",
-  isContrastOk((50, 50, 50), (255, 192, 0)),
-);
-Js.log2(
-  "isContrastOk((75, 75, 75), (255, 192, 0))",
-  isContrastOk((75, 75, 75), (255, 192, 0)),
-);
-Js.log2(
-  "isContrastOk((0, 192, 255), (255, 192, 0))",
-  isContrastOk((0, 192, 255), (255, 192, 0)),
-);
+let getContrastColorRGB = rgb => {
+  rgb |> fromRGB |> getContrastColorLab |> toRGB;
+};
+
+let getContrastColor = c => {
+  switch (c) {
+  | `rgb(r, g, b) => getContrastColorRGB(`rgb((r, g, b)))
+  | `lab(l, a, b) => getContrastColorLab(`lab((l, a, b))) |> toRGB
+  };
+};
+
+let rgbToCssRGB = ((r, g, b)) => Css.rgb(r, g, b);

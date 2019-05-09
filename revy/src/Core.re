@@ -258,19 +258,18 @@ module Private = {
     | `hsl(_h, _s, l) => l > 50 ? darken(factor, hsl) : lighten(factor, hsl)
     | `hsla(_h, _s, l, _a) =>
       l > 50 ? darken(factor, hsl) : lighten(factor, hsl)
-    | `rgb(r, g, b) =>
-      Lab.(fromRGB((r, g, b)) |> highlight(factor) |> toCssRGB)
-    | `rgba(r, g, b, _a) =>
-      Lab.(fromRGB((r, g, b)) |> highlight(factor) |> toCssRGB)
+    | `rgb(_, _, _) as rgb =>
+      Lab.(rgb |> fromRGB |> highlight(factor) |> toRGB)
+    | `rgba(r, g, b, _) =>
+      Lab.(`rgb(r, g, b) |> fromRGB |> highlight(factor) |> toRGB)
     | _ => lighten(factor, hsl)
     };
   let isLight = theme => {
     switch (theme.colors.bodyBackground) {
     | `hsl(_h, _s, l) => l > 50
     | `hsla(_h, _s, l, _a) => l > 50
-    | `rgb(r, g, b) => Lab.fromRGB((r, g, b)) |> (((l, _a, _b)) => l > 50.)
-    | `rgba(r, g, b, _a) =>
-      Lab.fromRGB((r, g, b)) |> (((l, _a, _b)) => l > 50.)
+    | `rgb(_r, _g, _b) as rgb => Lab.luminanceRGB(rgb) > 0.5
+    | `rgba(r, g, b, _a) => Lab.luminanceRGB(`rgb((r, g, b))) > 0.5
     | _ => true
     };
   };
@@ -289,10 +288,7 @@ module Private = {
 
   let rec color = (~theme, ~alpha=1., ~highlight=0, v) => {
     open Color;
-    let highlightFn =
-      (theme |> isLight ? darken : lighten)(
-        highlight,
-      );
+    let highlightFn = (theme |> isLight ? darken : lighten)(highlight);
     (
       switch (v) {
       | Primary => theme.colors.primary
@@ -404,20 +400,56 @@ let createTheme =
              },
       ~colors=Css.{
                 primary:
-                  Lab.(fromRGB((36, 133, 222)) |> lighten(25) |> toCssRGB),
-                primaryText: rgb(0, 0, 0),
+                  Lab.(
+                    fromRGB(`rgb((36, 133, 222))) |> lighten(25) |> toCssRGB
+                  ),
+                primaryText:
+                  Lab.(
+                    getContrastColor(`rgb((36, 133, 222)))
+                    |> fromRGB
+                    |> toCssRGB
+                  ),
                 secondary:
-                  Lab.(fromRGB((20, 10, 0)) |> lighten(25) |> toCssRGB),
-                secondaryText: rgb(255, 255, 255),
+                  Lab.(
+                    fromRGB(`rgb((20, 10, 0))) |> lighten(25) |> toCssRGB
+                  ),
+                secondaryText:
+                  Lab.(
+                    fromRGB(`rgb((20, 10, 0)))
+                    |> lighten(25)
+                    |> getContrastColorLab
+                    |> toCssRGB
+                  ),
                 warning:
-                  Lab.(fromRGB((214, 149, 5)) |> lighten(25) |> toCssRGB),
-                warningText: rgb(0, 0, 0),
+                  Lab.(
+                    fromRGB(`rgb((214, 149, 5))) |> lighten(25) |> toCssRGB
+                  ),
+                warningText:
+                  Lab.(
+                    getContrastColor(`rgb((214, 149, 5)))
+                    |> fromRGB
+                    |> toCssRGB
+                  ),
                 success:
-                  Lab.(fromRGB((44, 173, 2)) |> lighten(25) |> toCssRGB),
-                successText: rgb(0, 0, 0),
+                  Lab.(
+                    fromRGB(`rgb((44, 173, 2))) |> lighten(25) |> toCssRGB
+                  ),
+                successText:
+                  Lab.(
+                    getContrastColor(`rgb((44, 173, 2)))
+                    |> fromRGB
+                    |> toCssRGB
+                  ),
                 error:
-                  Lab.(fromRGB((211, 26, 26)) |> lighten(25) |> toCssRGB),
-                errorText: rgb(0, 0, 0),
+                  Lab.(
+                    fromRGB(`rgb((211, 26, 26))) |> lighten(25) |> toCssRGB
+                  ),
+                errorText:
+                  Lab.(
+                    getContrastColor(`rgb((211, 26, 26)))
+                    |> fromRGB
+                    |> toCssRGB
+                  ),
                 bodyBackground: rgb(255, 255, 255),
                 bodyText: rgb(40, 40, 40),
                 quietText: rgb(130, 130, 130),
@@ -436,7 +468,7 @@ module DefaultTheme = {
 
 module type ThemeDef = {
   type colorDef;
-  let getColor: (colorDef) => Css.color;
+  let getColor: colorDef => Css.color;
 };
 
 module MakeTheme = (Defs: ThemeDef) => {
