@@ -1,21 +1,20 @@
 open Revy;
-open Revy.Core;
 
 [@react.component]
 let make = (~toggleTheme=ignore, ()) => {
   <Box
     tag="main"
-    backgroundColor=Revy.Core.Color.BodyBackground
-    p={Revy.Core.Padding(Space.Double)}
-    w=Layout.Full
+    backgroundColor=`bodyBackground
+    p={`padding(`double)}
+    w=`full
     align=`stretch
-    m={Revy.Core.Margin(Space.Auto)}>
+    m={`margin(`auto)}>
     <>
       <Hero
         title="Revy"
         subtitle="A higher order design system for ReasonReact."
       />
-      <Box m={MarginBottom(Space.Quint)} w=Layout.Full>
+      <Box m={`marginBottom(`quint)} w=`full>
         <Heading> {"Revy.Core" |> React.string} </Heading>
         <Text.Paragraph>
           "Consistency, colors, typography, motion... A lot of things are hard to manage in a design system. Revy aims to make these things easier."
@@ -26,7 +25,7 @@ let make = (~toggleTheme=ignore, ()) => {
         <Text.Paragraph>
           "It's easy to create multiple themes, if you want to provide different branding styles (or a dark mode like this page). You can even use different themes at the same time, which could be useful for sidebars or other pop-in content."
         </Text.Paragraph>
-        <Heading level=Heading.H3> {"Example" |> React.string} </Heading>
+        <Heading level=`h3> {"Example" |> React.string} </Heading>
         <Text.Paragraph>
           "This is just a trivial example of how to create a theme and add it to your app. More examples are coming soon..."
         </Text.Paragraph>
@@ -37,7 +36,7 @@ let make = (~toggleTheme=ignore, ()) => {
 let make = () => {
   <Revy.Core.Context.Provider value=theme>
     <Text.String
-      color=Revy.Core.Colors.QuietText
+      color=`quietText
       size=2
     >
         "My first app"
@@ -47,7 +46,7 @@ let make = () => {
         </Text.Code>
       </Box>
       <Heading> {"Revy.UI" |> React.string} </Heading>
-      <Box m={MarginBottom(Space.Quint)}>
+      <Box m={`marginBottom(`quint)}>
         <Text.Paragraph>
           "Revy makes it easy to build your own components, but it also comes with a set of components of its own. You can use them as a starting point for your design system, an inspiration or a cautionary example."
         </Text.Paragraph>

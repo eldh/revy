@@ -1,28 +1,27 @@
 open Revy;
-open Revy.Core;
 
 [@react.component]
 let make = () => {
   <ComponentsCard title="Typography">
-    <Box w=Layout.Full>
+    <Box w=`full>
       <>
         <Box>
-          <Text.String size=5 weight=Type.ExtraBold>
+          <Text.String size=5 weight=`extraBold>
             "Extra bold and very big"
           </Text.String>
         </Box>
         <Box>
-          <Text.String size=4 weight=Type.Bold>
+          <Text.String size=4 weight=`bold>
             "Bold and big"
           </Text.String>
         </Box>
         <Box>
-          <Text.String size=3 weight=Type.Light>
+          <Text.String size=3 weight=`light>
             "Light and tall, like a basketball player"
           </Text.String>
         </Box>
         <Box>
-          <Text.String size=2 weight=Type.ExtraLight>
+          <Text.String size=2 weight=`extraLight>
             "Supermodel style"
           </Text.String>
         </Box>
@@ -42,7 +41,7 @@ let make = () => {
           </Text.String>
         </Box>
         <Box>
-          <Text.String size=(-2) color=Color.QuietText>
+          <Text.String size=(-2) color=`quietText>
             "So tiny and quiet you almost don't notice it"
           </Text.String>
         </Box>

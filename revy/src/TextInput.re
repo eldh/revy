@@ -3,8 +3,8 @@ let useInputStyles = (~m, ()) => {
     [
       Css.[
         Css.padding2(
-          ~v=Styles.useSpace(~borderAdjust=0, Space.Single),
-          ~h=Styles.useSpace(~borderAdjust=0, Space.Single),
+          ~v=Styles.useSpace(~borderAdjust=0, `single),
+          ~h=Styles.useSpace(~borderAdjust=0, `single),
         ),
         textDecoration(`none),
         cursor(`pointer),
@@ -12,16 +12,16 @@ let useInputStyles = (~m, ()) => {
           Styles.useLineHeight(~fontSize=Styles.useFontSize(0), ()),
         ),
         fontSize(Styles.useFontSize(0)),
-        fontFamily(Styles.useFontFamily(Revy.Core.Type.Body)),
+        fontFamily(Styles.useFontFamily(`body)),
         borderWidth(px(0)),
-        borderColor(Styles.useColor(Color.Transparent)),
+        borderColor(Styles.useColor(`transparent)),
         borderRadius(Css.px(6)),
         borderStyle(`solid),
         backgroundColor(
           Styles.useIsLight()
             ? Css.rgba(0, 0, 0, 0.05) : Css.rgba(255, 255, 255, 0.05),
         ),
-        color(Styles.useColor(Color.BodyText)),
+        color(Styles.useColor(`bodyText)),
         boxShadow(
           ~y=px(0),
           ~blur=px(0),
@@ -37,7 +37,7 @@ let useInputStyles = (~m, ()) => {
             ~blur=px(0),
             ~spread=px(1),
             ~inset=true,
-            Styles.useColor(Color.Primary),
+            Styles.useColor(`primary),
           ),
         ]),
         disabled([opacity(0.7)]),
@@ -61,7 +61,7 @@ module Input = {
         ~onFocus=ignore,
         ~onBlur=ignore,
         ~placeholder="",
-        ~m=Revy.Core.(Margin(Space.NoSpace)),
+        ~m=`margin(`noSpace),
         ~value,
         (),
       ) => {
@@ -96,9 +96,9 @@ module Label = {
       className={
         Text.useTextStyles(
           ~size=-1,
-          ~color=Revy.Core.Color.QuietText,
+          ~color=`quietText,
           ~lineHeight=1,
-          ~weight=Revy.Core.Type.Normal,
+          ~weight=`normal,
           (),
         )
         |> Css.style

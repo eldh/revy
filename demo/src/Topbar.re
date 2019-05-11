@@ -6,15 +6,15 @@ let make = (~toggleTheme=ignore, ()) => {
   <View>
     <>
       <Box
-        h={Styles.useSpace(Space.Number(11))}
+        h={Styles.useSpace(`number(11))}
       />
       <Box
         backgroundColor={
-          Color.Highlight(
-            8, Color.BodyBackground)
+          `highlight(
+            8, `bodyBackground)
         }
-        p={Padding(Space.Single)}
-        w={Layout.EscapeHatch(Css.vw(100.))}
+        p={`padding(`single)}
+        w={`escapeHatch(Css.vw(100.))}
         direction=`row
         align=`center
         alignContent=`center
@@ -28,19 +28,19 @@ let make = (~toggleTheme=ignore, ()) => {
         ]>
         <>
           <Box grow=1. direction=`row>
-            <Text.String size=1 weight=Type.Bold> "Revy" </Text.String>
+            <Text.String size=1 weight=`bold> "Revy" </Text.String>
           </Box>
           <Box direction=`row grow=0.>
             <Link
-              m={Revy.Core.Margin(Space.Half)}
+              m={`margin(`half)}
               href="https://github.com/eldh/revy"
-              color=Revy.Core.Color.BodyText>
+              color=`bodyText>
               "Github"
             </Link>
             <Link.Button
-              m={Revy.Core.Margin(Space.Half)}
+              m={`margin(`half)}
               onClick={_ => toggleTheme()}
-              color=Revy.Core.Color.BodyText>
+              color=`bodyText>
               "Toggle dark theme"
             </Link.Button>
           </Box>

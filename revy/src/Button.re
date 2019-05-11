@@ -17,9 +17,9 @@ let useButtonStyles =
   // TODO fix
   let (btnFontSize, paddingV, paddingH) =
     switch (size) {
-    | Small => (Styles.useFontSize(-1), Space.Half, Space.Single)
-    | Medium => (Styles.useFontSize(0), Space.Single, Space.Double)
-    | Large => (Styles.useFontSize(1), Space.Double, Space.Triple)
+    | Small => (Styles.useFontSize(-1), `half, `single)
+    | Medium => (Styles.useFontSize(0), `single, `double)
+    | Large => (Styles.useFontSize(1), `double, `triple)
     };
   let sharedStyles =
     Css.[
@@ -42,24 +42,24 @@ let useButtonStyles =
     let (textVariant, bgVariant) =
       outline_
         ? switch (v) {
-          | Warning => (Color.Warning, Color.Transparent)
-          | Error => (Color.Error, Color.Transparent)
-          | Success => (Color.Success, Color.Transparent)
-          | Primary => (Color.Primary, Color.Transparent)
+          | Warning => (`warning, `transparent)
+          | Error => (`error, `transparent)
+          | Success => (`success, `transparent)
+          | Primary => (`primary, `transparent)
           | Secondary => (
-              Color.EscapeHatch(secondaryColor),
-              Color.Transparent,
+              `escapeHatch(secondaryColor),
+              `transparent,
             )
           }
         : (
           switch (v) {
-          | Warning => (Color.WarningText, Color.Warning)
-          | Error => (Color.ErrorText, Color.Error)
-          | Success => (Color.SuccessText, Color.Success)
-          | Primary => (Color.PrimaryText, Color.Primary)
+          | Warning => (`warningText, `warning)
+          | Error => (`errorText, `error)
+          | Success => (`successText, `success)
+          | Primary => (`primaryText, `primary)
           | Secondary => (
-              Color.BodyBackground,
-              Color.EscapeHatch(secondaryColor),
+              `bodyBackground,
+              `escapeHatch(secondaryColor),
             )
           }
         );
@@ -85,7 +85,7 @@ let useButtonStyles =
     let outlineHighlightBg = isLight ? rgba(0, 0, 0) : rgba(255, 255, 255);
 
     [
-      fontFamily(Styles.useFontFamily(Type.Body)),
+      fontFamily(Styles.useFontFamily(`body)),
       color(Styles.useColor(~highlight=outline_ ? 25 : 0, textVariant)),
       borderRadius(Styles.useBorderRadius(`medium)),
       textTransform(`uppercase),
@@ -125,7 +125,7 @@ let make =
       ~disabled=false,
       ~outline=false,
       ~onlyFocusOnTab=true,
-      ~m=Margin(Space.NoSpace),
+      ~m=`margin(`noSpace),
       ~children,
       (),
     ) => {
@@ -148,7 +148,7 @@ module Link = {
         ~disabled=false,
         ~outline=false,
         ~size=Medium,
-        ~m=Margin(Space.NoSpace),
+        ~m=`margin(`noSpace),
         ~onlyFocusOnTab=true,
         ~children,
         (),

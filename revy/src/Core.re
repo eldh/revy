@@ -85,97 +85,93 @@ type cssFontWeight = [
 ];
 
 module Layout = {
-  type t =
-    | Percent(float)
-    | Eighth
-    | Sixth
-    | Quarter
-    | Third
-    | Half
-    | Full
-    | EscapeHatch(cssWidth)
-    | Auto
-    | Responsive(t, t, t);
+  type t = [
+    | `percent(float)
+    | `eighth
+    | `sixth
+    | `quarter
+    | `third
+    | `half
+    | `full
+    | `escapeHatch(cssWidth)
+    | `auto
+    | `responsive(t, t, t)
+  ];
 };
 
 module Space = {
-  type t =
-    | Auto
-    | NoSpace
-    | Half
-    | Single
-    | Double
-    | Triple
-    | Quad
-    | Quint
-    | Number(int)
-    | EscapeHatch(Css.length)
-    | Responsive(t, t, t);
+  type t = [
+    | `auto
+    | `noSpace
+    | `half
+    | `single
+    | `double
+    | `triple
+    | `quad
+    | `quint
+    | `number(int)
+    | `escapeHatch(Css.length)
+    | `responsive(t, t, t)
+  ];
 };
 
 module Type = {
-  type font =
-    | Body
-    | Title
-    | Mono
-    | Alt;
+  type font = [ | `body | `title | `mono | `alt];
 
-  type fontWeight =
-    | ExtraLight
-    | Light
-    | Normal
-    | Bold
-    | ExtraBold;
+  type fontWeight = [ | `extraLight | `light | `normal | `bold | `extraBold];
 };
 
 module Color = {
-  type t =
-    | Primary
-    | Secondary
-    | Success
-    | Warning
-    | Error
-    | Brand1
-    | Brand2
-    | Brand3
-    | Brand4
-    | BodyBackground
-    | PrimaryText
-    | SecondaryText
-    | WarningText
-    | ErrorText
-    | SuccessText
-    | Brand1Text
-    | Brand2Text
-    | Brand3Text
-    | Brand4Text
-    | BodyText
-    | QuietText
-    | Transparent
-    | Highlight(int, t)
-    | EscapeHatch(Css.color);
+  type t = [
+    | `primary
+    | `secondary
+    | `success
+    | `warning
+    | `error
+    | `brand1
+    | `brand2
+    | `brand3
+    | `brand4
+    | `bodyBackground
+    | `primaryText
+    | `secondaryText
+    | `warningText
+    | `errorText
+    | `successText
+    | `brand1Text
+    | `brand2Text
+    | `brand3Text
+    | `brand4Text
+    | `bodyText
+    | `quietText
+    | `transparent
+    | `highlight(int, t)
+    | `escapeHatch(Css.color)
+  ];
 };
 
-type margin =
-  | Auto
-  | Margin(Space.t)
-  | MarginTop(Space.t)
-  | MarginBottom(Space.t)
-  | MarginLeft(Space.t)
-  | MarginRight(Space.t)
-  | Margin2(Space.t, Space.t)
-  | Margin4(Space.t, Space.t, Space.t, Space.t)
-  | ResponsiveMargin(margin, margin, margin);
+type margin = [
+  | `auto
+  | `margin(Space.t)
+  | `marginTop(Space.t)
+  | `marginBottom(Space.t)
+  | `marginLeft(Space.t)
+  | `marginRight(Space.t)
+  | `margin2(Space.t, Space.t)
+  | `margin4(Space.t, Space.t, Space.t, Space.t)
+  | `responsive(margin, margin, margin)
+];
 
-type padding =
-  | Padding(Space.t)
-  | PaddingTop(Space.t)
-  | PaddingBottom(Space.t)
-  | PaddingLeft(Space.t)
-  | PaddingRight(Space.t)
-  | Padding2(Space.t, Space.t)
-  | Padding4(Space.t, Space.t, Space.t, Space.t)
-  | ResponsivePadding(padding, padding, padding);
+type padding = [
+  | `padding(Space.t)
+  | `paddingTop(Space.t)
+  | `paddingBottom(Space.t)
+  | `paddingLeft(Space.t)
+  | `paddingRight(Space.t)
+  | `padding2(Space.t, Space.t)
+  | `padding4(Space.t, Space.t, Space.t, Space.t)
+  | `responsive(padding, padding, padding)
+];
 
 /**
   Base type for themes
@@ -262,42 +258,42 @@ module Private = {
 
   let rec color =
           (~theme, ~alpha=1., ~highlight=0, ~lighten as lightenVal=0, v) => {
-    open Color;
     let highlightFn = (theme |> isLight ? darken : lighten)(highlight);
     (
       switch (v) {
-      | Primary => theme.colors.primary
-      | Secondary => theme.colors.secondary
-      | Success => theme.colors.success
-      | Warning => theme.colors.warning
-      | Error => theme.colors.error
-      | Brand1 => theme.colors.brand1
-      | Brand2 => theme.colors.brand2
-      | Brand3 => theme.colors.brand3
-      | Brand4 => theme.colors.brand4
-      | BodyBackground => theme.colors.bodyBackground
-      | PrimaryText =>
+      | `primary => theme.colors.primary
+      | `secondary => theme.colors.secondary
+      | `success => theme.colors.success
+      | `warning => theme.colors.warning
+      | `error => theme.colors.error
+      | `brand1 => theme.colors.brand1
+      | `brand2 => theme.colors.brand2
+      | `brand3 => theme.colors.brand3
+      | `brand4 => theme.colors.brand4
+      | `bodyBackground => theme.colors.bodyBackground
+      | `primaryText =>
         theme.colors.primary |> Obj.magic |> Lab.getContrastColorRGB
-      | SecondaryText =>
+      | `secondaryText =>
         theme.colors.secondary |> Obj.magic |> Lab.getContrastColorRGB
-      | WarningText =>
+      | `warningText =>
         theme.colors.warning |> Obj.magic |> Lab.getContrastColorRGB
-      | ErrorText => theme.colors.error |> Obj.magic |> Lab.getContrastColorRGB
-      | SuccessText =>
+      | `errorText =>
+        theme.colors.error |> Obj.magic |> Lab.getContrastColorRGB
+      | `successText =>
         theme.colors.success |> Obj.magic |> Lab.getContrastColorRGB
-      | Brand1Text =>
+      | `brand1Text =>
         theme.colors.brand1 |> Obj.magic |> Lab.getContrastColorRGB
-      | Brand2Text =>
+      | `brand2Text =>
         theme.colors.brand2 |> Obj.magic |> Lab.getContrastColorRGB
-      | Brand3Text =>
+      | `brand3Text =>
         theme.colors.brand3 |> Obj.magic |> Lab.getContrastColorRGB
-      | Brand4Text =>
+      | `brand4Text =>
         theme.colors.brand4 |> Obj.magic |> Lab.getContrastColorRGB
-      | BodyText => theme.colors.bodyText
-      | QuietText => theme.colors.quietText
-      | Highlight(i, c) => color(~theme, ~highlight=i, c)
-      | Transparent => `transparent
-      | EscapeHatch(c) => c
+      | `bodyText => theme.colors.bodyText
+      | `quietText => theme.colors.quietText
+      | `highlight(i, c) => color(~theme, ~highlight=i, c)
+      | `transparent => `transparent
+      | `escapeHatch(c) => c
       }
     )
     |> highlightFn
@@ -316,12 +312,12 @@ module Private = {
   };
 
   let fontFamily = (~theme, v) =>
-    Type.(
+    (
       switch (v) {
-      | Title => theme.fonts.title
-      | Mono => theme.fonts.mono
-      | Body => theme.fonts.body
-      | Alt => theme.fonts.alt
+      | `title => theme.fonts.title
+      | `mono => theme.fonts.mono
+      | `body => theme.fonts.body
+      | `alt => theme.fonts.alt
       }
     )
     |> String.concat(", ");
@@ -333,31 +329,29 @@ module Private = {
   };
 
   let fontWeight = (~theme as _, v) => {
-    Type.(
-      switch (v) {
-      | ExtraLight => `extraLight
-      | Light => `light
-      | Bold => `bold
-      | Normal => `normal
-      | ExtraBold => `extraBold
-      }
-    );
+    switch (v) {
+    | `extraLight => `extraLight
+    | `light => `light
+    | `bold => `bold
+    | `normal => `normal
+    | `extraBold => `extraBold
+    };
   };
 
   let space = (~theme, ~borderAdjust=0, v) => {
     let length = v => Css.px(theme.baseGridUnit * v - borderAdjust);
     switch (v) {
-    | Space.Auto => Obj.magic(Css.auto)
-    | NoSpace => Css.px(0)
-    | Half => 1 |> length
-    | Single => 2 |> length
-    | Double => 3 |> length
-    | Triple => 6 |> length
-    | Quad => 8 |> length
-    | Quint => 10 |> length
-    | Number(i) => i |> length
-    | EscapeHatch(v) => Obj.magic(v)
-    | Responsive(_, _, _) => 6 |> length // TODO Fix
+    | `auto => Obj.magic(Css.auto)
+    | `noSpace => Css.px(0)
+    | `half => 1 |> length
+    | `single => 2 |> length
+    | `double => 3 |> length
+    | `triple => 6 |> length
+    | `quad => 8 |> length
+    | `quint => 10 |> length
+    | `number(i) => i |> length
+    | `escapeHatch(v) => Obj.magic(v)
+    | `responsive(_, _, _) => 6 |> length // TODO Fix
     };
   };
 
@@ -397,20 +391,20 @@ let createTheme =
                alt: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],
              },
       ~hues=Css.{
-                          primary: rgb(36, 133, 222),
-                          secondary: rgb(100, 100, 100),
-                          warning: rgb(214, 135, 5),
-                          success: rgb(44, 173, 2),
-                          error: rgb(230, 26, 26),
-                          brand1: rgb(213, 54, 222),
-                          brand2: rgb(54, 213, 222),
-                          brand3: rgb(213, 222, 54),
-                          brand4: rgb(28, 222, 125),
-                          bodyBackground: rgb(255, 255, 255),
-                          bodyText: rgb(40, 40, 40),
-                          neutral: rgb(40, 40, 40),
-                          quietText: rgb(130, 130, 130),
-                        },
+              primary: rgb(36, 133, 222),
+              secondary: rgb(100, 100, 100),
+              warning: rgb(214, 135, 5),
+              success: rgb(44, 173, 2),
+              error: rgb(230, 26, 26),
+              brand1: rgb(213, 54, 222),
+              brand2: rgb(54, 213, 222),
+              brand3: rgb(213, 222, 54),
+              brand4: rgb(28, 222, 125),
+              bodyBackground: rgb(255, 255, 255),
+              bodyText: rgb(40, 40, 40),
+              neutral: rgb(40, 40, 40),
+              quietText: rgb(130, 130, 130),
+            },
       ~gridWidth as width=960,
       (),
     ) => {
@@ -433,19 +427,8 @@ let createTheme =
   {colors, fonts, fontScale, baseFontSize, baseGridUnit, width, borderRadii};
 };
 
-// let standardColors = [| `primary]
-
 module DefaultTheme = {
   let theme = createTheme();
-};
-
-module type ThemeDef = {
-  type colorDef;
-  let getColor: colorDef => Css.color;
-};
-
-module MakeTheme = (Defs: ThemeDef) => {
-  let getColor = Defs.getColor;
 };
 
 module Context = {
@@ -465,16 +448,18 @@ module Context = {
 module Styles = {
   let marginSpace = (theme, v) => Obj.magic(Private.space(~theme, v));
   let rec marginStyles_ = (theme, p) => {
-    let marginSpace = v => Obj.magic(Private.space(~theme, v));
+    let marginSpace = v => Private.space(~theme, v) |> Obj.magic;
     switch (p) {
-    | Auto => [Css.margin(`auto)]
-    | Margin(i) => [Css.margin(marginSpace(i))]
-    | MarginTop(i) => [Css.marginTop(marginSpace(i))]
-    | MarginBottom(i) => [Css.marginBottom(marginSpace(i))]
-    | MarginLeft(i) => [Css.marginLeft(marginSpace(i))]
-    | MarginRight(i) => [Css.marginRight(marginSpace(i))]
-    | Margin2(x, y) => [Css.margin2(~v=marginSpace(y), ~h=marginSpace(x))]
-    | Margin4(l, t, r, b) => [
+    | `auto => [Css.margin(`auto)]
+    | `margin(i) => [Css.margin(marginSpace(i))]
+    | `marginTop(i) => [Css.marginTop(marginSpace(i))]
+    | `marginBottom(i) => [Css.marginBottom(marginSpace(i))]
+    | `marginLeft(i) => [Css.marginLeft(marginSpace(i))]
+    | `marginRight(i) => [Css.marginRight(marginSpace(i))]
+    | `margin2(x, y) => [
+        Css.margin2(~v=marginSpace(y), ~h=marginSpace(x)),
+      ]
+    | `margin4(l, t, r, b) => [
         Css.margin4(
           ~top=marginSpace(t),
           ~bottom=marginSpace(b),
@@ -482,7 +467,7 @@ module Styles = {
           ~left=marginSpace(l),
         ),
       ]
-    | ResponsiveMargin(s, m, l) =>
+    | `responsive(s, m, l) =>
       responsive(
         theme,
         (
@@ -495,18 +480,18 @@ module Styles = {
   };
   let rec paddingStyles_ = (theme, p) => {
     switch (p) {
-    | Padding(i) => [Css.padding(Private.space(~theme, i))]
-    | PaddingTop(i) => [Css.paddingTop(Private.space(~theme, i))]
-    | PaddingBottom(i) => [Css.paddingBottom(Private.space(~theme, i))]
-    | PaddingLeft(i) => [Css.paddingLeft(Private.space(~theme, i))]
-    | PaddingRight(i) => [Css.paddingRight(Private.space(~theme, i))]
-    | Padding2(x, y) => [
+    | `padding(i) => [Css.padding(Private.space(~theme, i))]
+    | `paddingTop(i) => [Css.paddingTop(Private.space(~theme, i))]
+    | `paddingBottom(i) => [Css.paddingBottom(Private.space(~theme, i))]
+    | `paddingLeft(i) => [Css.paddingLeft(Private.space(~theme, i))]
+    | `paddingRight(i) => [Css.paddingRight(Private.space(~theme, i))]
+    | `padding2(x, y) => [
         Css.padding2(
           ~v=Private.space(~theme, y),
           ~h=Private.space(~theme, x),
         ),
       ]
-    | Padding4(l, t, r, b) => [
+    | `padding4(l, t, r, b) => [
         Css.padding4(
           ~top=Private.space(~theme, t),
           ~bottom=Private.space(~theme, b),
@@ -514,7 +499,7 @@ module Styles = {
           ~left=Private.space(~theme, l),
         ),
       ]
-    | ResponsivePadding(s, m, l) =>
+    | `responsive(s, m, l) =>
       responsive(
         theme,
         (
@@ -529,16 +514,16 @@ module Styles = {
   let rec widthStyles_ = (theme, m) => {
     let w = theme.width;
     switch (m) {
-    | Layout.Percent(v) => Css.[width(pct(v))]
-    | Eighth => Css.[width(pct(100. /. 8.))]
-    | Sixth => Css.[width(pct(100. /. 6.))]
-    | Quarter => Css.[width(pct(100. /. 4.))]
-    | Third => Css.[width(pct(100. /. 3.))]
-    | Half => Css.[width(pct(100. /. 2.))]
-    | Full => Css.[maxWidth(px(w)), width(pct(100.))]
-    | Auto => Css.[width(`auto)]
-    | EscapeHatch(i) => Css.[width(i)]
-    | Responsive(s, m, l) =>
+    | `percent(v) => Css.[width(pct(v))]
+    | `eighth => Css.[width(pct(100. /. 8.))]
+    | `sixth => Css.[width(pct(100. /. 6.))]
+    | `quarter => Css.[width(pct(100. /. 4.))]
+    | `third => Css.[width(pct(100. /. 3.))]
+    | `half => Css.[width(pct(100. /. 2.))]
+    | `full => Css.[maxWidth(px(w)), width(pct(100.))]
+    | `auto => Css.[width(`auto)]
+    | `escapeHatch(i) => Css.[width(i)]
+    | `responsive(s, m, l) =>
       responsive(
         theme,
         (

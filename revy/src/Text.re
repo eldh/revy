@@ -5,7 +5,7 @@ let useTextStyles =
     (
       ~size,
       ~color as color_,
-      ~fontFamily as fontFamily_=Type.Body,
+      ~fontFamily as fontFamily_=`body,
       ~lineHeight as lineHeight_,
       ~weight as weight_,
       (),
@@ -25,12 +25,12 @@ let useTextStyles =
 [@react.component]
 let make =
     (
-      ~weight=Type.Normal,
+      ~weight=`normal,
       ~size=0,
       ~tag="span",
       ~style=?,
       ~lineHeight=0,
-      ~color=Color.BodyText,
+      ~color=`bodyText,
       ~children,
       (),
     ) => {
@@ -56,12 +56,12 @@ module String = {
   [@react.component]
   let make =
       (
-        ~weight=Type.Normal,
+        ~weight=`normal,
         ~tag="span",
         ~size=0,
         ~style=?,
         ~lineHeight=0,
-        ~color=Color.BodyText,
+        ~color=`bodyText,
         ~children,
         (),
       ) => {
@@ -88,13 +88,13 @@ module Block = {
   [@react.component]
   let make =
       (
-        ~weight=Type.Normal,
+        ~weight=`normal,
         ~tag="div",
-        ~m=Margin(Space.Auto),
+        ~m=`margin(`auto),
         ~size=0,
         ~style=?,
         ~lineHeight=0,
-        ~color=Color.BodyText,
+        ~color=`bodyText,
         ~children,
         (),
       ) => {
@@ -123,13 +123,13 @@ module Paragraph = {
   [@react.component]
   let make =
       (
-        ~weight=Type.Normal,
+        ~weight=`normal,
         ~tag="p",
-        ~m=Margin4(Space.NoSpace, Space.NoSpace, Space.NoSpace, Space.Double),
+        ~m=`margin4(`noSpace, `noSpace, `noSpace, `double),
         ~size=0,
         ~style=?,
         ~lineHeight=0,
-        ~color=Color.BodyText,
+        ~color=`bodyText,
         ~children,
         (),
       ) => {
@@ -158,13 +158,13 @@ module Code = {
   [@react.component]
   let make =
       (
-        ~weight=Type.Normal,
+        ~weight=`normal,
         ~tag="pre",
-        ~m=Margin2(Space.NoSpace, Space.Double),
+        ~m=`margin2(`noSpace, `double),
         ~size=0,
         ~style=?,
         ~lineHeight=0,
-        ~color=Color.BodyText,
+        ~color=`bodyText,
         ~children,
         (),
       ) => {
@@ -174,15 +174,15 @@ module Code = {
         ~lineHeight,
         ~weight,
         ~color,
-        ~fontFamily=Type.Mono,
+        ~fontFamily=`mono,
         (),
       );
-    let margin = Styles.useMargin(Margin(Space.NoSpace));
-    let padding = Styles.usePadding(Padding(Space.Double));
+    let margin = Styles.useMargin(`margin(`noSpace));
+    let padding = Styles.usePadding(`padding(`double));
     <Box
       m
-      backgroundColor=Color.(
-        EscapeHatch(Styles.useColor(~highlight=7, BodyBackground))
+      backgroundColor=(
+        `escapeHatch(Styles.useColor(~highlight=7, `bodyBackground))
       )
       borderRadius={Css.px(6)}
       style=Css.[width(pct(100.)), overflow(`scroll)]>

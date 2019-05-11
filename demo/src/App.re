@@ -40,7 +40,7 @@ let make = () => {
   <Core.Context.Provider value=themeObj>
   <>
     <Topbar toggleTheme />
-    <Box alignContent=`center m={Core.Margin(Core.Space.Auto)}>
+    <Box alignContent=`center m={`margin(`auto)}>
       <Test toggleTheme />
     </Box>
   </>

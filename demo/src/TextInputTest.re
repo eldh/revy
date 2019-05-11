@@ -11,7 +11,7 @@ let make = () => {
   <ComponentsCard title="Inputs">
     <Box
       direction=`column
-      m=Revy.Core.(Space.(Margin4(NoSpace, NoSpace, Single, Single)))>
+      m=`margin4(`noSpace, `noSpace, `single, `single)>
       <TextInput.Label htmlFor="foo">
         "Enabled"->React.string
       </TextInput.Label>
@@ -25,7 +25,7 @@ let make = () => {
     </Box>
     <Box
       direction=`column
-      m=Revy.Core.(Space.(Margin4(NoSpace, NoSpace, Single, Single)))>
+      m=`margin4(`noSpace, `noSpace, `single, `single)>
       <TextInput.Label htmlFor="bar">
         "Disabled"->React.string
       </TextInput.Label>

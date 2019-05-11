@@ -4,13 +4,13 @@ let useCardStyle = (~p, ~m, ()) => {
   [
     Css.[
       backgroundColor(
-        Core.(Styles.useColor(Color.(Highlight(5, BodyBackground)))),
+        Core.(Styles.useColor(`highlight(5, `bodyBackground))),
       ),
       flexWrap(`wrap),
       borderRadius(Css.px(6)),
       borderWidth(px(1)),
       borderColor(
-        Core.(Styles.useColor(Color.(Highlight(10, BodyBackground)))),
+        Core.(Styles.useColor(`highlight(10, `bodyBackground))),
       ),
       borderStyle(`solid),
       boxShadow(
@@ -31,10 +31,10 @@ let make =
       ~tag="div",
       ~a11yTitle as _a11yTitle=?,
       ~style as style_=[],
-      ~color=Core.Color.PrimaryText,
+      ~color=`primaryText,
       ~grow=1.,
-      ~p=Core.(Padding(Space.Single)),
-      ~m=Core.(Margin(Space.NoSpace)),
+      ~p=`padding(`single),
+      ~m=`margin(`noSpace),
       ~domProps=?,
       ~children=?,
       (),

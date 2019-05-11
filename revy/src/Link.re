@@ -1,12 +1,13 @@
+open Revy.Core;
 let useLinkStyle = (~color as color_, ()) =>
   Css.[
     display(`inline),
     textDecoration(`underline),
     cursor(`pointer),
     borderStyle(`none),
-    color(Revy.Core.Styles.useColor(color_)),
+    color(Styles.useColor(color_)),
     transition(~duration=200, "color"),
-    hover([color(Revy.Core.Styles.useColor(~highlight=-40, color_))]),
+    hover([color(Styles.useColor(~highlight=-40, color_))]),
     focus([
       outlineStyle(`none),
       boxShadow(
@@ -14,7 +15,7 @@ let useLinkStyle = (~color as color_, ()) =>
         ~blur=px(0),
         ~spread=px(1),
         ~inset=true,
-        Revy.Core.(Styles.useColor(Color.Primary)),
+        Styles.useColor(`primary),
       ),
     ]),
     active([
@@ -24,7 +25,7 @@ let useLinkStyle = (~color as color_, ()) =>
         ~blur=px(0),
         ~spread=px(1),
         ~inset=true,
-        Revy.Core.(Styles.useColor(Color.Transparent)),
+        (Styles.useColor(`transparent)),
       ),
     ]),
   ];
@@ -34,11 +35,11 @@ let make =
     (
       ~href,
       ~onClick=ignore,
-      ~color=Revy.Core.Color.Primary,
+      ~color=`primary,
       ~size=0,
       ~lineHeight=0,
-      ~m=Revy.Core.(Margin(Space.Auto)),
-      ~weight=Revy.Core.Type.Normal,
+      ~m=`margin(`auto),
+      ~weight=`normal,
       ~children,
       (),
     ) => {
@@ -48,7 +49,7 @@ let make =
     href
     onClick
     className={
-      [textStyle, linkStyle, Revy.Core.Styles.useMargin(m)]
+      [textStyle, linkStyle, Styles.useMargin(m)]
       |> List.concat
       |> Css.style
     }>
@@ -61,11 +62,11 @@ module Button = {
   let make =
       (
         ~onClick=ignore,
-        ~color=Revy.Core.Color.Primary,
+        ~color=`primary,
         ~size=0,
         ~lineHeight=0,
-        ~m=Revy.Core.(Margin(Space.Auto)),
-        ~weight=Revy.Core.Type.Normal,
+        ~m=(`margin(`auto)),
+        ~weight=`normal,
         ~children,
         (),
       ) => {
@@ -77,7 +78,7 @@ module Button = {
       grow=0.
       onPress=onClick
       style={
-        [textStyle, linkStyle, Revy.Core.Styles.useMargin(m)] |> List.concat
+        [textStyle, linkStyle, Styles.useMargin(m)] |> List.concat
       }>
       children->React.string
     </TouchableOpacity>;
