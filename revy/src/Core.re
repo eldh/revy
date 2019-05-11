@@ -84,17 +84,6 @@ type cssFontWeight = [
   | `unset
 ];
 
-type uiStyle =
-  | Layers
-  | Flat
-  | Raised;
-
-type length =
-  | Zero
-  | Unit(int)
-  | BorderWidth
-  | BorderRadius;
-
 module Layout = {
   type t =
     | Percent(float)
@@ -146,12 +135,20 @@ module Color = {
     | Success
     | Warning
     | Error
+    | Brand1
+    | Brand2
+    | Brand3
+    | Brand4
     | BodyBackground
     | PrimaryText
     | SecondaryText
     | WarningText
     | ErrorText
     | SuccessText
+    | Brand1Text
+    | Brand2Text
+    | Brand3Text
+    | Brand4Text
     | BodyText
     | QuietText
     | Transparent
@@ -191,17 +188,23 @@ type fonts = {
   alt: list(string),
 };
 
+type borderRadii = {
+  small: int,
+  medium: int,
+  large: int,
+};
+
 type colors = {
+  neutral: Css.color,
   primary: Css.color,
-  primaryText: Css.color,
   secondary: Css.color,
-  secondaryText: Css.color,
   success: Css.color,
-  successText: Css.color,
   warning: Css.color,
-  warningText: Css.color,
   error: Css.color,
-  errorText: Css.color,
+  brand1: Css.color,
+  brand2: Css.color,
+  brand3: Css.color,
+  brand4: Css.color,
   bodyBackground: Css.color,
   bodyText: Css.color,
   quietText: Css.color,
@@ -214,71 +217,16 @@ type t = {
   baseFontSize: int,
   baseGridUnit: int,
   width: int,
+  borderRadii,
 };
 
 let responsive = (_theme, (s, m, l)) => {
   Css.[media("(min-width: 30em)", m), media("(min-width: 50em)", l), ...s];
 };
 module Private = {
-  let clamp = (minVal, maxVal, v) =>
-    if (v < minVal) {
-      minVal;
-    } else if (v > maxVal) {
-      maxVal;
-    } else {
-      v;
-    };
-
-  let rgbClamp = clamp(0, 255);
-  let hslClamp = clamp(0, 100);
-  let lighten = (factor, color: Css.color) =>
-    switch (color) {
-    | `hsl(h, s, l) => `hsl((h, s, hslClamp(l + factor)))
-    | `hsla(h, s, l, a) => `hsla((h, s, hslClamp(l + factor), a))
-    | `rgb(r, g, b) =>
-      `rgb((
-        rgbClamp(r + factor),
-        rgbClamp(g + factor),
-        rgbClamp(b + factor),
-      ))
-    | `rgba(r, g, b, a) =>
-      `rgba((
-        rgbClamp(r + factor),
-        rgbClamp(g + factor),
-        rgbClamp(b + factor),
-        a,
-      ))
-    | _ => color // TODO: Error / handle
-    };
-
-  let darken = (factor, rgb) => lighten(factor * (-1), rgb);
-
-  let highlight = (factor, hsl: Css.color) =>
-    switch (hsl) {
-    | `hsl(_h, _s, l) => l > 50 ? darken(factor, hsl) : lighten(factor, hsl)
-    | `hsla(_h, _s, l, _a) =>
-      l > 50 ? darken(factor, hsl) : lighten(factor, hsl)
-    | `rgb(_, _, _) as rgb =>
-      Lab.(rgb |> fromRGB |> highlight(factor) |> toRGB)
-    | `rgba(r, g, b, _) =>
-      Lab.(`rgb(r, g, b) |> fromRGB |> highlight(factor) |> toRGB)
-    | _ => lighten(factor, hsl)
-    };
-  let isLight = theme => {
-    switch (theme.colors.bodyBackground) {
-    | `hsl(_h, _s, l) => l > 50
-    | `hsla(_h, _s, l, _a) => l > 50
-    | `rgb(_r, _g, _b) as rgb => Lab.luminanceRGB(rgb) > 0.5
-    | `rgba(r, g, b, _a) => Lab.luminanceRGB(`rgb((r, g, b))) > 0.5
-    | _ => true
-    };
-  };
-
   let alphaFn = (v, c) => {
     Css.(
       switch (c) {
-      | `hsl(h, s, l) => hsla(h, s, l, v)
-      | `hsla(h, s, l, _a) => hsla(h, s, l, v)
       | `rgba(r, g, b, _a) => rgba(r, g, b, v)
       | `rgb(r, g, b) => rgba(r, g, b, v)
       | _ => c
@@ -286,7 +234,34 @@ module Private = {
     );
   };
 
-  let rec color = (~theme, ~alpha=1., ~highlight=0, v) => {
+  let lighten = (factor, color: Css.color) =>
+    switch (color) {
+    | `rgb(_, _, _) as rgb => Lab.(rgb |> lightenRGB(factor))
+    | `rgba(r, g, b, a) =>
+      Lab.(`rgb((r, g, b)) |> lightenRGB(factor) |> alphaFn(a))
+    | _ => color // TODO: Error / handle
+    };
+
+  let darken = (factor, rgb) => lighten(factor * (-1), rgb);
+
+  let highlight = (factor, c: Css.color) =>
+    switch (c) {
+    | `rgb(_, _, _) as rgb => Lab.(rgb |> highlightRGB(factor))
+    | `rgba(r, g, b, a) =>
+      Lab.(`rgb((r, g, b)) |> highlightRGB(factor) |> alphaFn(a))
+    | _ => c
+    };
+
+  let isLight = theme => {
+    switch (theme.colors.bodyBackground) {
+    | `rgb(_r, _g, _b) as rgb => Lab.luminanceRGB(rgb) > 0.5
+    | `rgba(r, g, b, _a) => Lab.luminanceRGB(`rgb((r, g, b))) > 0.5
+    | _ => true
+    };
+  };
+
+  let rec color =
+          (~theme, ~alpha=1., ~highlight=0, ~lighten as lightenVal=0, v) => {
     open Color;
     let highlightFn = (theme |> isLight ? darken : lighten)(highlight);
     (
@@ -296,12 +271,28 @@ module Private = {
       | Success => theme.colors.success
       | Warning => theme.colors.warning
       | Error => theme.colors.error
+      | Brand1 => theme.colors.brand1
+      | Brand2 => theme.colors.brand2
+      | Brand3 => theme.colors.brand3
+      | Brand4 => theme.colors.brand4
       | BodyBackground => theme.colors.bodyBackground
-      | PrimaryText => theme.colors.primaryText
-      | SecondaryText => theme.colors.secondaryText
-      | WarningText => theme.colors.warningText
-      | ErrorText => theme.colors.errorText
-      | SuccessText => theme.colors.successText
+      | PrimaryText =>
+        theme.colors.primary |> Obj.magic |> Lab.getContrastColorRGB
+      | SecondaryText =>
+        theme.colors.secondary |> Obj.magic |> Lab.getContrastColorRGB
+      | WarningText =>
+        theme.colors.warning |> Obj.magic |> Lab.getContrastColorRGB
+      | ErrorText => theme.colors.error |> Obj.magic |> Lab.getContrastColorRGB
+      | SuccessText =>
+        theme.colors.success |> Obj.magic |> Lab.getContrastColorRGB
+      | Brand1Text =>
+        theme.colors.brand1 |> Obj.magic |> Lab.getContrastColorRGB
+      | Brand2Text =>
+        theme.colors.brand2 |> Obj.magic |> Lab.getContrastColorRGB
+      | Brand3Text =>
+        theme.colors.brand3 |> Obj.magic |> Lab.getContrastColorRGB
+      | Brand4Text =>
+        theme.colors.brand4 |> Obj.magic |> Lab.getContrastColorRGB
       | BodyText => theme.colors.bodyText
       | QuietText => theme.colors.quietText
       | Highlight(i, c) => color(~theme, ~highlight=i, c)
@@ -310,6 +301,12 @@ module Private = {
       }
     )
     |> highlightFn
+    |> (
+      switch (lightenVal) {
+      | 0 => (a => a)
+      | a => lighten(a)
+      }
+    )
     |> (
       switch (alpha) {
       | 1. => (a => a)
@@ -392,72 +389,48 @@ let createTheme =
       ~fontScale=1.25,
       ~baseFontSize=16,
       ~baseGridUnit=4,
+      ~borderRadii={small: 4, medium: 6, large: 8},
       ~fonts={
                body: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],
                title: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],
                mono: ["monospace"],
                alt: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],
              },
-      ~colors=Css.{
-                primary:
-                  Lab.(
-                    fromRGB(`rgb((36, 133, 222))) |> lighten(25) |> toCssRGB
-                  ),
-                primaryText:
-                  Lab.(
-                    getContrastColor(`rgb((36, 133, 222)))
-                    |> fromRGB
-                    |> toCssRGB
-                  ),
-                secondary:
-                  Lab.(
-                    fromRGB(`rgb((20, 10, 0))) |> lighten(25) |> toCssRGB
-                  ),
-                secondaryText:
-                  Lab.(
-                    fromRGB(`rgb((20, 10, 0)))
-                    |> lighten(25)
-                    |> getContrastColorLab
-                    |> toCssRGB
-                  ),
-                warning:
-                  Lab.(
-                    fromRGB(`rgb((214, 149, 5))) |> lighten(25) |> toCssRGB
-                  ),
-                warningText:
-                  Lab.(
-                    getContrastColor(`rgb((214, 149, 5)))
-                    |> fromRGB
-                    |> toCssRGB
-                  ),
-                success:
-                  Lab.(
-                    fromRGB(`rgb((44, 173, 2))) |> lighten(25) |> toCssRGB
-                  ),
-                successText:
-                  Lab.(
-                    getContrastColor(`rgb((44, 173, 2)))
-                    |> fromRGB
-                    |> toCssRGB
-                  ),
-                error:
-                  Lab.(
-                    fromRGB(`rgb((211, 26, 26))) |> lighten(25) |> toCssRGB
-                  ),
-                errorText:
-                  Lab.(
-                    getContrastColor(`rgb((211, 26, 26)))
-                    |> fromRGB
-                    |> toCssRGB
-                  ),
-                bodyBackground: rgb(255, 255, 255),
-                bodyText: rgb(40, 40, 40),
-                quietText: rgb(130, 130, 130),
-              },
+      ~hues=Css.{
+                          primary: rgb(36, 133, 222),
+                          secondary: rgb(100, 100, 100),
+                          warning: rgb(214, 135, 5),
+                          success: rgb(44, 173, 2),
+                          error: rgb(230, 26, 26),
+                          brand1: rgb(213, 54, 222),
+                          brand2: rgb(54, 213, 222),
+                          brand3: rgb(213, 222, 54),
+                          brand4: rgb(28, 222, 125),
+                          bodyBackground: rgb(255, 255, 255),
+                          bodyText: rgb(40, 40, 40),
+                          neutral: rgb(40, 40, 40),
+                          quietText: rgb(130, 130, 130),
+                        },
       ~gridWidth as width=960,
       (),
     ) => {
-  {colors, fonts, fontScale, baseFontSize, baseGridUnit, width};
+  let colors =
+    Lab.{
+      primary: hues.primary |> fromRGB |> lightness(80.) |> toRGB,
+      secondary: hues.secondary |> fromRGB |> lightness(80.) |> toRGB,
+      warning: hues.warning |> fromRGB |> lightness(80.) |> toRGB,
+      success: hues.success |> fromRGB |> lightness(80.) |> toRGB,
+      error: hues.error |> fromRGB |> lightness(80.) |> toRGB,
+      brand1: hues.brand1 |> fromRGB |> lightness(80.) |> toRGB,
+      brand2: hues.brand2 |> fromRGB |> lightness(80.) |> toRGB,
+      brand3: hues.brand3 |> fromRGB |> lightness(80.) |> toRGB,
+      brand4: hues.brand4 |> fromRGB |> lightness(80.) |> toRGB,
+      bodyBackground: hues.bodyBackground,
+      bodyText: hues.bodyText,
+      quietText: hues.quietText,
+      neutral: hues.neutral |> fromRGB |> lightness(80.) |> toRGB,
+    };
+  {colors, fonts, fontScale, baseFontSize, baseGridUnit, width, borderRadii};
 };
 
 // let standardColors = [| `primary]
@@ -590,13 +563,26 @@ module Styles = {
   /** Width styles yo */
   let useWidth = w => widthStyles_(React.useContext(Context.context), w);
 
-  let useColor = (~highlight=0, ~alpha=1., c) => {
+  let useColor = (~highlight=0, ~lighten=0, ~alpha=1., c) => {
     Private.color(
       ~theme=React.useContext(Context.context),
       ~highlight,
+      ~lighten,
       ~alpha,
       c,
     );
+  };
+
+  let useBorderRadius = s => {
+    let theme = React.useContext(Context.context);
+    (
+      switch (s) {
+      | `small => theme.borderRadii.small
+      | `medium => theme.borderRadii.medium
+      | `large => theme.borderRadii.large
+      }
+    )
+    |> Css.px;
   };
 
   let useSpace = (~borderAdjust=0, s) => {

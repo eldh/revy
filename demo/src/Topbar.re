@@ -11,7 +11,7 @@ let make = (~toggleTheme=ignore, ()) => {
       <Box
         backgroundColor={
           Color.Highlight(
-            20, Color.BodyBackground)
+            8, Color.BodyBackground)
         }
         p={Padding(Space.Single)}
         w={Layout.EscapeHatch(Css.vw(100.))}
@@ -34,13 +34,13 @@ let make = (~toggleTheme=ignore, ()) => {
             <Link
               m={Revy.Core.Margin(Space.Half)}
               href="https://github.com/eldh/revy"
-              color=Revy.Core.Color.Secondary>
+              color=Revy.Core.Color.BodyText>
               "Github"
             </Link>
             <Link.Button
               m={Revy.Core.Margin(Space.Half)}
               onClick={_ => toggleTheme()}
-              color=Revy.Core.Color.Secondary>
+              color=Revy.Core.Color.BodyText>
               "Toggle dark theme"
             </Link.Button>
           </Box>

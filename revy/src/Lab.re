@@ -135,6 +135,14 @@ let xyzToLab = ((x, y, z)) => {
 let fromRGB = rgb => {
   switch (rgb) {
   | `rgb(r, g, b) => (r, g, b) |> rgbToXyz |> xyzToLab
+  | `rgba(r, g, b, _) => (r, g, b) |> rgbToXyz |> xyzToLab
+  | _ => (255, 0, 0) |> rgbToXyz |> xyzToLab
+  };
+};
+
+let lightness = (v, lab) => {
+  switch (lab) {
+  | `lab(_l, a, b) => `lab((clamp(0., 100., v), a, b))
   };
 };
 
@@ -145,9 +153,32 @@ let lighten = (factor, lab) => {
   };
 };
 
-let highlight = (factor, lab) => {
+let lightenRGB = (factor, c) => {
+  c |> fromRGB |> lighten(factor) |> toRGB;
+};
+
+let darkenLab = (factor, c) => {
+  c |> lighten(factor * (-1));
+};
+
+let darkenRGB = (factor, c) => {
+  c |> fromRGB |> darkenLab(factor) |> toRGB;
+};
+
+let highlightLab = (factor, lab) => {
   switch (lab) {
   | `lab(l, _a, _b) => lighten((l > 50. ? (-1) : 1) * factor, lab)
+  };
+};
+
+let highlightRGB = (factor, rgb) => {
+  rgb |> fromRGB |> highlightLab(factor) |> toRGB;
+};
+
+let highlight = (factor, c) => {
+  switch (c) {
+  | `rgb(_, _, _) as rgb => rgb |> highlightRGB(factor)
+  | `lab(_l, _a, _b) as lab => lab |> highlightLab(factor)
   };
 };
 
@@ -187,12 +218,11 @@ let luminance = c => {
   |> luminanceRGB;
 };
 
-let contrast = (luminance1, luminance2) =>{
-  Js.log2("luminance1", luminance1);
-  
+let contrast = (luminance1, luminance2) => {
   luminance1 > luminance2
     ? (luminance1 +. 0.05) /. (luminance2 +. 0.05)
-    : (luminance2 +. 0.05) /. (luminance1 +. 0.05)};
+    : (luminance2 +. 0.05) /. (luminance1 +. 0.05);
+};
 
 let rgbContrast = (r1, r2) =>
   contrast(r1 |> luminanceRGB, r2 |> luminanceRGB);
@@ -215,6 +245,7 @@ let getContrastColorLab = lab => {
     let rgb = c |> toRGB;
     let darkLab = `lab((0., a, b));
     let lightLab = `lab((100., a, b));
+
     darkLab
     |> toRGB
     |> rgbContrast(rgb) > (lightLab |> toRGB |> rgbContrast(rgb))

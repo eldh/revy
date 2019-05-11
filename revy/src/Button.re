@@ -1,3 +1,5 @@
+open Revy.Core;
+
 type variant =
   | Error
   | Warning
@@ -14,19 +16,14 @@ let useButtonStyles =
     (~variant, ~outline as outline_, ~m, ~size, ~disabled as _disabled_, ()) => {
   // TODO fix
   let (btnFontSize, paddingV, paddingH) =
-    Revy.Core.(
-      switch (size) {
-      | Small => (Revy.Core.Styles.useFontSize(-1), Space.Half, Space.Single)
-      | Medium => (Revy.Core.Styles.useFontSize(0), Space.Single, Space.Double)
-      | Large => (Revy.Core.Styles.useFontSize(1), Space.Double, Space.Triple)
-      }
-    );
+    switch (size) {
+    | Small => (Styles.useFontSize(-1), Space.Half, Space.Single)
+    | Medium => (Styles.useFontSize(0), Space.Single, Space.Double)
+    | Large => (Styles.useFontSize(1), Space.Double, Space.Triple)
+    };
   let sharedStyles =
     Css.[
-      padding2(
-        ~v=Revy.Core.Styles.useSpace(paddingV),
-        ~h=Revy.Core.Styles.useSpace(paddingH),
-      ),
+      padding2(~v=Styles.useSpace(paddingV), ~h=Styles.useSpace(paddingH)),
       textDecoration(`none),
       textAlign(`center),
       alignContent(`center),
@@ -34,98 +31,89 @@ let useButtonStyles =
       cursor(`pointer),
       transition(~duration=200, "all"),
       fontSize(btnFontSize),
-      lineHeight(Revy.Core.Styles.useLineHeight(~fontSize=btnFontSize, ())),
+      lineHeight(Styles.useLineHeight(~fontSize=btnFontSize, ())),
       fontWeight(`bold),
     ];
   let variantStyles = v => {
     open Css;
+    let isLight = Styles.useIsLight();
+    let secondaryColor = isLight ? rgb(50, 50, 50) : rgb(230, 230, 230);
+
     let (textVariant, bgVariant) =
       outline_
         ? switch (v) {
-          | Warning => (Revy.Core.Color.Warning, Revy.Core.Color.Transparent)
-          | Error => (Revy.Core.Color.Error, Revy.Core.Color.Transparent)
-          | Success => (Revy.Core.Color.Success, Revy.Core.Color.Transparent)
-          | Primary => (Revy.Core.Color.Primary, Revy.Core.Color.Transparent)
-          | Secondary => (Revy.Core.Color.Secondary, Revy.Core.Color.Transparent)
+          | Warning => (Color.Warning, Color.Transparent)
+          | Error => (Color.Error, Color.Transparent)
+          | Success => (Color.Success, Color.Transparent)
+          | Primary => (Color.Primary, Color.Transparent)
+          | Secondary => (
+              Color.EscapeHatch(secondaryColor),
+              Color.Transparent,
+            )
           }
         : (
           switch (v) {
-          | Warning => (Revy.Core.Color.WarningText, Revy.Core.Color.Warning)
-          | Error => (Revy.Core.Color.ErrorText, Revy.Core.Color.Error)
-          | Success => (Revy.Core.Color.SuccessText, Revy.Core.Color.Success)
-          | Primary => (Revy.Core.Color.PrimaryText, Revy.Core.Color.Primary)
-          | Secondary => (Revy.Core.Color.SecondaryText, Revy.Core.Color.Secondary)
+          | Warning => (Color.WarningText, Color.Warning)
+          | Error => (Color.ErrorText, Color.Error)
+          | Success => (Color.SuccessText, Color.Success)
+          | Primary => (Color.PrimaryText, Color.Primary)
+          | Secondary => (
+              Color.BodyBackground,
+              Color.EscapeHatch(secondaryColor),
+            )
           }
         );
-    let styleStyles =
-      switch (Revy.Core.Flat) {
-      | _ => [
-          outline_
-            ? boxShadow(
-                ~y=px(0),
-                ~inset=true,
-                ~spread=px(2),
-                ~blur=px(0),
-                Revy.Core.Styles.useColor(~highlight=50, textVariant),
-              )
-            : boxShadow(
-                ~y=px(0),
-                ~inset=true,
-                ~spread=px(1),
-                ~blur=px(0),
-                Revy.Core.Styles.useColor(~highlight=15, bgVariant),
-              ),
-          // boxShadow(
-          //   ~y=px(0),
-          //   ~inset=true,
-          //   ~spread=px(1),
-          //   ~blur=px(0),
-          //   outline_
-          //     ? Css.transparent : Revy.Core.Styles.useColor(~highlight=10, bgVariant),
-          // ),
-          // borderColor(Revy.Core.Styles.useColor(~highlight=10, textVariant)),
-          borderWidth(px(0)),
-          borderStyle(`solid),
-        ]
-      };
-    let outlineHighlightBg =
-      Revy.Core.Styles.useIsLight() ? rgba(0, 0, 0) : rgba(255, 255, 255);
+    let styleStyles = [
+      outline_
+        ? boxShadow(
+            ~y=px(0),
+            ~inset=true,
+            ~spread=px(2),
+            ~blur=px(0),
+            Styles.useColor(~highlight=20, textVariant),
+          )
+        : boxShadow(
+            ~y=px(0),
+            ~inset=true,
+            ~spread=px(1),
+            ~blur=px(0),
+            Styles.useColor(~highlight=5, bgVariant),
+          ),
+      borderWidth(px(0)),
+      borderStyle(`solid),
+    ];
+    let outlineHighlightBg = isLight ? rgba(0, 0, 0) : rgba(255, 255, 255);
 
     [
-      fontFamily(Revy.Core.Styles.useFontFamily(Revy.Core.Type.Body)),
-      color(
-        Revy.Core.Styles.useColor(~highlight=outline_ ? 50 : 0, textVariant),
-      ),
-      borderRadius(Css.px(6)),
+      fontFamily(Styles.useFontFamily(Type.Body)),
+      color(Styles.useColor(~highlight=outline_ ? 25 : 0, textVariant)),
+      borderRadius(Styles.useBorderRadius(`medium)),
       textTransform(`uppercase),
-      backgroundColor(Revy.Core.Styles.useColor(bgVariant)),
+      backgroundColor(Styles.useColor(bgVariant)),
       hover([
         backgroundColor(
           outline_
             ? outlineHighlightBg(0.05)
-            : Revy.Core.Styles.useColor(~highlight=-20, bgVariant),
+            : Styles.useColor(~lighten=10, bgVariant),
         ),
       ]),
       disabled([
         opacity(0.7),
-        hover([backgroundColor(Revy.Core.Styles.useColor(bgVariant))]),
+        hover([backgroundColor(Styles.useColor(bgVariant))]),
       ]),
       focus([
         outlineStyle(`none),
         backgroundColor(
           outline_
             ? outlineHighlightBg(0.1)
-            : Revy.Core.Styles.useColor(~highlight=30, bgVariant),
+            : Styles.useColor(~highlight=30, bgVariant),
         ),
       ]),
-      active([
-        backgroundColor(Revy.Core.Styles.useColor(~highlight=20, bgVariant)),
-      ]),
+      active([backgroundColor(Styles.useColor(~highlight=20, bgVariant))]),
       ...styleStyles,
     ];
   };
-  [Revy.Core.Styles.useMargin(m), sharedStyles, variantStyles(variant)]
-  |> List.concat;
+  [Styles.useMargin(m), sharedStyles, variantStyles(variant)] |> List.concat;
 };
 
 [@react.component]
@@ -137,7 +125,7 @@ let make =
       ~disabled=false,
       ~outline=false,
       ~onlyFocusOnTab=true,
-      ~m=Revy.Core.(Margin(Space.NoSpace)),
+      ~m=Margin(Space.NoSpace),
       ~children,
       (),
     ) => {
@@ -160,7 +148,7 @@ module Link = {
         ~disabled=false,
         ~outline=false,
         ~size=Medium,
-        ~m=Revy.Core.(Margin(Space.NoSpace)),
+        ~m=Margin(Space.NoSpace),
         ~onlyFocusOnTab=true,
         ~children,
         (),
