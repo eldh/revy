@@ -146,6 +146,10 @@ let lightness = (v, lab) => {
   };
 };
 
+let lightnessRGB = (v, rgb) => {
+  rgb |> fromRGB |> lightness(v) |> toRGB;
+};
+
 let lighten = (factor, lab) => {
   switch (lab) {
   | `lab(l, a, b) =>

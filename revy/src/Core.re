@@ -1,5 +1,6 @@
 // type cssFontFamily = array(string);
 exception InvalidValue(string);
+let identity = a => a;
 
 type cssFontSize = [
   | `calc([ | `add | `sub], Css.length, Css.length)
@@ -130,8 +131,6 @@ module Color = {
     | `error
     | `brand1
     | `brand2
-    | `brand3
-    | `brand4
     | `bodyBackground
     | `primaryText
     | `secondaryText
@@ -140,8 +139,6 @@ module Color = {
     | `successText
     | `brand1Text
     | `brand2Text
-    | `brand3Text
-    | `brand4Text
     | `bodyText
     | `quietText
     | `transparent
@@ -199,8 +196,6 @@ type colors = {
   error: Css.color,
   brand1: Css.color,
   brand2: Css.color,
-  brand3: Css.color,
-  brand4: Css.color,
   bodyBackground: Css.color,
   bodyText: Css.color,
   quietText: Css.color,
@@ -248,17 +243,17 @@ module Private = {
     | _ => c
     };
 
-  let isLight = theme => {
-    switch (theme.colors.bodyBackground) {
+  let isLight = bodyBackground => {
+    switch (bodyBackground) {
     | `rgb(_r, _g, _b) as rgb => Lab.luminanceRGB(rgb) > 0.5
     | `rgba(r, g, b, _a) => Lab.luminanceRGB(`rgb((r, g, b))) > 0.5
     | _ => true
     };
   };
 
-  let rec color =
-          (~theme, ~alpha=1., ~highlight=0, ~lighten as lightenVal=0, v) => {
-    let highlightFn = (theme |> isLight ? darken : lighten)(highlight);
+  let rec color = (~theme, ~alpha=1., ~highlight=0, v) => {
+    let highlightFn =
+      (theme.colors.bodyBackground |> isLight ? darken : lighten)(highlight);
     (
       switch (v) {
       | `primary => theme.colors.primary
@@ -268,27 +263,14 @@ module Private = {
       | `error => theme.colors.error
       | `brand1 => theme.colors.brand1
       | `brand2 => theme.colors.brand2
-      | `brand3 => theme.colors.brand3
-      | `brand4 => theme.colors.brand4
       | `bodyBackground => theme.colors.bodyBackground
-      | `primaryText =>
-        theme.colors.primary |> Obj.magic |> Lab.getContrastColorRGB
-      | `secondaryText =>
-        theme.colors.secondary |> Obj.magic |> Lab.getContrastColorRGB
-      | `warningText =>
-        theme.colors.warning |> Obj.magic |> Lab.getContrastColorRGB
-      | `errorText =>
-        theme.colors.error |> Obj.magic |> Lab.getContrastColorRGB
-      | `successText =>
-        theme.colors.success |> Obj.magic |> Lab.getContrastColorRGB
-      | `brand1Text =>
-        theme.colors.brand1 |> Obj.magic |> Lab.getContrastColorRGB
-      | `brand2Text =>
-        theme.colors.brand2 |> Obj.magic |> Lab.getContrastColorRGB
-      | `brand3Text =>
-        theme.colors.brand3 |> Obj.magic |> Lab.getContrastColorRGB
-      | `brand4Text =>
-        theme.colors.brand4 |> Obj.magic |> Lab.getContrastColorRGB
+      | `primaryText => theme.colors.primary |> Lab.getContrastColorRGB
+      | `secondaryText => theme.colors.secondary |> Lab.getContrastColorRGB
+      | `warningText => theme.colors.warning |> Lab.getContrastColorRGB
+      | `errorText => theme.colors.error |> Lab.getContrastColorRGB
+      | `successText => theme.colors.success |> Lab.getContrastColorRGB
+      | `brand1Text => theme.colors.brand1 |> Lab.getContrastColorRGB
+      | `brand2Text => theme.colors.brand2 |> Lab.getContrastColorRGB
       | `bodyText => theme.colors.bodyText
       | `quietText => theme.colors.quietText
       | `highlight(i, c) => color(~theme, ~highlight=i, c)
@@ -298,14 +280,8 @@ module Private = {
     )
     |> highlightFn
     |> (
-      switch (lightenVal) {
-      | 0 => (a => a)
-      | a => lighten(a)
-      }
-    )
-    |> (
       switch (alpha) {
-      | 1. => (a => a)
+      | 1. => identity
       | a => alphaFn(a)
       }
     );
@@ -338,6 +314,10 @@ module Private = {
     };
   };
 
+  let rec findMinStep = (test, i) => {
+    test(i) ? i : findMinStep(test, i + 1);
+  };
+
   let space = (~theme, ~borderAdjust=0, v) => {
     let length = v => Css.px(theme.baseGridUnit * v - borderAdjust);
     switch (v) {
@@ -350,13 +330,16 @@ module Private = {
     | `quad => 8 |> length
     | `quint => 10 |> length
     | `number(i) => i |> length
-    | `escapeHatch(v) => Obj.magic(v)
+    | `escapeHatch(v) => v
+    | `closest(pixels) =>
+      let rem = pixels mod theme.baseGridUnit;
+      let extra = rem == 0 ? 0 : 1;
+      (pixels / theme.baseGridUnit + extra)
+      * theme.baseGridUnit
+      |> Log.pass(extra)
+      |> Css.px;
     | `responsive(_, _, _) => 6 |> length // TODO Fix
     };
-  };
-
-  let rec findMinStep = (test, i) => {
-    test(i) ? i : findMinStep(test, i + 1);
   };
 
   let getPx = v =>
@@ -370,8 +353,9 @@ module Private = {
     let va =
       findMinStep(
         i =>
-          (i * theme.baseGridUnit)->float_of_int
-          > fontSize->getPx->float_of_int
+          i
+          * theme.baseGridUnit
+          |> float_of_int > (fontSize |> getPx |> float_of_int)
           *. 1.25,
         0,
       );
@@ -391,15 +375,13 @@ let createTheme =
                alt: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],
              },
       ~hues=Css.{
-              primary: rgb(36, 133, 222),
+              primary: rgb(18, 120, 240),
               secondary: rgb(100, 100, 100),
               warning: rgb(214, 135, 5),
               success: rgb(44, 173, 2),
               error: rgb(230, 26, 26),
               brand1: rgb(213, 54, 222),
               brand2: rgb(54, 213, 222),
-              brand3: rgb(213, 222, 54),
-              brand4: rgb(28, 222, 125),
               bodyBackground: rgb(255, 255, 255),
               bodyText: rgb(40, 40, 40),
               neutral: rgb(40, 40, 40),
@@ -408,17 +390,17 @@ let createTheme =
       ~gridWidth as width=960,
       (),
     ) => {
+  let baseLightness = Private.isLight(hues.bodyBackground) ? 70. : 70.;
   let colors =
     Lab.{
-      primary: hues.primary |> fromRGB |> lightness(80.) |> toRGB,
-      secondary: hues.secondary |> fromRGB |> lightness(80.) |> toRGB,
-      warning: hues.warning |> fromRGB |> lightness(80.) |> toRGB,
-      success: hues.success |> fromRGB |> lightness(80.) |> toRGB,
-      error: hues.error |> fromRGB |> lightness(80.) |> toRGB,
-      brand1: hues.brand1 |> fromRGB |> lightness(80.) |> toRGB,
-      brand2: hues.brand2 |> fromRGB |> lightness(80.) |> toRGB,
-      brand3: hues.brand3 |> fromRGB |> lightness(80.) |> toRGB,
-      brand4: hues.brand4 |> fromRGB |> lightness(80.) |> toRGB,
+      primary: hues.primary |> fromRGB |> lightness(baseLightness) |> toRGB,
+      secondary:
+        hues.secondary |> fromRGB |> lightness(baseLightness) |> toRGB,
+      warning: hues.warning |> fromRGB |> lightness(baseLightness) |> toRGB,
+      success: hues.success |> fromRGB |> lightness(baseLightness) |> toRGB,
+      error: hues.error |> fromRGB |> lightness(baseLightness) |> toRGB,
+      brand1: hues.brand1 |> fromRGB |> lightness(baseLightness) |> toRGB,
+      brand2: hues.brand2 |> fromRGB |> lightness(baseLightness) |> toRGB,
       bodyBackground: hues.bodyBackground,
       bodyText: hues.bodyText,
       quietText: hues.quietText,
@@ -448,7 +430,7 @@ module Context = {
 module Styles = {
   let marginSpace = (theme, v) => Obj.magic(Private.space(~theme, v));
   let rec marginStyles_ = (theme, p) => {
-    let marginSpace = v => Private.space(~theme, v) |> Obj.magic;
+    let marginSpace = v => Private.space(~theme, v);
     switch (p) {
     | `auto => [Css.margin(`auto)]
     | `margin(i) => [Css.margin(marginSpace(i))]
@@ -548,11 +530,10 @@ module Styles = {
   /** Width styles yo */
   let useWidth = w => widthStyles_(React.useContext(Context.context), w);
 
-  let useColor = (~highlight=0, ~lighten=0, ~alpha=1., c) => {
+  let useColor = (~highlight=0, ~alpha=1., c) => {
     Private.color(
       ~theme=React.useContext(Context.context),
       ~highlight,
-      ~lighten,
       ~alpha,
       c,
     );
@@ -600,7 +581,7 @@ module Styles = {
   };
 
   let useIsLight = () => {
-    Private.isLight(React.useContext(Context.context));
+    Private.isLight(React.useContext(Context.context).colors.bodyBackground);
   };
 
   let setBodyStyle: Js.Json.t => unit = [%raw

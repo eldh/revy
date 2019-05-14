@@ -8,5 +8,6 @@ module Hero = { include Hero; };
 module Link = { include Link; };
 module Text = { include Text; };
 module TextInput = { include TextInput; };
+module Radiobutton = { include Radiobutton; };
 module TouchableOpacity = { include TouchableOpacity; };
 module View = { include View; };

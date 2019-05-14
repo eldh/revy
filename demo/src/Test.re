@@ -52,6 +52,8 @@ let make = () => {
         </Text.Paragraph>
       </Box>
       <ColorTest />
+      <CheckboxTest />
+      <RadiobuttonTest />
       <TextInputTest />
       <ButtonTest />
       <TypeTest />

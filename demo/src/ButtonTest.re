@@ -1,5 +1,4 @@
 open Revy.UI;
-open Revy.Core;
 
 [@react.component]
 let make = () => {

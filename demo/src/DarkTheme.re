@@ -22,21 +22,19 @@ let hues = {
   secondary: rgb(150, 150, 150),
   warning: rgb(235, 160, 71),
   success: rgb(88, 214, 21),
-  error: rgb(240, 72, 72),
+  error: rgb(250, 20, 20),
   brand1: rgb(213, 54, 222),
   brand2: rgb(54, 213, 222),
-  brand3: rgb(213, 222, 54),
-  brand4: rgb(28, 222, 125),
   bodyBackground: rgb(20, 20, 20),
   bodyText: rgb(255, 255, 255),
   quietText: rgb(180, 180, 180),
 };
-let borderRadii = {small: 0, medium: 0, large: 0};
+let borderRadii = {small: 0, medium: 8, large: 8};
 let theme =
   createTheme(
     ~fontScale=1.2,
     ~baseFontSize=16,
-    ~baseGridUnit=4,
+    ~baseGridUnit=5,
     ~fonts,
     ~hues,
     ~gridWidth=700,

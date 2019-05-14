@@ -46,10 +46,7 @@ let useButtonStyles =
           | Error => (`error, `transparent)
           | Success => (`success, `transparent)
           | Primary => (`primary, `transparent)
-          | Secondary => (
-              `escapeHatch(secondaryColor),
-              `transparent,
-            )
+          | Secondary => (`escapeHatch(secondaryColor), `transparent)
           }
         : (
           switch (v) {
@@ -57,10 +54,7 @@ let useButtonStyles =
           | Error => (`errorText, `error)
           | Success => (`successText, `success)
           | Primary => (`primaryText, `primary)
-          | Secondary => (
-              `bodyBackground,
-              `escapeHatch(secondaryColor),
-            )
+          | Secondary => (`bodyBackground, `escapeHatch(secondaryColor))
           }
         );
     let styleStyles = [
@@ -94,7 +88,7 @@ let useButtonStyles =
         backgroundColor(
           outline_
             ? outlineHighlightBg(0.05)
-            : Styles.useColor(~lighten=10, bgVariant),
+            : Styles.useColor(~highlight=isLight ? (-8) : 10, bgVariant),
         ),
       ]),
       disabled([
@@ -106,7 +100,7 @@ let useButtonStyles =
         backgroundColor(
           outline_
             ? outlineHighlightBg(0.1)
-            : Styles.useColor(~highlight=30, bgVariant),
+            : Styles.useColor(~highlight=10, bgVariant),
         ),
       ]),
       active([backgroundColor(Styles.useColor(~highlight=20, bgVariant))]),
