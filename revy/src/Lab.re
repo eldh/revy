@@ -59,10 +59,6 @@ let labToXyz = lab => {
   let x0 = y0 +. a /. 500.;
   let z0 = y0 -. b /. 200.;
 
-  // y = LAB_CONSTANTS.Yn * lab_xyz(y);
-  // x = LAB_CONSTANTS.Xn * lab_xyz(x);
-  // z = LAB_CONSTANTS.Zn * lab_xyz(z);
-
   let x = Constants.xn *. lab_xyz(x0);
   let y = Constants.yn *. lab_xyz(y0);
   let z = Constants.zn *. lab_xyz(z0);
@@ -105,6 +101,16 @@ let xyz_lab = t =>
     t /. Constants.t2 +. Constants.t0;
   };
 
+let labxyzToLab = ((x, y, z)) => {
+  let x0 = xyz_lab(x /. Constants.xn);
+  let y0 = xyz_lab(y /. Constants.yn);
+  let z0 = xyz_lab(z /. Constants.zn);
+  let l = y0 *. 116. -. 16.;
+  let a = (x0 -. y0) *. 500.;
+  let b = (y0 -. z0) *. 200.;
+  `lab((l, a, b));
+};
+
 let rgbToXyz = ((r_, g_, b_)) => {
   let r = rgb_xyz(r_ |> float_of_int);
   let g = rgb_xyz(g_ |> float_of_int);
@@ -125,7 +131,7 @@ let rgbToXyz = ((r_, g_, b_)) => {
   (x, y, z);
 };
 
-let xyzToLab = ((x, y, z)) => {
+let rgbxyzToLab = ((x, y, z)) => {
   let l = 116. *. y -. 16.;
   `lab((l < 0. ? 0. : l, 500. *. (x -. y), 200. *. (y -. z)));
 };
@@ -134,9 +140,9 @@ let xyzToLab = ((x, y, z)) => {
  Takes an (r, g, b) color and returns the corresponding (l, a, b) color */
 let fromRGB = rgb => {
   switch (rgb) {
-  | `rgb(r, g, b) => (r, g, b) |> rgbToXyz |> xyzToLab
-  | `rgba(r, g, b, _) => (r, g, b) |> rgbToXyz |> xyzToLab
-  | _ => (255, 0, 0) |> rgbToXyz |> xyzToLab
+  | `rgb(r, g, b) => (r, g, b) |> rgbToXyz |> rgbxyzToLab
+  | `rgba(r, g, b, _) => (r, g, b) |> rgbToXyz |> rgbxyzToLab
+  | _ => (255, 0, 0) |> rgbToXyz |> rgbxyzToLab
   };
 };
 
@@ -190,12 +196,33 @@ let mix = (f, lab1, lab2) => {
   let (x1, y1, z1) = lab1 |> labToXyz;
   let (x2, y2, z2) = lab2 |> labToXyz;
   (x1 +. f *. (x2 -. x1), y1 +. f *. (y2 -. y1), z1 +. f *. (z2 -. z1))
-  |> xyzToRgb
-  |> fromRGB;
+  |> labxyzToLab;
 };
 
-let mixRgb = (f, rgb1, rgb2) =>
-  mix(f, fromRGB(rgb1), fromRGB(rgb2)) |> toRGB;
+Js.log2(
+  "mix(0.5, `lab(0.,0.,0.), `lab(30., -40.,30.))",
+  mix(0.5, `rgb((255, 0, 0)) |> fromRGB, `rgb((0, 255, 0)) |> fromRGB)
+  |> toRGB,
+);
+
+let getTuple = rgb => {
+  switch (rgb) {
+  | `rgb(r, g, b) => (r, g, b)
+  };
+};
+
+let mixRgb = (f, rgb1, rgb2) => {
+  let toFloats = ((r_, g_, b_)) => {
+    (r_ |> float_of_int, g_ |> float_of_int, b_ |> float_of_int);
+  };
+  let (x1, y1, z1) = rgb1 |> getTuple |> toFloats;
+  let (x2, y2, z2) = rgb2 |> getTuple |> toFloats;
+  `rgb((
+    x1 +. f *. (x2 -. x1) |> int_of_float,
+    y1 +. f *. (y2 -. y1) |> int_of_float,
+    z1 +. f *. (z2 -. z1) |> int_of_float,
+  ));
+};
 
 let luminance_x = x => {
   let x1 = (x |> float_of_int) /. 255.;

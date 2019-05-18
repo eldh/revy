@@ -9,34 +9,38 @@ let useInputStyles = () => {
     selector(
       "& ~ div",
       [
-        backgroundColor(Styles.useColor(`bodyBackground)),
-        borderColor(Styles.useColor(~highlight=10, `primary)),
-        borderRadius(px(5)),
+        backgroundColor(Styles.useColor(`secondary)),
+        borderColor(Styles.useColor(~highlight=10, `secondary)),
+        borderRadius(px(25)),
         borderStyle(`solid),
         borderWidth(px(1)),
-        height(pct(100.)),
-        height(px(16)),
+        height(px(24)),
         marginLeft(px(0)),
         marginRight(Styles.useSpace(`half)),
         position(`relative),
         transition(~duration=200, "all"),
-        width(px(16)),
+        width(px(38)),
         after([
           contentRule(""),
-          borderColor(Styles.useColor(`bodyBackground)),
-          borderLeftWidth(px(0)),
-          borderTopWidth(px(0)),
-          borderRightWidth(px(2)),
-          borderBottomWidth(px(2)),
-          borderStyle(`solid),
+          borderRadius(pct(50.)),
           display(`block),
-          height(px(8)),
-          left(px(5)),
-          position(`relative),
+          height(px(20)),
+          width(px(20)),
+          left(px(2)),
           top(px(2)),
-          transforms([rotate(deg(-45)), scale(0.6, 0.6)]),
+          position(`relative),
           transition(~duration=200, "all"),
-          width(px(4)),
+          backgroundColor(
+            Revy.Lab.(
+              mix(
+                0.6,
+                `rgb((255, 255, 255)) |> fromRGB,
+                Styles.useColor(`secondary) |> fromRGB,
+              )
+              |> toRGB
+            ),
+          ),
+          boxShadow(~y=px(1), ~blur=px(3), rgba(0, 0, 0, 0.3)),
         ]),
       ],
     ),
@@ -45,7 +49,20 @@ let useInputStyles = () => {
         "& ~ div",
         [
           backgroundColor(Styles.useColor(`primary)),
-          after([transforms([rotate(deg(45)), scale(1., 1.)])]),
+          borderColor(Styles.useColor(~highlight=10, `primary)),
+          after([
+            transform(translateX(px(14))),
+            backgroundColor(
+              Revy.Lab.(
+                mix(
+                  0.2,
+                  `rgb((255, 255, 255)) |> fromRGB,
+                  Styles.useColor(`primary) |> fromRGB,
+                )
+                |> toRGB
+              ),
+            ),
+          ]),
         ],
       ),
     ]),
@@ -76,7 +93,7 @@ let make =
     direction=`row
     tag="label"
     align=`center
-    style=Css.[cursor(`pointer), height(Styles.useSpace(`closest(21)))]
+    style=Css.[cursor(`pointer), height(Styles.useSpace(`closest(26)))]
     onPress={disabled ? ignore : onChange |> Obj.magic}
     domProps={"htmlFor": id}>
     <input

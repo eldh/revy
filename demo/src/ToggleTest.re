@@ -5,10 +5,10 @@ let make = () => {
   let (bar, setBar) = React.useState(() => true);
   let (foo, setFoo) = React.useState(() => false);
   let (baz, setBaz) = React.useState(() => false);
-  <ComponentsCard title="Checkbox">
+  <ComponentsCard title="Toggle">
     <Box
       direction=`column m={`margin4((`noSpace, `noSpace, `single, `single))}>
-      <Checkbox
+      <Toggle
         value="bar"
         name="bar"
         label="Bar"
@@ -16,7 +16,7 @@ let make = () => {
         checked=bar
         onChange={_ => setBar(v => !v)}
       />
-      <Checkbox
+      <Toggle
         value="foo"
         name="bar"
         label="Foo"
@@ -24,7 +24,7 @@ let make = () => {
         checked=foo
         onChange={_ => setFoo(v => !v)}
       />
-      <Checkbox
+      <Toggle
         value="baz"
         name="bar"
         disabled=true

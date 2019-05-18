@@ -49,8 +49,8 @@ let make = (~toggleTheme=ignore, ()) => {
               p={`padding(`single)}
               w=`third
               h={`em(10.)}
-              backgroundColor=`primary>
-              <Text.String weight= `bold color=`primaryText>
+              backgroundColor=`brand1>
+              <Text.String weight= `bold color=`brand1Text>
                 "`third"
               </Text.String>
             </Box>
@@ -58,8 +58,8 @@ let make = (~toggleTheme=ignore, ()) => {
               p={`padding(`single)}
               w=`third
               h={`em(10.)}
-              backgroundColor=`success>
-              <Text.String weight= `bold color=`successText>
+              backgroundColor=`brand2>
+              <Text.String weight= `bold color=`brand2Text>
                 "`third"
               </Text.String>
             </Box>

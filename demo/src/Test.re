@@ -53,6 +53,7 @@ let make = () => {
       </Box>
       <ColorTest />
       <CheckboxTest />
+      <ToggleTest />
       <RadiobuttonTest />
       <TextInputTest />
       <ButtonTest />

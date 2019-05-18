@@ -9,5 +9,7 @@ module Link = { include Link; };
 module Text = { include Text; };
 module TextInput = { include TextInput; };
 module Radiobutton = { include Radiobutton; };
+module Checkbox = { include Checkbox; };
+module Toggle = { include Toggle; };
 module TouchableOpacity = { include TouchableOpacity; };
 module View = { include View; };
