@@ -1,5 +1,5 @@
 open Css;
-open Revy.Core;
+open Core;
 
 let fonts = {
   body: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],

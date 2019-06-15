@@ -1,5 +1,5 @@
-open Revy.Core;
-open Revy.UI;
+open Core;
+open UI;
 
 [@react.component]
 let make = (~toggleTheme=ignore, ()) => {

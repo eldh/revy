@@ -1,5 +1,5 @@
 let useInputStyles = (~m, ()) => {
-  Revy.Core.(
+  Core.(
     [
       Css.[
         Css.padding2(

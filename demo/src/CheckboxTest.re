@@ -1,4 +1,4 @@
-open Revy.UI;
+open UI;
 
 [@react.component]
 let make = () => {

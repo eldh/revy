@@ -1,4 +1,4 @@
-open Revy.Core;
+open Core;
 exception InvalidValue(string);
 
 let useTextStyles =

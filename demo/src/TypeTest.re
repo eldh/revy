@@ -1,4 +1,3 @@
-open Revy;
 
 [@react.component]
 let make = () => {

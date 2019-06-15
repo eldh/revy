@@ -4,5 +4,11 @@
     "revy",
     "demo"
   ],
-  "private": true
+  "private": true,
+  "dependencies": {
+    "bs-platform": "^5.0.4"
+  },
+  "resolutions": {
+    "jest": "24.7.1"
+  }
 }

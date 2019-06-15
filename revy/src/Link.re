@@ -1,4 +1,4 @@
-open Revy.Core;
+open Core;
 let useLinkStyle = (~color as color_, ()) =>
   Css.[
     display(`inline),

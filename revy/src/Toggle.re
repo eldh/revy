@@ -31,7 +31,7 @@ let useInputStyles = () => {
           position(`relative),
           transition(~duration=200, "all"),
           backgroundColor(
-            Revy.Lab.(
+            Lab.(
               mix(
                 0.6,
                 `rgb((255, 255, 255)) |> fromRGB,
@@ -53,7 +53,7 @@ let useInputStyles = () => {
           after([
             transform(translateX(px(14))),
             backgroundColor(
-              Revy.Lab.(
+              Lab.(
                 mix(
                   0.2,
                   `rgb((255, 255, 255)) |> fromRGB,

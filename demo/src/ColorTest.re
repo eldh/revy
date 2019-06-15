@@ -1,4 +1,4 @@
-open Revy.UI;
+open UI;
 let getRgb = c =>
   switch (c) {
   | `rgb(_, _, _) as rgb => rgb
@@ -8,7 +8,7 @@ module Swatch = {
   [@react.component]
   let make = (~color, ()) => {
     let lum =
-      Revy.Lab.luminanceRGB(Revy.Core.Styles.useColor(color) |> getRgb)
+      Lab.luminanceRGB(Core.Styles.useColor(color) |> getRgb)
       *. 1000.
       |> int_of_float;
     <Box
@@ -35,9 +35,9 @@ module ColorBox = {
       {[|0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10|]
        |> Array.map(n => {
             let c =
-              Revy.Lab.lightnessRGB(
+              Lab.lightnessRGB(
                 n * 10 |> float_of_int,
-                Revy.Core.Styles.useColor(color),
+                Core.Styles.useColor(color),
               );
             <Swatch color={`escapeHatch(c)} key={n |> string_of_int} />;
           })
@@ -53,12 +53,12 @@ module GradientBox = {
       {[|0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10|]
        |> Array.map(n => {
             let c =
-              Revy.Lab.mix(
+              Lab.mix(
                 (n |> float_of_int) /. 10.,
-                Revy.Core.Styles.useColor(fromColor) |> Revy.Lab.fromRGB,
-                Revy.Core.Styles.useColor(toColor) |> Revy.Lab.fromRGB,
+                Core.Styles.useColor(fromColor) |> Lab.fromRGB,
+                Core.Styles.useColor(toColor) |> Lab.fromRGB,
               )
-              |> Revy.Lab.toRGB;
+              |> Lab.toRGB;
             <Swatch color={`escapeHatch(c)} key={n |> string_of_int} />;
           })
        |> React.array}
@@ -74,11 +74,11 @@ module RgbGradientBox = {
       {[|0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10|]
        |> Array.map(n => {
             let c =
-              Revy.Lab.(
+              Lab.(
                 mixRgb(
                   (n |> float_of_int) /. 10.,
-                  Revy.Core.Styles.useColor(fromColor) |> getRgb,
-                  Revy.Core.Styles.useColor(toColor) |> getRgb,
+                  Core.Styles.useColor(fromColor) |> getRgb,
+                  Core.Styles.useColor(toColor) |> getRgb,
                 )
               );
             <Swatch color={`escapeHatch(c)} key={n |> string_of_int} />;
@@ -90,7 +90,7 @@ module RgbGradientBox = {
 
 [@react.component]
 let make = () => {
-  Revy.Lab.(
+  Lab.(
     <ComponentsCard title="Colors">
       <Box direction=`row align=`flexEnd wrap=`wrap w=`full>
         <GradientBox fromColor=`primary toColor=`brand1 />

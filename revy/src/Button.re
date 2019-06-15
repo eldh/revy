@@ -1,4 +1,4 @@
-open Revy.Core;
+open Core;
 
 type variant =
   | Error

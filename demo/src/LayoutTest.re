@@ -1,5 +1,3 @@
-open Revy;
-
 [@react.component]
 let make = (~toggleTheme=ignore, ()) => {
   <Box m={`marginBottom(`number(10))}>

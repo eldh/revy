@@ -1,4 +1,3 @@
-open Revy; 
 type themes =
   | Light
   | Dark;

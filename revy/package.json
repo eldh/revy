@@ -8,10 +8,7 @@
     "type": "git",
     "url": "git+https://github.com/eldh/revy.git"
   },
-  "dependencies": {
-    "bs-css": "^8.0.2",
-    "reason-react": "~0.7.0"
-  },
+  "dependencies": {},
   "scripts": {
     "start": "bsb -clean-world -make-world -w",
     "test": "jest ./__tests__ --watch",
@@ -19,7 +16,9 @@
   },
   "devDependencies": {
     "@glennsl/bs-jest": "^0.4.8",
-    "bs-platform": "5.0.3"
+    "bs-css": "^8.0.4",
+    "reason-react": "^0.7.0",
+    "bs-platform": "^5.0.4"
   },
   "author": "andreas.eldh@gmail.com",
   "keywords": [
