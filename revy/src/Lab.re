@@ -27,6 +27,7 @@ let clamp = (minVal, maxVal, v) =>
   };
 
 let rgbClamp = clamp(0, 255);
+let p3Clamp = clamp(0., 1.0);
 let toInt = f => f +. 0.5 |> int_of_float;
 
 module Constants = {
@@ -40,10 +41,6 @@ module Constants = {
   let t1 = 0.206896552; // 6 / 29
   let t2 = 0.12841855; // 3 * t1 * t1
   let t3 = 0.008856452; // t1 * t1 * t1
-};
-
-let xyz_rgb = r => {
-  255. *. (r <= 0.00304 ? 12.92 *. r : 1.055 *. r ** (1. /. 2.4) -. 0.055);
 };
 
 let lab_xyz = t => {
@@ -65,6 +62,10 @@ let labToXyz = lab => {
   (x, y, z);
 };
 
+let xyz_rgb = r => {
+  255. *. (r <= 0.00304 ? 12.92 *. r : 1.055 *. r ** (1. /. 2.4) -. 0.055);
+};
+
 let xyzToRgb = ((x, y, z)) => {
   `rgb((
     xyz_rgb(3.2404542 *. x -. 1.5371385 *. y -. 0.4985314 *. z)
@@ -78,12 +79,37 @@ let xyzToRgb = ((x, y, z)) => {
     |> rgbClamp,
   ));
 };
-
 let toRGB = lab => {
   lab |> labToXyz |> xyzToRgb;
 };
+let xyz_p3 = r => {
+  r <= 0.00304 ? 12.92 *. r : 1.055 *. r ** (1. /. 2.4) -. 0.055;
+};
 
-let toCssRGB = toRGB;
+   let xyzToP3 = ((x, y, z)) => {
+  (
+    xyz_p3( 2.4041476775378706282 *. x -. 0.99010703944210726052 *. y -. 0.39759019425373693677 *. z) |> p3Clamp,
+    xyz_p3((-0.84239097992588684688) *. x +. 1.7990595398556119185 *. y +. 0.015970230317527190242 *. z) |> p3Clamp,
+    xyz_p3(0.04838763487334053893 *. x -. 0.097525459078352834297 *. y +. 1.2739363577809163373 *. z) |> p3Clamp,
+  );
+};
+
+let toP3 = lab => {
+  lab |> labToXyz |> xyzToP3;
+};
+
+Js.log2("toP3", toP3(`lab((31.0139, 70.7230, (-116.0393)))));
+Js.log2("toP3", toP3(`lab((100., -128., 128.))));
+Js.log2("toRGB", toRGB(`lab((31.0139, 70.7230, (-116.0393)))));
+
+let p3_xyz = r => {
+  let r2 = r;
+  if (r2 <= 0.04045) {
+    r2 /. 12.92;
+  } else {
+    ((r2 +. 0.055) /. 1.055) ** 2.4;
+  };
+};
 
 let rgb_xyz = r => {
   let r2 = r /. 255.;
@@ -127,6 +153,27 @@ let rgbToXyz = ((r_, g_, b_)) => {
   let z =
     xyz_lab(
       (0.0193339 *. r +. 0.1191920 *. g +. 0.9503041 *. b) /. Constants.zn,
+    );
+  (x, y, z);
+};
+let p3ToXyz = ((r_, g_, b_)) => {
+  let r = rgb_xyz(r_ |> float_of_int);
+  let g = rgb_xyz(g_ |> float_of_int);
+  let b = rgb_xyz(b_ |> float_of_int);
+  //   0.5151  0.292   0.1571
+  //   0.2412  0.6922  0.0666
+  //  -0.0011  0.0419  0.7841
+  let x =
+    xyz_lab(
+      (0.5151 *. r +. 0.292 *. g +. 0.1571 *. b) /. Constants.xn,
+    );
+  let y =
+    xyz_lab(
+      (0.2412 *. r +. 0.6922 *. g +. 0.0666 *. b) /. Constants.yn,
+    );
+  let z =
+    xyz_lab(
+      (-0.0011 *. r +. 0.0419 *. g +. 0.7841 *. b) /. Constants.zn,
     );
   (x, y, z);
 };
@@ -199,11 +246,11 @@ let mix = (f, lab1, lab2) => {
   |> labxyzToLab;
 };
 
-Js.log2(
-  "mix(0.5, `lab(0.,0.,0.), `lab(30., -40.,30.))",
-  mix(0.5, `rgb((255, 0, 0)) |> fromRGB, `rgb((0, 255, 0)) |> fromRGB)
-  |> toRGB,
-);
+// Js.log2(
+//   "mix(0.5, `lab(0.,0.,0.), `lab(30., -40.,30.))",
+//   mix(0.5, `rgb((255, 0, 0)) |> fromRGB, `rgb((0, 255, 0)) |> fromRGB)
+//   |> toRGB,
+// );
 
 let getTuple = rgb => {
   switch (rgb) {
