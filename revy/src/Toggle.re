@@ -33,7 +33,7 @@ let useInputStyles = () => {
           backgroundColor(
             Lab.(
               mix(
-                0.6,
+                0.2,
                 `rgb((255, 255, 255)) |> fromRGB,
                 Styles.useColor(`secondary) |> fromRGB,
               )
