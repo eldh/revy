@@ -34,7 +34,7 @@ let useInputStyles = () => {
           left(px(5)),
           position(`relative),
           top(px(2)),
-          transforms([rotate(deg(-45)), scale(0.6, 0.6)]),
+          transforms([rotate(deg(-45.)), scale(0.6, 0.6)]),
           transition(~duration=200, "all"),
           width(px(4)),
         ]),
@@ -45,7 +45,7 @@ let useInputStyles = () => {
         "& ~ div",
         [
           backgroundColor(Styles.useColor(`primary)),
-          after([transforms([rotate(deg(45)), scale(1., 1.)])]),
+          after([transforms([rotate(deg(45.)), scale(1., 1.)])]),
         ],
       ),
     ]),

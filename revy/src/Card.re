@@ -16,7 +16,7 @@ let useCardStyle = (~p, ~m, ()) => {
       boxShadow(
         ~y=px(4),
         ~blur=px(10),
-        hsla(0, 0, 0, Core.Styles.useIsLight() ? 0.15 : 0.45),
+        rgba(0, 0, 0, Core.Styles.useIsLight() ? 0.15 : 0.45),
       ),
     ],
     Core.Styles.usePadding(p),

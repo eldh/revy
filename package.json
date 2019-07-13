@@ -6,7 +6,7 @@
   ],
   "private": true,
   "dependencies": {
-    "bs-platform": "^5.0.4"
+    "bs-platform": "^5.0.6"
   },
   "resolutions": {
     "jest": "24.7.1"
