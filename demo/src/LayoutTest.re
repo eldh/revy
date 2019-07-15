@@ -12,25 +12,21 @@ let make = (~toggleTheme=ignore, ()) => {
               w=`full
               h={`em(10.)}
               backgroundColor=`primary>
-              <Text.String weight= `bold color=`primaryText>
-                "`full"
-              </Text.String>
+              <Text.String weight=`bold tintColor=`primary> "`full" </Text.String>
             </Box>
             <Box
               p={`padding(`single)}
               w=`half
               h={`em(10.)}
               backgroundColor=`success>
-              <Text.String weight= `bold color=`successText>
-                "`half"
-              </Text.String>
+              <Text.String weight=`bold tintColor=`success> "`half" </Text.String>
             </Box>
             <Box
               p={`padding(`single)}
-              w={`responsive(`full, `full, `half)}
+              w={`responsive((`full, `full, `half))}
               h={`em(10.)}
               backgroundColor=`warning>
-              <Text.String weight= `bold color=`warningText>
+              <Text.String weight=`bold tintColor=`warning>
                 "`responsive(`full, `full, `half)"
               </Text.String>
             </Box>
@@ -39,27 +35,21 @@ let make = (~toggleTheme=ignore, ()) => {
               w=`third
               h={`em(10.)}
               backgroundColor=`error>
-              <Text.String weight= `bold color=`errorText>
-                "`third"
-              </Text.String>
+              <Text.String weight=`bold tintColor=`error> "`third" </Text.String>
             </Box>
             <Box
               p={`padding(`single)}
               w=`third
               h={`em(10.)}
               backgroundColor=`brand1>
-              <Text.String weight= `bold color=`brand1Text>
-                "`third"
-              </Text.String>
+              <Text.String weight=`bold tintColor=`brand1> "`third" </Text.String>
             </Box>
             <Box
               p={`padding(`single)}
               w=`third
               h={`em(10.)}
               backgroundColor=`brand2>
-              <Text.String weight= `bold color=`brand2Text>
-                "`third"
-              </Text.String>
+              <Text.String weight=`bold tintColor=`brand2> "`third" </Text.String>
             </Box>
           </>
         </Box>

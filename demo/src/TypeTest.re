@@ -40,7 +40,7 @@ let make = () => {
           </Text.String>
         </Box>
         <Box>
-          <Text.String size=(-2) color=`quietText>
+          <Text.String size=(-2) >
             "So tiny and quiet you almost don't notice it"
           </Text.String>
         </Box>

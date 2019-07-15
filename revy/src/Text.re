@@ -4,15 +4,20 @@ exception InvalidValue(string);
 let useTextStyles =
     (
       ~size,
-      ~color as color_,
+      ~tintColor as tint,
       ~fontFamily as fontFamily_=`body,
       ~lineHeight as lineHeight_,
       ~weight as weight_,
       (),
     ) => {
   let sizeVal = Styles.useFontSize(size);
+  // Js.log2(
+  //   "BackgroundContext:",
+  //   React.useContext(BackgroundColorContext.context),
+  // );
+  let bg = React.useContext(Core.BackgroundColorContext.context);
   Css.[
-    color(Styles.useColor(color_)),
+    color(Styles.useTextColor() /* ~tint, */),
     fontSize(sizeVal),
     fontFamily(Styles.useFontFamily(fontFamily_)),
     lineHeight(
@@ -30,12 +35,12 @@ let make =
       ~tag="span",
       ~style=?,
       ~lineHeight=0,
-      ~color=`bodyText,
+      ~tintColor=?,
       ~children,
       (),
     ) => {
-  let styles = useTextStyles(~size, ~lineHeight, ~weight, ~color, ());
-  EscapeHatch.use(
+  let styles = useTextStyles(~size, ~lineHeight, ~weight, ~tintColor, ());
+  UnsafeCreateReactElement.use(
     tag,
     {
       "className": {
@@ -61,12 +66,12 @@ module String = {
         ~size=0,
         ~style=?,
         ~lineHeight=0,
-        ~color=`bodyText,
+        ~tintColor=?,
         ~children,
         (),
       ) => {
-    let styles = useTextStyles(~size, ~lineHeight, ~weight, ~color, ());
-    EscapeHatch.use(
+    let styles = useTextStyles(~size, ~lineHeight, ~weight, ~tintColor, ());
+    UnsafeCreateReactElement.use(
       tag,
       {
         "className": {
@@ -94,13 +99,13 @@ module Block = {
         ~size=0,
         ~style=?,
         ~lineHeight=0,
-        ~color=`bodyText,
+        ~tintColor=?,
         ~children,
         (),
       ) => {
-    let styles = useTextStyles(~size, ~lineHeight, ~weight, ~color, ());
+    let styles = useTextStyles(~size, ~lineHeight, ~weight, ~tintColor, ());
     let margin = Styles.useMargin(m);
-    EscapeHatch.use(
+    UnsafeCreateReactElement.use(
       tag,
       {
         "className": {
@@ -125,17 +130,17 @@ module Paragraph = {
       (
         ~weight=`normal,
         ~tag="p",
-        ~m=`margin4(`noSpace, `noSpace, `noSpace, `double),
+        ~m=`margin4((`noSpace, `noSpace, `noSpace, `double)),
         ~size=0,
-        ~style=?,
         ~lineHeight=0,
-        ~color=`bodyText,
+        ~style=?,
+        ~tintColor=?,
         ~children,
         (),
       ) => {
-    let styles = useTextStyles(~size, ~lineHeight, ~weight, ~color, ());
+    let styles = useTextStyles(~size, ~lineHeight, ~weight, ~tintColor, ());
     let margin = Styles.useMargin(m);
-    EscapeHatch.use(
+    UnsafeCreateReactElement.use(
       tag,
       {
         "className": {
@@ -160,11 +165,11 @@ module Code = {
       (
         ~weight=`normal,
         ~tag="pre",
-        ~m=`margin2(`noSpace, `double),
+        ~m=`margin2((`noSpace, `double)),
         ~size=0,
         ~style=?,
         ~lineHeight=0,
-        ~color=`bodyText,
+        ~tintColor=?,
         ~children,
         (),
       ) => {
@@ -173,7 +178,7 @@ module Code = {
         ~size,
         ~lineHeight,
         ~weight,
-        ~color,
+        ~tintColor,
         ~fontFamily=`mono,
         (),
       );
@@ -181,12 +186,14 @@ module Code = {
     let padding = Styles.usePadding(`padding(`double));
     <Box
       m
-      backgroundColor=(
-        `escapeHatch(Styles.useColor(~highlight=7, `bodyBackground))
-      )
+      backgroundColor={
+                        `unsafeCustomValue(
+                          Styles.useColor(~highlight=7, `body),
+                        )
+                      }
       borderRadius={Css.px(6)}
       style=Css.[width(pct(100.)), overflow(`scroll)]>
-      {EscapeHatch.use(
+      {UnsafeCreateReactElement.use(
          tag,
          {
            "className":

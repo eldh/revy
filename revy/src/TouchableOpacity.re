@@ -5,12 +5,13 @@
 
  * This is a bullet point.
  * This is the second point. */
-[@react.component]
+
 /**
  This is the first line. _Italicized_ word.
 
  * This is a bullet point.
  * This is the second point. */
+[@react.component]
 let make =
     (
       ~tag="div",
@@ -20,7 +21,6 @@ let make =
       ~alignSelf=`auto,
       ~alignContent=`flexStart,
       ~backgroundColor=`transparent,
-      ~color=`primaryText,
       ~grow=1.,
       ~wrap=`wrap,
       ~shrink=0.,
@@ -33,6 +33,7 @@ let make =
       ~w=`auto,
       ~overflow=`auto,
       ~borderRadius=Css.px(0),
+      ~tintColor=?,
       ~onPress=?,
       ~domProps=?,
       ~children=?,
@@ -45,7 +46,7 @@ let make =
         ~alignSelf,
         ~alignContent,
         ~backgroundColor,
-        ~color,
+        ~tintColor,
         ~grow,
         ~wrap,
         ~shrink,
@@ -62,25 +63,27 @@ let make =
       style_,
     ]
     |> List.concat;
-  <View
-    tag
-    style
-    domProps
-    onPress={
-      switch (onPress) {
-      | Some(fn) =>
-        Some(
-          e => {
-            if (onlyFocusOnTab) {
-              let target = e->ReactEvent.Mouse.currentTarget;
-              blur(target);
-            };
-            fn(e);
-          },
-        )
-      | None => None
-      }
-    }>
-    children
-  </View>;
+  <Core.BackgroundColorContext.Provider value=backgroundColor>
+    <View
+      tag
+      style
+      domProps
+      onPress={
+        switch (onPress) {
+        | Some(fn) =>
+          Some(
+            e => {
+              if (onlyFocusOnTab) {
+                let target = e->ReactEvent.Mouse.currentTarget;
+                blur(target);
+              };
+              fn(e);
+            },
+          )
+        | None => None
+        }
+      }>
+      children
+    </View>
+  </Core.BackgroundColorContext.Provider>;
 };

@@ -12,15 +12,12 @@ module Swatch = {
       *. 1000.
       |> int_of_float;
     <Box
-      w={`escapeHatch(Css.px(80))}
+      w={`unsafeCustomValue(Css.px(80))}
       justify=`center
-      // m={`marginBottom(`escapeHatch(Css.px()))}
-      p={`paddingLeft(`escapeHatch(Css.em(0.5)))}
+      // m={`marginBottom(`unsafeCustomValue(Css.px()))}
+      p={`paddingLeft(`unsafeCustomValue(Css.em(0.5)))}
       backgroundColor=color>
-      <Text.String
-        size=(-1)
-        lineHeight=2
-        color={lum > 180 ? `escapeHatch(Css.black) : `escapeHatch(Css.white)}>
+      <Text.String size=(-1) lineHeight=2>
         {lum |> string_of_int}
       </Text.String>
     </Box>;
@@ -31,7 +28,7 @@ module ColorBox = {
   [@react.component]
   let make = (~color, ~title, ()) => {
     <Box m={`margin4((`noSpace, `noSpace, `double, `double))} grow=0.>
-      <Text.String size=(-1) color=`quietText> title </Text.String>
+      <Text.String size=(-1)> title </Text.String>
       {[|0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10|]
        |> Array.map(n => {
             let c =
@@ -39,7 +36,7 @@ module ColorBox = {
                 n * 10 |> float_of_int,
                 Core.Styles.useColor(color),
               );
-            <Swatch color={`escapeHatch(c)} key={n |> string_of_int} />;
+            <Swatch color={`unsafeCustomValue(c)} key={n |> string_of_int} />;
           })
        |> React.array}
     </Box>;
@@ -49,7 +46,7 @@ module GradientBox = {
   [@react.component]
   let make = (~toColor, ~fromColor, ()) => {
     <Box m={`margin4((`noSpace, `noSpace, `double, `double))} grow=0.>
-      <Text.String size=(-1) color=`quietText> "Lab" </Text.String>
+      <Text.String size=(-1)> "Lab" </Text.String>
       {[|0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10|]
        |> Array.map(n => {
             let c =
@@ -59,7 +56,7 @@ module GradientBox = {
                 Core.Styles.useColor(toColor) |> Lab.fromRGB,
               )
               |> Lab.toRGB;
-            <Swatch color={`escapeHatch(c)} key={n |> string_of_int} />;
+            <Swatch color={`unsafeCustomValue(c)} key={n |> string_of_int} />;
           })
        |> React.array}
     </Box>;
@@ -70,7 +67,7 @@ module RgbGradientBox = {
   [@react.component]
   let make = (~toColor, ~fromColor, ()) => {
     <Box m={`margin4((`noSpace, `noSpace, `double, `double))} grow=0.>
-      <Text.String size=(-1) color=`quietText> "Rgb" </Text.String>
+      <Text.String size=(-1)> "Rgb" </Text.String>
       {[|0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10|]
        |> Array.map(n => {
             let c =
@@ -81,7 +78,7 @@ module RgbGradientBox = {
                   Core.Styles.useColor(toColor) |> getRgb,
                 )
               );
-            <Swatch color={`escapeHatch(c)} key={n |> string_of_int} />;
+            <Swatch color={`unsafeCustomValue(c)} key={n |> string_of_int} />;
           })
        |> React.array}
     </Box>;

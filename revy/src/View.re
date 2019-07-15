@@ -17,7 +17,7 @@ let make =
     "className": [style, defaultStyles] |> List.concat |> Css.style,
   };
 
-  EscapeHatch.use(
+  UnsafeCreateReactElement.use(
     tag,
     switch (domProps) {
     | Some(p) => Js.Obj.assign(p, props)

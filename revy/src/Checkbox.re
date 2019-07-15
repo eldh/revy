@@ -9,7 +9,7 @@ let useInputStyles = () => {
     selector(
       "& ~ div",
       [
-        backgroundColor(Styles.useColor(`bodyBackground)),
+        backgroundColor(Styles.useColor(`body)),
         borderColor(Styles.useColor(~highlight=10, `primary)),
         borderRadius(px(5)),
         borderStyle(`solid),
@@ -23,7 +23,7 @@ let useInputStyles = () => {
         width(px(16)),
         after([
           contentRule(""),
-          borderColor(Styles.useColor(`bodyBackground)),
+          borderColor(Styles.useColor(`body)),
           borderLeftWidth(px(0)),
           borderTopWidth(px(0)),
           borderRightWidth(px(2)),
@@ -101,6 +101,6 @@ let make =
       type_="checkbox"
     />
     <div />
-    <Text.String color=`quietText> label </Text.String>
+    <Text.String> label </Text.String>
   </TouchableOpacity>;
 };

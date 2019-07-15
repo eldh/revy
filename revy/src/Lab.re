@@ -160,9 +160,6 @@ let p3ToXyz = ((r_, g_, b_)) => {
   let r = rgb_xyz(r_ |> float_of_int);
   let g = rgb_xyz(g_ |> float_of_int);
   let b = rgb_xyz(b_ |> float_of_int);
-  //   0.5151  0.292   0.1571
-  //   0.2412  0.6922  0.0666
-  //  -0.0011  0.0419  0.7841
   let x =
     xyz_lab(
       (0.5151 *. r +. 0.292 *. g +. 0.1571 *. b) /. Constants.xn,

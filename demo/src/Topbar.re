@@ -11,10 +11,10 @@ let make = (~toggleTheme=ignore, ()) => {
       <Box
         backgroundColor={
           `highlight(
-            8, `bodyBackground)
+            8, `body)
         }
         p={`padding(`single)}
-        w={`escapeHatch(Css.vw(100.))}
+        w={`unsafeCustomValue(Css.vw(100.))}
         direction=`row
         align=`center
         alignContent=`center
@@ -34,13 +34,13 @@ let make = (~toggleTheme=ignore, ()) => {
             <Link
               m={`margin(`half)}
               href="https://github.com/eldh/revy"
-              color=`bodyText>
+              tintColor=`body>
               "Github"
             </Link>
             <Link.Button
               m={`margin(`half)}
               onClick={_ => toggleTheme()}
-              color=`bodyText>
+              tintColor=`body>
               "Toggle dark theme"
             </Link.Button>
           </Box>

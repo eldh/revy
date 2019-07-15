@@ -94,7 +94,7 @@ module Layout = {
     | `third
     | `half
     | `full
-    | `escapeHatch(cssWidth)
+    | `unsafeCustomValue(cssWidth)
     | `auto
     | `responsive(t, t, t)
   ];
@@ -111,7 +111,7 @@ module Space = {
     | `quad
     | `quint
     | `number(int)
-    | `escapeHatch(Css.length)
+    | `unsafeCustomValue(Css.length)
     | `responsive(t, t, t)
   ];
 };
@@ -123,7 +123,7 @@ module Type = {
 };
 
 module Color = {
-  type t = [
+  type backgroundColor = [
     | `primary
     | `secondary
     | `success
@@ -131,19 +131,24 @@ module Color = {
     | `error
     | `brand1
     | `brand2
-    | `bodyBackground
-    | `primaryText
-    | `secondaryText
-    | `warningText
-    | `errorText
-    | `successText
-    | `brand1Text
-    | `brand2Text
-    | `bodyText
-    | `quietText
+    | `body
     | `transparent
-    | `highlight(int, t)
-    | `escapeHatch(Css.color)
+    | `highlight(int, backgroundColor)
+    | `unsafeCustomValue(Css.color)
+  ];
+
+  type textColor = [
+    | `primary
+    | `secondary
+    | `warning
+    | `error
+    | `success
+    | `brand1
+    | `brand2
+    | `body
+    | `quiet
+    | `highlight(int, textColor)
+    | `unsafeCustomValue(Css.color)
   ];
 };
 
@@ -198,7 +203,7 @@ type colors = {
   brand2: Css.color,
   bodyBackground: Css.color,
   bodyText: Css.color,
-  quietText: Css.color,
+  quiet: Css.color,
 };
 
 type t = {
@@ -213,6 +218,25 @@ type t = {
 
 let responsive = (_theme, (s, m, l)) => {
   Css.[media("(min-width: 30em)", m), media("(min-width: 50em)", l), ...s];
+};
+module BackgroundColorContext = {
+  let defaultColor: Color.backgroundColor = `body;
+  let context = React.createContext(defaultColor);
+  let provider = React.Context.provider(context);
+
+  module Provider = {
+    [@react.component]
+    let make = (~value: Color.backgroundColor, ~children) => {
+      switch (value) {
+      | `transparent => children
+      | _ =>
+        UnsafeCreateReactElement.use(
+          Obj.magic(provider),
+          {"value": value, "children": children},
+        )
+      };
+    };
+  };
 };
 module Private = {
   let alphaFn = (v, c) => {
@@ -251,7 +275,8 @@ module Private = {
     };
   };
 
-  let rec color = (~theme, ~alpha=1., ~highlight=0, v) => {
+  let rec backgroundColor =
+          (~theme, ~alpha=1., ~highlight=0, v: Color.backgroundColor) => {
     let highlightFn =
       (theme.colors.bodyBackground |> isLight ? darken : lighten)(highlight);
     (
@@ -263,19 +288,39 @@ module Private = {
       | `error => theme.colors.error
       | `brand1 => theme.colors.brand1
       | `brand2 => theme.colors.brand2
-      | `bodyBackground => theme.colors.bodyBackground
-      | `primaryText => theme.colors.primary |> Lab.getContrastColorRGB
-      | `secondaryText => theme.colors.secondary |> Lab.getContrastColorRGB
-      | `warningText => theme.colors.warning |> Lab.getContrastColorRGB
-      | `errorText => theme.colors.error |> Lab.getContrastColorRGB
-      | `successText => theme.colors.success |> Lab.getContrastColorRGB
-      | `brand1Text => theme.colors.brand1 |> Lab.getContrastColorRGB
-      | `brand2Text => theme.colors.brand2 |> Lab.getContrastColorRGB
-      | `bodyText => theme.colors.bodyText
-      | `quietText => theme.colors.quietText
-      | `highlight(i, c) => color(~theme, ~highlight=i, c)
+      | `body => theme.colors.bodyBackground
+      | `highlight(i, c) => backgroundColor(~theme, ~highlight=i, c)
       | `transparent => `transparent
-      | `escapeHatch(c) => c
+      | `unsafeCustomValue(c) => c
+      }
+    )
+    |> highlightFn
+    |> (
+      switch (alpha) {
+      | 1. => identity
+      | a => alphaFn(a)
+      }
+    );
+  };
+  let rec textColor =
+          (~theme, ~alpha=1., ~highlight=0, ~tint as _=?, v: Color.backgroundColor) => {
+    Js.log2("TODO", "Fix this implementation");
+
+    let highlightFn =
+      (theme.colors.bodyBackground |> isLight ? darken : lighten)(highlight);
+    (
+      switch (v) {
+      | `primary => theme.colors.primary |> Lab.getContrastColorRGB
+      | `secondary => theme.colors.secondary |> Lab.getContrastColorRGB
+      | `warning => theme.colors.warning |> Lab.getContrastColorRGB
+      | `error => theme.colors.error |> Lab.getContrastColorRGB
+      | `success => theme.colors.success |> Lab.getContrastColorRGB
+      | `brand1 => theme.colors.brand1 |> Lab.getContrastColorRGB
+      | `brand2 => theme.colors.brand2 |> Lab.getContrastColorRGB
+      | `body => theme.colors.bodyText
+      | `transparent => theme.colors.bodyText
+      | `highlight(i, c) => textColor(~theme, ~highlight=i, c)
+      | `unsafeCustomValue(_c) => theme.colors.bodyText
       }
     )
     |> highlightFn
@@ -330,14 +375,11 @@ module Private = {
     | `quad => 8 |> length
     | `quint => 10 |> length
     | `number(i) => i |> length
-    | `escapeHatch(v) => v
+    | `unsafeCustomValue(v) => v
     | `closest(pixels) =>
       let rem = pixels mod theme.baseGridUnit;
       let extra = rem == 0 ? 0 : 1;
-      (pixels / theme.baseGridUnit + extra)
-      * theme.baseGridUnit
-      |> Log.pass(extra)
-      |> Css.px;
+      (pixels / theme.baseGridUnit + extra) * theme.baseGridUnit |> Css.px;
     | `responsive(_, _, _) => 6 |> length // TODO Fix
     };
   };
@@ -385,7 +427,7 @@ let createTheme =
               bodyBackground: rgb(255, 255, 255),
               bodyText: rgb(40, 40, 40),
               neutral: rgb(40, 40, 40),
-              quietText: rgb(130, 130, 130),
+              quiet: rgb(130, 130, 130),
             },
       ~gridWidth as width=960,
       (),
@@ -403,7 +445,7 @@ let createTheme =
       brand2: hues.brand2 |> fromRGB |> lightness(baseLightness) |> toRGB,
       bodyBackground: hues.bodyBackground,
       bodyText: hues.bodyText,
-      quietText: hues.quietText,
+      quiet: hues.quiet,
       neutral: hues.neutral |> fromRGB |> lightness(80.) |> toRGB,
     };
   {colors, fonts, fontScale, baseFontSize, baseGridUnit, width, borderRadii};
@@ -420,7 +462,7 @@ module Context = {
   module Provider = {
     [@react.component]
     let make = (~value, ~children) => {
-      EscapeHatch.use(
+      UnsafeCreateReactElement.use(
         Obj.magic(provider),
         {"value": value, "children": children},
       );
@@ -504,7 +546,7 @@ module Styles = {
     | `half => Css.[width(pct(100. /. 2.))]
     | `full => Css.[maxWidth(px(w)), width(pct(100.))]
     | `auto => Css.[width(`auto)]
-    | `escapeHatch(i) => Css.[width(i)]
+    | `unsafeCustomValue(i) => Css.[width(i)]
     | `responsive(s, m, l) =>
       responsive(
         theme,
@@ -531,10 +573,20 @@ module Styles = {
   let useWidth = w => widthStyles_(React.useContext(Context.context), w);
 
   let useColor = (~highlight=0, ~alpha=1., c) => {
-    Private.color(
+    Private.backgroundColor(
       ~theme=React.useContext(Context.context),
       ~highlight,
       ~alpha,
+      c,
+    );
+  };
+  let useTextColor = (~tint=?, ~highlight=0, ~alpha=1., ()) => {
+    let c = React.useContext(BackgroundColorContext.context);
+    Private.textColor(
+      ~theme=React.useContext(Context.context),
+      ~highlight,
+      ~alpha,
+      ~tint,
       c,
     );
   };

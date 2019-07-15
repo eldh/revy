@@ -46,15 +46,15 @@ let useButtonStyles =
           | Error => (`error, `transparent)
           | Success => (`success, `transparent)
           | Primary => (`primary, `transparent)
-          | Secondary => (`escapeHatch(secondaryColor), `transparent)
+          | Secondary => (`unsafeCustomValue(secondaryColor), `transparent)
           }
         : (
           switch (v) {
-          | Warning => (`warningText, `warning)
-          | Error => (`errorText, `error)
-          | Success => (`successText, `success)
-          | Primary => (`primaryText, `primary)
-          | Secondary => (`bodyBackground, `escapeHatch(secondaryColor))
+          | Warning => (`warning, `warning)
+          | Error => (`error, `error)
+          | Success => (`success, `success)
+          | Primary => (`primary, `primary)
+          | Secondary => (`body, `unsafeCustomValue(secondaryColor))
           }
         );
     let styleStyles = [
@@ -64,7 +64,7 @@ let useButtonStyles =
             ~inset=true,
             ~spread=px(2),
             ~blur=px(0),
-            Styles.useColor(~highlight=20, textVariant),
+            Styles.useTextColor(~highlight=20, ~tint=textVariant,()),
           )
         : boxShadow(
             ~y=px(0),
@@ -80,7 +80,7 @@ let useButtonStyles =
 
     [
       fontFamily(Styles.useFontFamily(`body)),
-      color(Styles.useColor(~highlight=outline_ ? 25 : 0, textVariant)),
+      color(Styles.useTextColor(~highlight=outline_ ? 25 : 0, ~tint=textVariant, ())),
       borderRadius(Styles.useBorderRadius(`medium)),
       textTransform(`uppercase),
       backgroundColor(Styles.useColor(bgVariant)),

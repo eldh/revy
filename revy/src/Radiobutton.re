@@ -99,6 +99,6 @@ let make =
       type_="radio"
     />
     <div />
-    <Text.String color=`quietText> label </Text.String>
+    <Text.String> label </Text.String>
   </TouchableOpacity>;
 };

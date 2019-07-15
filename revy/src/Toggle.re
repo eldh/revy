@@ -118,6 +118,6 @@ let make =
       type_="checkbox"
     />
     <div />
-    <Text.String color=`quietText> label </Text.String>
+    <Text.String> label </Text.String>
   </TouchableOpacity>;
 };

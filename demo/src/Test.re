@@ -3,7 +3,7 @@
 let make = (~toggleTheme=ignore, ()) => {
   <Box
     tag="main"
-    backgroundColor=`bodyBackground
+    backgroundColor=`body
     p={`padding(`double)}
     w=`full
     align=`stretch
@@ -34,10 +34,7 @@ let make = (~toggleTheme=ignore, ()) => {
 [@react.component]
 let make = () => {
   <Revy.Core.Context.Provider value=theme>
-    <Text.String
-      color=`quietText
-      size=2
-    >
+    <Text.String size=2>
         "My first app"
     </Text.String>
   </Revy.Core.Context.Provider>

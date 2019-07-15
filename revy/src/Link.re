@@ -1,13 +1,13 @@
 open Core;
-let useLinkStyle = (~color as color_, ()) =>
+let useLinkStyle = () =>
   Css.[
     display(`inline),
     textDecoration(`underline),
     cursor(`pointer),
     borderStyle(`none),
-    color(Styles.useColor(color_)),
+    color(Styles.useTextColor()),
     transition(~duration=200, "color"),
-    hover([color(Styles.useColor(~highlight=-40, color_))]),
+    hover([color(Styles.useTextColor(~highlight=-40, ()))]),
     focus([
       outlineStyle(`none),
       boxShadow(
@@ -25,7 +25,7 @@ let useLinkStyle = (~color as color_, ()) =>
         ~blur=px(0),
         ~spread=px(1),
         ~inset=true,
-        (Styles.useColor(`transparent)),
+        Styles.useColor(`transparent),
       ),
     ]),
   ];
@@ -35,23 +35,22 @@ let make =
     (
       ~href,
       ~onClick=ignore,
-      ~color=`primary,
       ~size=0,
       ~lineHeight=0,
       ~m=`margin(`auto),
       ~weight=`normal,
+      ~tintColor=?,
       ~children,
       (),
     ) => {
-  let textStyle = Text.useTextStyles(~color, ~size, ~lineHeight, ~weight, ());
-  let linkStyle = useLinkStyle(~color, ());
+  let textStyle =
+    Text.useTextStyles(~tintColor, ~size, ~lineHeight, ~weight, ());
+  let linkStyle = useLinkStyle();
   <a
     href
     onClick
     className={
-      [textStyle, linkStyle, Styles.useMargin(m)]
-      |> List.concat
-      |> Css.style
+      [textStyle, linkStyle, Styles.useMargin(m)] |> List.concat |> Css.style
     }>
     children->React.string
   </a>;
@@ -62,24 +61,22 @@ module Button = {
   let make =
       (
         ~onClick=ignore,
-        ~color=`primary,
         ~size=0,
         ~lineHeight=0,
-        ~m=(`margin(`auto)),
+        ~m=`margin(`auto),
         ~weight=`normal,
+        ~tintColor=?,
         ~children,
         (),
       ) => {
     let textStyle =
-      Text.useTextStyles(~color, ~size, ~lineHeight, ~weight, ());
-    let linkStyle = useLinkStyle(~color, ());
+      Text.useTextStyles(~tintColor, ~size, ~lineHeight, ~weight, ());
+    let linkStyle = useLinkStyle();
     <TouchableOpacity
       tag="button"
       grow=0.
       onPress=onClick
-      style={
-        [textStyle, linkStyle, Styles.useMargin(m)] |> List.concat
-      }>
+      style={[textStyle, linkStyle, Styles.useMargin(m)] |> List.concat}>
       children->React.string
     </TouchableOpacity>;
   };

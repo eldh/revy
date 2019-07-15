@@ -6,7 +6,7 @@ let useBoxStyle =
       ~alignSelf as alignSelf_,
       ~alignContent as alignContent_,
       ~backgroundColor as backgroundColor_,
-      ~color as color_,
+      ~tintColor as tint,
       ~grow as grow_,
       ~wrap as wrap_,
       ~shrink as shrink_,
@@ -28,7 +28,7 @@ let useBoxStyle =
       alignItems(align_),
       backgroundColor(Core.Styles.useColor(backgroundColor_)),
       alignContent(alignContent_),
-      color(Core.Styles.useColor(color_)),
+      color(Core.Styles.useTextColor(~tint, ())),
       height(height_),
       overflow(overflow_),
       borderRadius(borderRadius_),
@@ -55,7 +55,6 @@ let make =
       ~alignSelf=`auto,
       ~alignContent=`flexStart,
       ~backgroundColor=`transparent,
-      ~color=`primaryText,
       ~grow=1.,
       ~wrap=`wrap,
       ~shrink=0.,
@@ -67,6 +66,7 @@ let make =
       ~w=`auto,
       ~overflow=`auto,
       ~borderRadius=Css.px(0),
+      ~tintColor=?,
       ~domProps=?,
       ~children=?,
       (),
@@ -78,7 +78,7 @@ let make =
         ~alignSelf,
         ~alignContent,
         ~backgroundColor,
-        ~color,
+        ~tintColor,
         ~grow,
         ~wrap,
         ~shrink,
@@ -96,5 +96,7 @@ let make =
     ]
     |> List.concat;
 
-  <View tag style domProps> children </View>;
+  <Core.BackgroundColorContext.Provider value=backgroundColor>
+    <View tag style domProps> children </View>
+  </Core.BackgroundColorContext.Provider>;
 };

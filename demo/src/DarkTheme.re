@@ -27,7 +27,7 @@ let hues = {
   brand2: rgb(54, 213, 222),
   bodyBackground: rgb(20, 20, 20),
   bodyText: rgb(255, 255, 255),
-  quietText: rgb(180, 180, 180),
+  quiet: rgb(180, 180, 180),
 };
 let borderRadii = {small: 0, medium: 8, large: 8};
 let theme =

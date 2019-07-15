@@ -21,7 +21,7 @@ let useInputStyles = (~m, ()) => {
           Styles.useIsLight()
             ? Css.rgba(0, 0, 0, 0.05) : Css.rgba(255, 255, 255, 0.05),
         ),
-        color(Styles.useColor(`bodyText)),
+        color(Styles.useTextColor()),
         boxShadow(
           ~y=px(0),
           ~blur=px(0),
@@ -96,7 +96,7 @@ module Label = {
       className={
         Text.useTextStyles(
           ~size=-1,
-          ~color=`quietText,
+          ~tintColor=`body, //quiet,
           ~lineHeight=1,
           ~weight=`normal,
           (),
