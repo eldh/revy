@@ -86,11 +86,35 @@ let xyz_p3 = r => {
   r <= 0.00304 ? 12.92 *. r : 1.055 *. r ** (1. /. 2.4) -. 0.055;
 };
 
-   let xyzToP3 = ((x, y, z)) => {
+let xyzToP3 = ((x, y, z)) => {
   (
-    xyz_p3( 2.4041476775378706282 *. x -. 0.99010703944210726052 *. y -. 0.39759019425373693677 *. z) |> p3Clamp,
-    xyz_p3((-0.84239097992588684688) *. x +. 1.7990595398556119185 *. y +. 0.015970230317527190242 *. z) |> p3Clamp,
-    xyz_p3(0.04838763487334053893 *. x -. 0.097525459078352834297 *. y +. 1.2739363577809163373 *. z) |> p3Clamp,
+    xyz_p3(
+      2.4041476775378706282
+      *. x
+      -. 0.99010703944210726052
+      *. y
+      -. 0.39759019425373693677
+      *. z,
+    )
+    |> p3Clamp,
+    xyz_p3(
+      (-0.84239097992588684688)
+      *. x
+      +. 1.7990595398556119185
+      *. y
+      +. 0.015970230317527190242
+      *. z,
+    )
+    |> p3Clamp,
+    xyz_p3(
+      0.04838763487334053893
+      *. x
+      -. 0.097525459078352834297
+      *. y
+      +. 1.2739363577809163373
+      *. z,
+    )
+    |> p3Clamp,
   );
 };
 
@@ -99,7 +123,7 @@ let toP3 = lab => {
 };
 
 Js.log2("toP3", toP3(`lab((31.0139, 70.7230, (-116.0393)))));
-Js.log2("toP3", toP3(`lab((100., -128., 128.))));
+Js.log2("toP3", toP3(`lab((100., (-128.), 128.))));
 Js.log2("toRGB", toRGB(`lab((31.0139, 70.7230, (-116.0393)))));
 
 let p3_xyz = r => {
@@ -160,18 +184,11 @@ let p3ToXyz = ((r_, g_, b_)) => {
   let r = rgb_xyz(r_ |> float_of_int);
   let g = rgb_xyz(g_ |> float_of_int);
   let b = rgb_xyz(b_ |> float_of_int);
-  let x =
-    xyz_lab(
-      (0.5151 *. r +. 0.292 *. g +. 0.1571 *. b) /. Constants.xn,
-    );
+  let x = xyz_lab((0.5151 *. r +. 0.292 *. g +. 0.1571 *. b) /. Constants.xn);
   let y =
-    xyz_lab(
-      (0.2412 *. r +. 0.6922 *. g +. 0.0666 *. b) /. Constants.yn,
-    );
+    xyz_lab((0.2412 *. r +. 0.6922 *. g +. 0.0666 *. b) /. Constants.yn);
   let z =
-    xyz_lab(
-      (-0.0011 *. r +. 0.0419 *. g +. 0.7841 *. b) /. Constants.zn,
-    );
+    xyz_lab(((-0.0011) *. r +. 0.0419 *. g +. 0.7841 *. b) /. Constants.zn);
   (x, y, z);
 };
 
@@ -186,7 +203,16 @@ let fromRGB = rgb => {
   switch (rgb) {
   | `rgb(r, g, b) => (r, g, b) |> rgbToXyz |> rgbxyzToLab
   | `rgba(r, g, b, _) => (r, g, b) |> rgbToXyz |> rgbxyzToLab
-  | _ => (255, 0, 0) |> rgbToXyz |> rgbxyzToLab
+  | t => (255, 0, 0) |> rgbToXyz |> rgbxyzToLab |> Log.pass(t)
+  };
+};
+
+let toCss = c => {
+  switch (c) {
+  | `rgb(_r, _g, _b) as rgb => rgb
+  | `rgba(_r, _g, _b, _a) as rgba => rgba
+  | `transparent as t => t
+  | `lab(_l, _a, _b) as lab => lab |> toRGB
   };
 };
 
@@ -314,29 +340,28 @@ let isContrastOk = (~level=AA, ~size=Normal, r1, r2) => {
   rgbContrast(r1, r2) > getContrastLimit(level, size);
 };
 
-let getContrastColorLab = lab => {
-  switch (lab) {
-  | `lab(_, a, b) as c =>
-    let rgb = c |> toRGB;
-    let darkLab = `lab((0., a, b));
-    let lightLab = `lab((100., a, b));
-
-    darkLab
-    |> toRGB
-    |> rgbContrast(rgb) > (lightLab |> toRGB |> rgbContrast(rgb))
-      ? darkLab : lightLab;
-  };
+let getContrastColorLab =
+    (~lightColor=`lab((100., 0., 0.)), ~darkColor=`lab((10., 0., 0.)), lab) => {
+  let contrastFn = lab |> toRGB |> rgbContrast;
+  let useDark =
+    darkColor |> toRGB |> contrastFn > (lightColor |> toRGB |> contrastFn);
+  useDark ? darkColor : lightColor;
 };
 
-let getContrastColorRGB = rgb => {
-  rgb |> fromRGB |> getContrastColorLab |> toRGB;
+let getContrastColorRGB =
+    (~lightColor=`rgb((255, 255, 255)), ~darkColor=`rgb((30, 30, 30)), rgb) => {
+  let useDark =
+    darkColor |> rgbContrast(rgb) > (lightColor |> rgbContrast(rgb));
+  useDark ? darkColor : lightColor;
 };
 
 let getContrastColor = c => {
   switch (c) {
-  | `rgb(r, g, b) => getContrastColorRGB(`rgb((r, g, b)))
-  | `lab(l, a, b) => getContrastColorLab(`lab((l, a, b))) |> toRGB
-  };
+  | `rgb(_r, _g, _b) as rgb => getContrastColorRGB(rgb)
+  | `lab(_l, _a, _b) as lab => getContrastColorLab(lab) |> toRGB
+  | `rgba(_,_,_,_) => `rgb((255, 0, 0)) |> Log.pass("rgba")
+  | _ => `rgb((255, 0, 0)) |> Log.pass("contrast")
+  } |> toCss;
 };
 
 let rgbToCssRGB = ((r, g, b)) => Css.rgb(r, g, b);

@@ -19,6 +19,6 @@
       "in-source": true
     }
   ],
-  "bs-dependencies": ["bs-css", "@glennsl/bs-jest", "reason-react", "revy"],
+  "bs-dependencies": ["@glennsl/bs-jest", "reason-react", "revy"],
   "refmt": 3
 }

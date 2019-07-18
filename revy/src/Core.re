@@ -134,7 +134,7 @@ module Color = {
     | `body
     | `transparent
     | `highlight(int, backgroundColor)
-    | `unsafeCustomValue(Css.color)
+    | `unsafeCustomColor(Css.color)
   ];
 
   type textColor = [
@@ -148,7 +148,7 @@ module Color = {
     | `body
     | `quiet
     | `highlight(int, textColor)
-    | `unsafeCustomValue(Css.color)
+    | `unsafeCustomColor(Css.color)
   ];
 };
 
@@ -254,7 +254,10 @@ module Private = {
     | `rgb(_, _, _) as rgb => Lab.(rgb |> lightenRGB(factor))
     | `rgba(r, g, b, a) =>
       Lab.(`rgb((r, g, b)) |> lightenRGB(factor) |> alphaFn(a))
-    | _ => color // TODO: Error / handle
+    | `lab(_, _, _) as lab =>
+      Js.log2("lab", lab);
+      `rgb((255, 255, 0)); // TODO: Error / handle
+    | `transparent as t => t
     };
 
   let darken = (factor, rgb) => lighten(factor * (-1), rgb);
@@ -276,9 +279,13 @@ module Private = {
   };
 
   let rec backgroundColor =
-          (~theme, ~alpha=1., ~highlight=0, v: Color.backgroundColor) => {
+          (~theme, ~alpha=?, ~highlight=?, v: Color.backgroundColor) => {
     let highlightFn =
-      (theme.colors.bodyBackground |> isLight ? darken : lighten)(highlight);
+      switch (highlight) {
+      | Some(h) =>
+        (theme.colors.bodyBackground |> isLight ? darken : lighten)(h)
+      | None => identity
+      };
     (
       switch (v) {
       | `primary => theme.colors.primary
@@ -291,45 +298,30 @@ module Private = {
       | `body => theme.colors.bodyBackground
       | `highlight(i, c) => backgroundColor(~theme, ~highlight=i, c)
       | `transparent => `transparent
-      | `unsafeCustomValue(c) => c
+      | `unsafeCustomColor(c) => c |> Lab.toCss
       }
     )
     |> highlightFn
     |> (
       switch (alpha) {
-      | 1. => identity
-      | a => alphaFn(a)
+      | Some(a) => alphaFn(a)
+      | None => identity
       }
     );
   };
-  let rec textColor =
-          (~theme, ~alpha=1., ~highlight=0, ~tint as _=?, v: Color.backgroundColor) => {
-    Js.log2("TODO", "Fix this implementation");
 
+  let textColor =
+      (~theme, ~alpha=?, ~highlight=?, ~tint as _=?, v: Color.backgroundColor) => {
     let highlightFn =
-      (theme.colors.bodyBackground |> isLight ? darken : lighten)(highlight);
-    (
-      switch (v) {
-      | `primary => theme.colors.primary |> Lab.getContrastColorRGB
-      | `secondary => theme.colors.secondary |> Lab.getContrastColorRGB
-      | `warning => theme.colors.warning |> Lab.getContrastColorRGB
-      | `error => theme.colors.error |> Lab.getContrastColorRGB
-      | `success => theme.colors.success |> Lab.getContrastColorRGB
-      | `brand1 => theme.colors.brand1 |> Lab.getContrastColorRGB
-      | `brand2 => theme.colors.brand2 |> Lab.getContrastColorRGB
-      | `body => theme.colors.bodyText
-      | `transparent => theme.colors.bodyText
-      | `highlight(i, c) => textColor(~theme, ~highlight=i, c)
-      | `unsafeCustomValue(_c) => theme.colors.bodyText
-      }
-    )
+      switch (highlight) {
+      | Some(h) =>
+        (theme.colors.bodyBackground |> isLight ? darken : lighten)(h)
+      | None => identity
+      };
+    backgroundColor(~theme, ~alpha?, v)
+    |> Lab.getContrastColor
     |> highlightFn
-    |> (
-      switch (alpha) {
-      | 1. => identity
-      | a => alphaFn(a)
-      }
-    );
+    |> Lab.toCss;
   };
 
   let fontFamily = (~theme, v) =>
@@ -572,22 +564,28 @@ module Styles = {
   /** Width styles yo */
   let useWidth = w => widthStyles_(React.useContext(Context.context), w);
 
-  let useColor = (~highlight=0, ~alpha=1., c) => {
+  let useColor = (~highlight=0, ~alpha=?, c) => {
     Private.backgroundColor(
       ~theme=React.useContext(Context.context),
       ~highlight,
-      ~alpha,
+      ~alpha?,
       c,
     );
   };
-  let useTextColor = (~tint=?, ~highlight=0, ~alpha=1., ()) => {
-    let c = React.useContext(BackgroundColorContext.context);
+  let useTextColor =
+      (
+        ~tint=?,
+        ~highlight=0,
+        ~alpha=?,
+        ~background=React.useContext(BackgroundColorContext.context),
+        (),
+      ) => {
     Private.textColor(
       ~theme=React.useContext(Context.context),
       ~highlight,
-      ~alpha,
-      ~tint,
-      c,
+      ~alpha?,
+      ~tint?,
+      background,
     );
   };
 

@@ -37,26 +37,18 @@ let useButtonStyles =
   let variantStyles = v => {
     open Css;
     let isLight = Styles.useIsLight();
-    let secondaryColor = isLight ? rgb(50, 50, 50) : rgb(230, 230, 230);
 
-    let (textVariant, bgVariant) =
-      outline_
-        ? switch (v) {
-          | Warning => (`warning, `transparent)
-          | Error => (`error, `transparent)
-          | Success => (`success, `transparent)
-          | Primary => (`primary, `transparent)
-          | Secondary => (`unsafeCustomValue(secondaryColor), `transparent)
-          }
-        : (
-          switch (v) {
-          | Warning => (`warning, `warning)
-          | Error => (`error, `error)
-          | Success => (`success, `success)
-          | Primary => (`primary, `primary)
-          | Secondary => (`body, `unsafeCustomValue(secondaryColor))
-          }
-        );
+    let bgVariant =
+      switch (v) {
+      | Warning => `warning
+      | Error => `error
+      | Success => `success
+      | Primary => `primary
+      | Secondary =>
+        `unsafeCustomColor(
+          isLight ? `rgb((50, 50, 50)) : `rgb((230, 230, 230)),
+        )
+      };
     let styleStyles = [
       outline_
         ? boxShadow(
@@ -64,7 +56,7 @@ let useButtonStyles =
             ~inset=true,
             ~spread=px(2),
             ~blur=px(0),
-            Styles.useTextColor(~highlight=20, ~tint=textVariant,()),
+            Styles.useColor(~highlight=20, bgVariant),
           )
         : boxShadow(
             ~y=px(0),
@@ -80,10 +72,14 @@ let useButtonStyles =
 
     [
       fontFamily(Styles.useFontFamily(`body)),
-      color(Styles.useTextColor(~highlight=outline_ ? 25 : 0, ~tint=textVariant, ())),
+      color(
+        outline_
+          ? Styles.useColor(~highlight=20, bgVariant)
+          : Styles.useTextColor(~background=bgVariant, ()),
+      ),
       borderRadius(Styles.useBorderRadius(`medium)),
       textTransform(`uppercase),
-      backgroundColor(Styles.useColor(bgVariant)),
+      backgroundColor(Styles.useColor(outline_ ? `body : bgVariant)),
       hover([
         backgroundColor(
           outline_

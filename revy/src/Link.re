@@ -44,7 +44,7 @@ let make =
       (),
     ) => {
   let textStyle =
-    Text.useTextStyles(~tintColor, ~size, ~lineHeight, ~weight, ());
+    Text.useTextStyles(~tintColor?, ~size, ~lineHeight, ~weight, ());
   let linkStyle = useLinkStyle();
   <a
     href
@@ -70,7 +70,7 @@ module Button = {
         (),
       ) => {
     let textStyle =
-      Text.useTextStyles(~tintColor, ~size, ~lineHeight, ~weight, ());
+      Text.useTextStyles(~tintColor?, ~size, ~lineHeight, ~weight, ());
     let linkStyle = useLinkStyle();
     <TouchableOpacity
       tag="button"

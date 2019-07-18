@@ -4,7 +4,7 @@ exception InvalidValue(string);
 let useTextStyles =
     (
       ~size,
-      ~tintColor as tint,
+      ~tintColor as tint=?,
       ~fontFamily as fontFamily_=`body,
       ~lineHeight as lineHeight_,
       ~weight as weight_,
@@ -15,9 +15,8 @@ let useTextStyles =
   //   "BackgroundContext:",
   //   React.useContext(BackgroundColorContext.context),
   // );
-  let bg = React.useContext(Core.BackgroundColorContext.context);
   Css.[
-    color(Styles.useTextColor() /* ~tint, */),
+    color(Styles.useTextColor(~tint?,()) /*  */),
     fontSize(sizeVal),
     fontFamily(Styles.useFontFamily(fontFamily_)),
     lineHeight(
@@ -39,7 +38,7 @@ let make =
       ~children,
       (),
     ) => {
-  let styles = useTextStyles(~size, ~lineHeight, ~weight, ~tintColor, ());
+  let styles = useTextStyles(~size, ~lineHeight, ~weight, ~tintColor?, ());
   UnsafeCreateReactElement.use(
     tag,
     {
@@ -70,7 +69,7 @@ module String = {
         ~children,
         (),
       ) => {
-    let styles = useTextStyles(~size, ~lineHeight, ~weight, ~tintColor, ());
+    let styles = useTextStyles(~size, ~lineHeight, ~weight, ~tintColor?, ());
     UnsafeCreateReactElement.use(
       tag,
       {
@@ -103,7 +102,7 @@ module Block = {
         ~children,
         (),
       ) => {
-    let styles = useTextStyles(~size, ~lineHeight, ~weight, ~tintColor, ());
+    let styles = useTextStyles(~size, ~lineHeight, ~weight, ~tintColor?, ());
     let margin = Styles.useMargin(m);
     UnsafeCreateReactElement.use(
       tag,
@@ -138,7 +137,7 @@ module Paragraph = {
         ~children,
         (),
       ) => {
-    let styles = useTextStyles(~size, ~lineHeight, ~weight, ~tintColor, ());
+    let styles = useTextStyles(~size, ~lineHeight, ~weight, ~tintColor?, ());
     let margin = Styles.useMargin(m);
     UnsafeCreateReactElement.use(
       tag,
@@ -178,7 +177,7 @@ module Code = {
         ~size,
         ~lineHeight,
         ~weight,
-        ~tintColor,
+        ~tintColor?,
         ~fontFamily=`mono,
         (),
       );
@@ -187,7 +186,7 @@ module Code = {
     <Box
       m
       backgroundColor={
-                        `unsafeCustomValue(
+                        `unsafeCustomColor(
                           Styles.useColor(~highlight=7, `body),
                         )
                       }

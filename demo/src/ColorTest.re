@@ -36,7 +36,7 @@ module ColorBox = {
                 n * 10 |> float_of_int,
                 Core.Styles.useColor(color),
               );
-            <Swatch color={`unsafeCustomValue(c)} key={n |> string_of_int} />;
+            <Swatch color={`unsafeCustomColor(c)} key={n |> string_of_int} />;
           })
        |> React.array}
     </Box>;
@@ -56,7 +56,7 @@ module GradientBox = {
                 Core.Styles.useColor(toColor) |> Lab.fromRGB,
               )
               |> Lab.toRGB;
-            <Swatch color={`unsafeCustomValue(c)} key={n |> string_of_int} />;
+            <Swatch color={`unsafeCustomColor(c)} key={n |> string_of_int} />;
           })
        |> React.array}
     </Box>;
@@ -78,7 +78,7 @@ module RgbGradientBox = {
                   Core.Styles.useColor(toColor) |> getRgb,
                 )
               );
-            <Swatch color={`unsafeCustomValue(c)} key={n |> string_of_int} />;
+            <Swatch color={`unsafeCustomColor(c)} key={n |> string_of_int} />;
           })
        |> React.array}
     </Box>;
