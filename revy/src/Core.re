@@ -134,7 +134,7 @@ module Color = {
     | `body
     | `transparent
     | `highlight(int, backgroundColor)
-    | `unsafeCustomColor(Css.color)
+    | `unsafeCustomColor(Lab.t)
   ];
 
   type textColor = [
@@ -148,7 +148,7 @@ module Color = {
     | `body
     | `quiet
     | `highlight(int, textColor)
-    | `unsafeCustomColor(Css.color)
+    | `unsafeCustomColor(Lab.t)
   ];
 };
 
@@ -193,17 +193,17 @@ type borderRadii = {
 };
 
 type colors = {
-  neutral: Css.color,
-  primary: Css.color,
-  secondary: Css.color,
-  success: Css.color,
-  warning: Css.color,
-  error: Css.color,
-  brand1: Css.color,
-  brand2: Css.color,
-  bodyBackground: Css.color,
-  bodyText: Css.color,
-  quiet: Css.color,
+  neutral: Lab.t,
+  primary: Lab.t,
+  secondary: Lab.t,
+  success: Lab.t,
+  warning: Lab.t,
+  error: Lab.t,
+  brand1: Lab.t,
+  brand2: Lab.t,
+  bodyBackground: Lab.t,
+  bodyText: Lab.t,
+  quiet: Lab.t,
 };
 
 type t = {
@@ -239,42 +239,28 @@ module BackgroundColorContext = {
   };
 };
 module Private = {
-  let alphaFn = (v, c) => {
-    Css.(
-      switch (c) {
-      | `rgba(r, g, b, _a) => rgba(r, g, b, v)
-      | `rgb(r, g, b) => rgba(r, g, b, v)
-      | _ => c
-      }
-    );
+  let alphaFn = (_v, c) => {
+    switch (c) {
+    | _ => c |> Log.pass("add alpha support damnit")
+    };
   };
 
-  let lighten = (factor, color: Css.color) =>
-    switch (color) {
-    | `rgb(_, _, _) as rgb => Lab.(rgb |> lightenRGB(factor))
-    | `rgba(r, g, b, a) =>
-      Lab.(`rgb((r, g, b)) |> lightenRGB(factor) |> alphaFn(a))
-    | `lab(_, _, _) as labC => Lab.lighten(factor, labC)
+  // let lighten = Lab.lighten;
+  // switch (color) {
+  // | `rgb(_, _, _) as rgb => Lab.(rgb |> lightenRGB(factor))
+  // | `rgba(r, g, b, a) =>
+  //   Lab.(`rgb((r, g, b)) |> lightenRGB(factor) |> alphaFn(a))
+  // | `lab(_, _, _) as labC => Lab.lighten(factor, labC)
 
-    | `transparent as t => t
-    };
+  // | `transparent as t => t
+  // };
 
-  let darken = (factor, rgb) => lighten(factor * (-1), rgb);
+  // let darken = (factor) => lighten(factor * (-1));
 
-  let highlight = (factor, c: Css.color) =>
-    switch (c) {
-    | `rgb(_, _, _) as rgb => Lab.(rgb |> highlightRGB(factor))
-    | `rgba(r, g, b, a) =>
-      Lab.(`rgb((r, g, b)) |> highlightRGB(factor) |> alphaFn(a))
-    | _ => c
-    };
+  // let highlight = Lab.highlightLab;
 
   let isLight = bodyBackground => {
-    switch (bodyBackground) {
-    | `rgb(_r, _g, _b) as rgb => Lab.luminanceRGB(rgb) > 0.5
-    | `rgba(r, g, b, _a) => Lab.luminanceRGB(`rgb((r, g, b))) > 0.5
-    | _ => true
-    };
+    Lab.luminance(bodyBackground) > 0.5;
   };
 
   let rec backgroundColor =
@@ -282,7 +268,7 @@ module Private = {
     let highlightFn =
       switch (highlight) {
       | Some(h) =>
-        (theme.colors.bodyBackground |> isLight ? darken : lighten)(h)
+        (theme.colors.bodyBackground |> isLight ? Lab.darken : Lab.lighten)(h)
       | None => identity
       };
     (
@@ -296,7 +282,7 @@ module Private = {
       | `brand2 => theme.colors.brand2
       | `body => theme.colors.bodyBackground
       | `highlight(i, c) => backgroundColor(~theme, ~highlight=i, c)
-      | `transparent => `transparent
+      | `transparent => `lab((100., 100., 100.)) // `transparent
       | `unsafeCustomColor(c) => c
       }
     )
@@ -314,7 +300,7 @@ module Private = {
     let highlightFn =
       switch (highlight) {
       | Some(h) =>
-        (theme.colors.bodyBackground |> isLight ? darken : lighten)(h)
+        (theme.colors.bodyBackground |> isLight ? Lab.darken : Lab.lighten)(h)
       | None => identity
       };
     backgroundColor(~theme, ~alpha?, v) |> Lab.getContrastColor |> highlightFn;
@@ -559,14 +545,19 @@ module Styles = {
   /** Width styles yo */
   let useWidth = w => widthStyles_(React.useContext(Context.context), w);
 
-  let useColor = (~highlight=?, ~alpha=?, c) => {
-    Private.backgroundColor(
-      ~theme=React.useContext(Context.context),
-      ~highlight?,
-      ~alpha?,
-      c,
-    )
-    |> Lab.toCss;
+  let useColor = (~highlight=?, ~alpha=?, c: Color.backgroundColor) => {
+    // TODO remove when `lab supports alpha
+    switch (c) {
+    | `transparent => `transparent
+    | _ =>
+      Private.backgroundColor(
+        ~theme=React.useContext(Context.context),
+        ~highlight?,
+        ~alpha?,
+        c,
+      )
+      |> Lab.toCss
+    };
   };
   let useTextColor =
       (

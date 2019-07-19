@@ -46,7 +46,7 @@ let useButtonStyles =
       | Primary => `primary
       | Secondary =>
         `unsafeCustomColor(
-          isLight ? `rgb((50, 50, 50)) : `rgb((230, 230, 230)),
+          isLight ? `lab((20., 0., 0.)) : `lab((95., 0., 0.)),
         )
       };
     let styleStyles = [
@@ -99,7 +99,13 @@ let useButtonStyles =
             : Styles.useColor(~highlight=10, bgVariant),
         ),
       ]),
-      active([backgroundColor(Styles.useColor(~highlight=20, bgVariant))]),
+      active([
+        backgroundColor(
+          outline_
+            ? outlineHighlightBg(0.15)
+            : Styles.useColor(~highlight=15, bgVariant),
+        ),
+      ]),
       ...styleStyles,
     ];
   };

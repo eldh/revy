@@ -36,13 +36,13 @@ describe("isContrastOk", () => {
 describe("getContrastColor", () => {
   open Expect;
   test("`rgb(110, 181, 247)", _ =>
-    getContrastColor(`rgb((110, 181, 247)))
+    getContrastColor(`rgb((110, 181, 247)) |> fromRGB)
     |> expect
-    |> toEqual(`rgb((0, 9, 59)))
+    |> toEqual(`rgb((0, 9, 59)) |> fromRGB)
   );
   test("`rgb(110, 181, 247)", _ =>
-    getContrastColor(`rgb((255, 80, 61)))
+    getContrastColor(`rgb((255, 80, 61)) |> fromRGB)
     |> expect
-    |> toEqual(`rgb((78, 0, 0)))
+    |> toEqual(`rgb((78, 0, 0)) |> fromRGB)
   );
 });

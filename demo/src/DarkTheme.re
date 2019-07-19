@@ -1,4 +1,3 @@
-open Css;
 open Core;
 
 let fonts = {
@@ -17,17 +16,17 @@ let fonts = {
 // Brand3 [85.3300784398493, -22.066011137736375, 74.9815823890027]
 // Brand4 [78.44200701646093, -65.51838282954553, 35.31924585960553]
 let hues = {
-  neutral: rgb(0, 0, 0),
-  primary: rgb(110, 181, 247),
-  secondary: rgb(150, 150, 150),
-  warning: rgb(235, 160, 71),
-  success: rgb(88, 214, 21),
-  error: rgb(250, 20, 20),
-  brand1: rgb(213, 54, 222),
-  brand2: rgb(54, 213, 222),
-  bodyBackground: rgb(20, 20, 20),
-  bodyText: rgb(255, 255, 255),
-  quiet: rgb(180, 180, 180),
+  neutral: `rgb(0, 0, 0) |> Lab.fromRGB,
+  primary: `rgb(110, 181, 247) |> Lab.fromRGB,
+  secondary: `rgb(150, 150, 150) |> Lab.fromRGB,
+  warning: `rgb(235, 160, 71) |> Lab.fromRGB,
+  success: `rgb(88, 214, 21) |> Lab.fromRGB,
+  error: `rgb(250, 20, 20) |> Lab.fromRGB,
+  brand1: `rgb(213, 54, 222) |> Lab.fromRGB,
+  brand2: `rgb(54, 213, 222) |> Lab.fromRGB,
+  bodyBackground: `rgb(20, 20, 20) |> Lab.fromRGB,
+  bodyText: `rgb(255, 255, 255) |> Lab.fromRGB,
+  quiet: `rgb(180, 180, 180) |> Lab.fromRGB,
 };
 let borderRadii = {small: 0, medium: 8, large: 8};
 let theme =

@@ -16,7 +16,7 @@ let useTextStyles =
   //   React.useContext(BackgroundColorContext.context),
   // );
   Css.[
-    color(Styles.useTextColor(~tint?,()) /*  */),
+    color(Styles.useTextColor(~tint?, ()) /*  */),
     fontSize(sizeVal),
     fontFamily(Styles.useFontFamily(fontFamily_)),
     lineHeight(
@@ -185,11 +185,7 @@ module Code = {
     let padding = Styles.usePadding(`padding(`double));
     <Box
       m
-      backgroundColor={
-                        `unsafeCustomColor(
-                          Styles.useColor(~highlight=7, `body),
-                        )
-                      }
+      backgroundColor={`highlight((7, `body))}
       borderRadius={Css.px(6)}
       style=Css.[width(pct(100.)), overflow(`scroll)]>
       {UnsafeCreateReactElement.use(
