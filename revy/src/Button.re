@@ -56,7 +56,7 @@ let useButtonStyles =
             ~inset=true,
             ~spread=px(2),
             ~blur=px(0),
-            Styles.useColor(~highlight=20, bgVariant),
+            Styles.useTextColor(~tint=bgVariant, ~highlight=-30, ()),
           )
         : boxShadow(
             ~y=px(0),
@@ -74,8 +74,13 @@ let useButtonStyles =
       fontFamily(Styles.useFontFamily(`body)),
       color(
         outline_
-          ? Styles.useColor(~highlight=20, bgVariant)
-          : Styles.useTextColor(~background=bgVariant, ()),
+          ? Styles.useTextColor(~tint=bgVariant, ~highlight=-20, ())
+          : Styles.useTextColor(
+              ~background=bgVariant,
+              ~tint=bgVariant,
+              ~highlight=10,
+              (),
+            ),
       ),
       borderRadius(Styles.useBorderRadius(`medium)),
       textTransform(`uppercase),

@@ -295,15 +295,25 @@ module Private = {
     );
   };
 
-  let textColor =
-      (~theme, ~alpha=?, ~highlight=?, ~tint as _=?, v: Color.backgroundColor) => {
+  let textColor = (~theme, ~highlight=?, ~tint=?, v: Color.backgroundColor) => {
+    let bgColor = backgroundColor(~theme, v);
     let highlightFn =
       switch (highlight) {
-      | Some(h) =>
-        (theme.colors.bodyBackground |> isLight ? Lab.darken : Lab.lighten)(h)
+      | Some(h) => (bgColor |> isLight ? Lab.darken : Lab.lighten)(h)
       | None => identity
       };
-    backgroundColor(~theme, ~alpha?, v) |> Lab.getContrastColor |> highlightFn;
+    let (lightColor, darkColor) =
+      isLight(theme.colors.bodyBackground)
+        ? (theme.colors.bodyBackground, theme.colors.bodyText)
+        : (theme.colors.bodyText, theme.colors.bodyBackground);
+    let tintC =
+      switch (tint) {
+      | None => None
+      | Some(t) => Some(backgroundColor(~theme, t))
+      };
+    bgColor
+    |> Lab.getContrastColor(~tint=?tintC, ~lightColor, ~darkColor)
+    |> highlightFn;
   };
 
   let fontFamily = (~theme, v) =>
@@ -566,14 +576,12 @@ module Styles = {
       (
         ~tint=?,
         ~highlight=0,
-        ~alpha=?,
         ~background=React.useContext(BackgroundColorContext.context),
         (),
       ) => {
     Private.textColor(
       ~theme=React.useContext(Context.context),
       ~highlight,
-      ~alpha?,
       ~tint?,
       background,
     )

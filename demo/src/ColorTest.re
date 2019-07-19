@@ -82,32 +82,10 @@ let make = () => {
   Lab.(
     <ComponentsCard title="Colors">
       <Box direction=`row align=`flexEnd wrap=`wrap w=`full>
-        <GradientBox fromColor=`primary toColor=`brand1 />
-        <RgbGradientBox fromColor=`primary toColor=`brand1 />
-        <GradientBox fromColor=`primary toColor=`error />
-        <RgbGradientBox fromColor=`primary toColor=`error />
-        <GradientBox fromColor=`success toColor=`warning />
-        <RgbGradientBox fromColor=`success toColor=`warning />
-        <GradientBox fromColor=`primary toColor=`warning />
-        <RgbGradientBox fromColor=`primary toColor=`warning />
-      </Box>
-      <Box direction=`row align=`flexEnd wrap=`wrap w=`full>
-        <GradientBox fromColor=`brand1 toColor=`primary />
-        <RgbGradientBox fromColor=`brand1 toColor=`primary />
-        <GradientBox fromColor=`brand2 toColor=`brand1 />
-        <RgbGradientBox fromColor=`brand2 toColor=`brand1 />
-        <GradientBox fromColor=`brand1 toColor=`success />
-        <RgbGradientBox fromColor=`brand1 toColor=`success />
-        <GradientBox fromColor=`brand2 toColor=`warning />
-        <RgbGradientBox fromColor=`brand2 toColor=`warning />
-      </Box>
-      <Box direction=`row align=`flexEnd wrap=`wrap w=`full>
         <ColorBox color=`primary title="Primary" />
         <ColorBox color=`secondary title="Secondary" />
         <ColorBox color=`brand1 title="Brand1" />
         <ColorBox color=`brand2 title="Brand2" />
-      </Box>
-      <Box direction=`row align=`flexEnd wrap=`wrap w=`full>
         <ColorBox color=`success title="Success" />
         <ColorBox color=`error title="Error" />
         <ColorBox color=`warning title="Warning" />
