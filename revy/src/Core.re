@@ -260,7 +260,7 @@ module Private = {
   // let highlight = Lab.highlightLab;
 
   let isLight = bodyBackground => {
-    Lab.luminance(bodyBackground) > 0.5;
+    Lab.luminance(bodyBackground) > 50.;
   };
 
   let rec backgroundColor =

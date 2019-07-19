@@ -2,7 +2,7 @@ open UI;
 module Swatch = {
   [@react.component]
   let make = (~color: Lab.t, ()) => {
-    let lum = Lab.luminance(color) *. 1000. |> int_of_float;
+    let lum = Lab.luminance(color) |> int_of_float;
     <Box
       w={`unsafeCustomValue(Css.px(80))}
       justify=`center

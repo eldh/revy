@@ -133,7 +133,6 @@ module Converter = {
     fun
     | `rgb(r, g, b) => string_of_rgb(r, g, b)
     | `rgba(r, g, b, a) => string_of_rgba(r, g, b, a)
-    | `lab(_l,_a,_b, _alpha) => string_of_rgb(255,0,0)
     | `transparent => "transparent";
 
   let string_of_stops = stops =>
@@ -406,7 +405,6 @@ let pct = x => `percent(x);
 type color = [
   | `rgb(int, int, int)
   | `rgba(int, int, int, float)
-  | `lab( float, float, float, float)
   | `transparent
 ];
 
