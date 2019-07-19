@@ -9,7 +9,7 @@ exception InvalidValue(string);
  * b [-100..100]
  */
 
-type t = [ | `lab(float, float, float)];
+type t = [ | `lab(float, float, float, float)];
 
 type a11yLevel =
   | AA
@@ -50,9 +50,9 @@ let lab_xyz = t => {
 };
 
 let labToXyz = lab => {
-  let (l, a, b) =
+  let (l, a, b, alpha) =
     switch (lab) {
-    | `lab(l, a, b) => (l, a, b)
+    | `lab(l, a, b, alpha) => (l, a, b, alpha)
     };
   let y0 = (l +. 16.) /. 116.;
   let x0 = y0 +. a /. 500.;
@@ -61,15 +61,15 @@ let labToXyz = lab => {
   let x = Constants.xn *. lab_xyz(x0);
   let y = Constants.yn *. lab_xyz(y0);
   let z = Constants.zn *. lab_xyz(z0);
-  (x, y, z);
+  (x, y, z, alpha);
 };
 
 let xyz_rgb = r => {
   255. *. (r <= 0.00304 ? 12.92 *. r : 1.055 *. r ** (1. /. 2.4) -. 0.055);
 };
 
-let xyzToRgb = ((x, y, z)) => {
-  `rgb((
+let xyzToRgb = ((x, y, z, alpha)) => {
+  `rgba((
     xyz_rgb(3.2404542 *. x -. 1.5371385 *. y -. 0.4985314 *. z)
     |> toInt
     |> rgbClamp,
@@ -79,6 +79,7 @@ let xyzToRgb = ((x, y, z)) => {
     xyz_rgb(0.0556434 *. x -. 0.2040259 *. y +. 1.0572252 *. z)
     |> toInt
     |> rgbClamp,
+    alpha,
   ));
 };
 let toRGB = lab => {
@@ -88,7 +89,7 @@ let xyz_p3 = r => {
   r <= 0.00304 ? 12.92 *. r : 1.055 *. r ** (1. /. 2.4) -. 0.055;
 };
 
-let xyzToP3 = ((x, y, z)) => {
+let xyzToP3 = ((x, y, z, alpha)) => {
   (
     xyz_p3(
       2.4041476775378706282
@@ -117,6 +118,7 @@ let xyzToP3 = ((x, y, z)) => {
       *. z,
     )
     |> p3Clamp,
+    alpha,
   );
 };
 
@@ -124,9 +126,9 @@ let toP3 = lab => {
   lab |> labToXyz |> xyzToP3;
 };
 
-Js.log2("toP3", toP3(`lab((31.0139, 70.7230, (-116.0393)))));
-Js.log2("toP3", toP3(`lab((100., (-128.), 128.))));
-Js.log2("toRGB", toRGB(`lab((31.0139, 70.7230, (-116.0393)))));
+// Js.log2("toP3", toP3(`lab((31.0139, 70.7230, (-116.0393), 1.))));
+// Js.log2("toP3", toP3(`lab((100., (-128.), 128.,1.))));
+// Js.log2("toRGB", toRGB(`lab((31.0139, 70.7230, (-116.0393),1.))));
 
 let p3_xyz = r => {
   let r2 = r;
@@ -153,17 +155,17 @@ let xyz_lab = t =>
     t /. Constants.t2 +. Constants.t0;
   };
 
-let labxyzToLab = ((x, y, z)) => {
+let labxyzToLab = ((x, y, z, alpha)) => {
   let x0 = xyz_lab(x /. Constants.xn);
   let y0 = xyz_lab(y /. Constants.yn);
   let z0 = xyz_lab(z /. Constants.zn);
   let l = y0 *. 116. -. 16.;
   let a = (x0 -. y0) *. 500.;
   let b = (y0 -. z0) *. 200.;
-  `lab((l, a, b));
+  `lab((l, a, b, alpha));
 };
 
-let rgbToXyz = ((r_, g_, b_)) => {
+let rgbToXyz = ((r_, g_, b_, alpha: float)) => {
   let r = rgb_xyz(r_ |> float_of_int);
   let g = rgb_xyz(g_ |> float_of_int);
   let b = rgb_xyz(b_ |> float_of_int);
@@ -180,9 +182,9 @@ let rgbToXyz = ((r_, g_, b_)) => {
     xyz_lab(
       (0.0193339 *. r +. 0.1191920 *. g +. 0.9503041 *. b) /. Constants.zn,
     );
-  (x, y, z);
+  (x, y, z, alpha);
 };
-let p3ToXyz = ((r_, g_, b_)) => {
+let p3ToXyz = ((r_, g_, b_, alpha)) => {
   let r = rgb_xyz(r_ |> float_of_int);
   let g = rgb_xyz(g_ |> float_of_int);
   let b = rgb_xyz(b_ |> float_of_int);
@@ -191,28 +193,28 @@ let p3ToXyz = ((r_, g_, b_)) => {
     xyz_lab((0.2412 *. r +. 0.6922 *. g +. 0.0666 *. b) /. Constants.yn);
   let z =
     xyz_lab(((-0.0011) *. r +. 0.0419 *. g +. 0.7841 *. b) /. Constants.zn);
-  (x, y, z);
+  (x, y, z, alpha);
 };
 
-let rgbxyzToLab = ((x, y, z)) => {
+let rgbxyzToLab = ((x, y, z, alpha: float)) => {
   let l = 116. *. y -. 16.;
-  `lab((l < 0. ? 0. : l, 500. *. (x -. y), 200. *. (y -. z)));
+  `lab((l < 0. ? 0. : l, 500. *. (x -. y), 200. *. (y -. z), alpha));
 };
 
 /**
- Takes an (r, g, b) color and returns the corresponding (l, a, b) color */
+ Takes an (r, g, b, alpha?) color and returns the corresponding (l, a, b, alpha) color */
 let fromRGB = rgb => {
   switch (rgb) {
-  | `rgb(r, g, b) => (r, g, b) |> rgbToXyz |> rgbxyzToLab
-  | `rgba(r, g, b, _) => (r, g, b) |> rgbToXyz |> rgbxyzToLab
+  | `rgb(r, g, b) => (r, g, b, 1.) |> rgbToXyz |> rgbxyzToLab
+  | `rgba(r, g, b, a) => (r, g, b, a) |> rgbToXyz |> rgbxyzToLab
   };
 };
 let toLab = c =>
   switch (c) {
-  | `lab(_, _, _) as lab => lab
+  | `lab(_, _, _, _) as lab => lab
   | `rgb(_, _, _) as rgb => rgb |> fromRGB
   | `rgba(_, _, _, _) as rgba => rgba |> fromRGB
-  | `transparent => `rgb((255, 0, 0)) |> fromRGB |> Log.pass("ooopsie")
+  | `transparent => `lab((0., 0., 0., 0.))
   };
 
 let toCss = c => {
@@ -220,18 +222,22 @@ let toCss = c => {
   | `rgb(_r, _g, _b) as rgb => rgb
   | `rgba(_r, _g, _b, _a) as rgba => rgba
   | `transparent as t => t
-  | `lab(_l, _a, _b) as lab => lab |> toRGB
+  | `lab(_l, _a, _b, alpha) as lab =>
+    switch (alpha) {
+    | 0. => `transparent
+    | _ => lab |> toRGB
+    }
   };
 };
-let lightnessLab = (v, c) => {
+let lightness = (v, c) => {
   switch (c) {
-  | `lab(_l, a, b) => `lab((clamp(0., 100., v), a, b))
+  | `lab(_l, a, b, alpha) => `lab((clamp(0., 100., v), a, b, alpha))
   };
 };
 
-let lightness = lightnessLab;
+// let lightness =
 //   switch (c) {
-//   | `lab(_l, _a, _b) as lab => lab |> lightnessLab(v)
+//   | `lab(_l, _a, _b, _) as lab => lab |> lightnessLab(v)
 //   | `rgb(_r, _g, _b) as rgb => rgb |> fromRGB |> lightnessLab(v) |> toRGB
 //   | `rgba(r, g, b, _a) =>
 //     `rgb((r, g, b)) |> fromRGB |> lightnessLab(v) |> toRGB
@@ -241,66 +247,35 @@ let lightness = lightnessLab;
 
 let lighten = (factor, lab) => {
   switch (lab) {
-  | `lab(l, a, b) =>
-    `lab((clamp(0., 100., l +. (factor |> float_of_int)), a, b))
+  | `lab(l, a, b, alpha) =>
+    `lab((clamp(0., 100., l +. (factor |> float_of_int)), a, b, alpha))
   };
 };
 
-let lightenRGB = (factor, c) => {
-  c |> fromRGB |> lighten(factor) |> toRGB;
-};
+// let lightenRGB = (factor, c) => {
+//   c |> fromRGB |> lighten(factor) |> toRGB;
+// };
 
 let darken = (factor, c) => {
   c |> lighten(factor * (-1));
 };
 
-let darkenRGB = (factor, c) => {
-  c |> fromRGB |> darken(factor) |> toRGB;
-};
-
-let highlightLab = (factor, lab) => {
+let highlight = (factor, lab) => {
   switch (lab) {
-  | `lab(l, _a, _b) => lighten((l > 50. ? (-1) : 1) * factor, lab)
+  | `lab(l, _a, _b, _alpha) as c => lighten((l > 50. ? (-1) : 1) * factor, c)
   };
 };
 
-let highlightRGB = (factor, rgb) => {
-  rgb |> fromRGB |> highlightLab(factor) |> toRGB;
-};
-
-let highlight = (factor, c) => {
-  switch (c) {
-  | `rgb(_, _, _) as rgb => rgb |> highlightRGB(factor)
-  | `lab(_l, _a, _b) as lab => lab |> highlightLab(factor)
-  };
-};
-
-let mixLab = (f, lab1, lab2) => {
-  let (x1, y1, z1) = lab1 |> labToXyz;
-  let (x2, y2, z2) = lab2 |> labToXyz;
-  (x1 +. f *. (x2 -. x1), y1 +. f *. (y2 -. y1), z1 +. f *. (z2 -. z1))
+let mix = (f, lab1, lab2) => {
+  let (x1, y1, z1, a1) = lab1 |> labToXyz;
+  let (x2, y2, z2, a2) = lab2 |> labToXyz;
+  (
+    x1 +. f *. (x2 -. x1),
+    y1 +. f *. (y2 -. y1),
+    z1 +. f *. (z2 -. z1),
+    (a1 +. a2) /. 2.,
+  )
   |> labxyzToLab;
-};
-
-let mix = (f, c1, c2) => mixLab(f, toLab(c1), toLab(c2));
-
-let getTuple = rgb => {
-  switch (rgb) {
-  | `rgb(r, g, b) => (r, g, b)
-  };
-};
-
-let mixRgb = (f, rgb1, rgb2) => {
-  let toFloats = ((r_, g_, b_)) => {
-    (r_ |> float_of_int, g_ |> float_of_int, b_ |> float_of_int);
-  };
-  let (x1, y1, z1) = rgb1 |> getTuple |> toFloats;
-  let (x2, y2, z2) = rgb2 |> getTuple |> toFloats;
-  `rgb((
-    x1 +. f *. (x2 -. x1) |> int_of_float,
-    y1 +. f *. (y2 -. y1) |> int_of_float,
-    z1 +. f *. (z2 -. z1) |> int_of_float,
-  ));
 };
 
 let luminance_x = x => {
@@ -309,22 +284,24 @@ let luminance_x = x => {
 };
 
 let luminanceRGB = rgb => {
-  switch (rgb) {
-  | `rgb(r, g, b) =>
-    let rl = r |> luminance_x;
-    let gl = g |> luminance_x;
-    let bl = b |> luminance_x;
-    0.2126 *. rl +. 0.7152 *. gl +. 0.0722 *. bl;
-  };
+  let (r, g, b) =
+    switch (rgb) {
+    | `rgb(r, g, b) => (r, g, b)
+    | `rgba(r, g, b, _a) => (r, g, b)
+    };
+  let rl = r |> luminance_x;
+  let gl = g |> luminance_x;
+  let bl = b |> luminance_x;
+  0.2126 *. rl +. 0.7152 *. gl +. 0.0722 *. bl;
 };
 
 let luminance = c => {
   (
     switch (c) {
-    | `rgb(_, _, _) as rgb => rgb
-    | `rgba(r, g, b, _a) => `rgb((r, g, b))
-    | `lab(_, _, _) as lab => lab |> toRGB
-    | `transparent => `rgb((255, 255, 255))
+    | `rgb(_r, _g, _b) as rgb => rgb
+    | `rgba(_r, _g, _b, _a) as rgba => rgba
+    | `lab(_, _, _, _) as lab => lab |> toRGB
+    | `transparent => `rgba((255, 255, 255, 0.)) |> Log.pass("Warning!")
     }
   )
   |> luminanceRGB;
@@ -351,40 +328,34 @@ let isContrastOk = (~level=AA, ~size=Normal, r1, r2) => {
   rgbContrast(r1, r2) > getContrastLimit(level, size);
 };
 
-let getContrastColorLab =
+let getContrastColor =
     (
-      ~lightColor=`lab((100., 0., 0.)),
-      ~darkColor=`lab((10., 0., 0.)),
+      ~lightColor=`lab((100., 0., 0., 1.)),
+      ~darkColor=`lab((10., 0., 0., 1.)),
       ~tint=?,
       lab,
     ) => {
   let contrastFn = lab |> toRGB |> rgbContrast;
   let getL = lab =>
     switch (lab) {
-    | `lab(l, _a, _b) => l
+    | `lab(l, _a, _b, _alpha) => l
     };
   let baseColor =
     darkColor |> toRGB |> contrastFn > (lightColor |> toRGB |> contrastFn)
       ? darkColor : lightColor;
   switch (tint) {
   | None => baseColor
-  | Some(`lab(_l, a, b)) => `lab((getL(baseColor), a, b))
+  | Some(`lab(_l, a, b, alpha)) => `lab((getL(baseColor), a, b, alpha))
   };
-};
+} /*   }*/ /*   | `rgb(_r, _g, _b) as rgb => getContrastColorRGB(rgb) |> toCs*/ /*     getContrastColorLab(~darkColor?, ~lightColor?, ~tint?, lab) |> toCs*/ /*   | `transparent => `rgb((255, 0, 0)) |> Log.pass("ooopsie"*/ /*   | `rgba(_, _, _, _*/ /*   | `lab(_l, _a, _b, _alpha) as lab =*/;
 
-let getContrastColorRGB =
-    (~lightColor=`rgb((255, 255, 255)), ~darkColor=`rgb((30, 30, 30)), rgb) => {
-  let useDark =
-    darkColor |> rgbContrast(rgb) > (lightColor |> rgbContrast(rgb));
-  useDark ? darkColor : lightColor;
-};
+// let getContrastColorRGB =
+//     (~lightColor=`rgb((255, 255, 255)), ~darkColor=`rgb((30, 30, 30)), rgb) => {
+//   let useDark =
+//     darkColor |> rgbContrast(rgb) > (lightColor |> rgbContrast(rgb));
+//   useDark ? darkColor : lightColor;
+// };
 
-let getContrastColor = getContrastColorLab /* }*/;
+// let getContrastColor =
 // (~darkColor=?, ~lightColor=?, ~tint=?, c) => {
 //   switch (c) {
-//   | `rgb(_r, _g, _b) as rgb => getContrastColorRGB(rgb) |> toCss
-//   | `lab(_l, _a, _b) as lab =>
-//     getContrastColorLab(~darkColor?, ~lightColor?, ~tint?, lab) |> toCss
-//   | `rgba(_, _, _, _)
-//   | `transparent => `rgb((255, 0, 0)) |> Log.pass("ooopsie")
-//   };

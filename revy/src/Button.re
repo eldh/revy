@@ -46,7 +46,7 @@ let useButtonStyles =
       | Primary => `primary
       | Secondary =>
         `unsafeCustomColor(
-          isLight ? `lab((20., 0., 0.)) : `lab((95., 0., 0.)),
+          isLight ? `lab((20., 0., 0., 1.)) : `lab((95., 0., 0., 1.)),
         )
       };
     let styleStyles = [

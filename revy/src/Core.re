@@ -282,7 +282,7 @@ module Private = {
       | `brand2 => theme.colors.brand2
       | `body => theme.colors.bodyBackground
       | `highlight(i, c) => backgroundColor(~theme, ~highlight=i, c)
-      | `transparent => `lab((100., 100., 100.)) // `transparent
+      | `transparent => `lab((100., 100., 100., 0.))
       | `unsafeCustomColor(c) => c
       }
     )
@@ -398,8 +398,8 @@ let createTheme =
               error: `rgb((230, 26, 26)) |> Lab.fromRGB,
               brand1: `rgb((213, 54, 222)) |> Lab.fromRGB,
               brand2: `rgb((54, 213, 222)) |> Lab.fromRGB,
-              bodyBackground: `lab((100., 0., 0.)),
-              bodyText: `lab((10., 0., 0.)),
+              bodyBackground: `lab((100., 0., 0., 1.)),
+              bodyText: `lab((10., 0., 0., 1.)),
               neutral: `rgb((40, 40, 40)) |> Lab.fromRGB,
               quiet: `rgb((130, 130, 130)) |> Lab.fromRGB,
             },
@@ -546,18 +546,21 @@ module Styles = {
   let useWidth = w => widthStyles_(React.useContext(Context.context), w);
 
   let useColor = (~highlight=?, ~alpha=?, c: Color.backgroundColor) => {
-    // TODO remove when `lab supports alpha
-    switch (c) {
-    | `transparent => `transparent
-    | _ =>
-      Private.backgroundColor(
-        ~theme=React.useContext(Context.context),
-        ~highlight?,
-        ~alpha?,
-        c,
-      )
-      |> Lab.toCss
-    };
+    Private.backgroundColor(
+      ~theme=React.useContext(Context.context),
+      ~highlight?,
+      ~alpha?,
+      c,
+    )
+    |> Lab.toCss;
+  };
+  let useLabColor = (~highlight=?, ~alpha=?, c: Color.backgroundColor) => {
+    Private.backgroundColor(
+      ~theme=React.useContext(Context.context),
+      ~highlight?,
+      ~alpha?,
+      c,
+    );
   };
   let useTextColor =
       (

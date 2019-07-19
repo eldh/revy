@@ -47,7 +47,7 @@ let make = () => {
           "Revy makes it easy to build your own components, but it also comes with a set of components of its own. You can use them as a starting point for your design system, an inspiration or a cautionary example."
         </Text.Paragraph>
       </Box>
-      // <ColorTest />
+      <ColorTest />
       <CheckboxTest />
       <ToggleTest />
       <RadiobuttonTest />

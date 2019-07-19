@@ -32,12 +32,12 @@ let useInputStyles = () => {
           transition(~duration=200, "all"),
           backgroundColor(
             Lab.(
-              mixLab(
+              mix(
                 0.2,
-                `rgb((255, 255, 255)) |> fromRGB,
+                `lab((100., 0., 0., 1.)),
                 Styles.useColor(`secondary) |> toLab,
               )
-              |> toRGB
+              |> toCss
             ),
           ),
           boxShadow(~y=px(1), ~blur=px(3), rgba(0, 0, 0, 0.3)),
