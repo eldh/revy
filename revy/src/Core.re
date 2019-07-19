@@ -254,9 +254,8 @@ module Private = {
     | `rgb(_, _, _) as rgb => Lab.(rgb |> lightenRGB(factor))
     | `rgba(r, g, b, a) =>
       Lab.(`rgb((r, g, b)) |> lightenRGB(factor) |> alphaFn(a))
-    | `lab(_, _, _) as lab =>
-      Js.log2("lab", lab);
-      `rgb((255, 255, 0)); // TODO: Error / handle
+    | `lab(_, _, _) as labC => Lab.lighten(factor, labC)
+
     | `transparent as t => t
     };
 
@@ -298,7 +297,7 @@ module Private = {
       | `body => theme.colors.bodyBackground
       | `highlight(i, c) => backgroundColor(~theme, ~highlight=i, c)
       | `transparent => `transparent
-      | `unsafeCustomColor(c) => c |> Lab.toCss
+      | `unsafeCustomColor(c) => c
       }
     )
     |> highlightFn
@@ -318,10 +317,7 @@ module Private = {
         (theme.colors.bodyBackground |> isLight ? darken : lighten)(h)
       | None => identity
       };
-    backgroundColor(~theme, ~alpha?, v)
-    |> Lab.getContrastColor
-    |> highlightFn
-    |> Lab.toCss;
+    backgroundColor(~theme, ~alpha?, v) |> Lab.getContrastColor |> highlightFn;
   };
 
   let fontFamily = (~theme, v) =>
@@ -408,18 +404,18 @@ let createTheme =
                mono: ["monospace"],
                alt: ["-apple-system", "BlinkMacSystemFont", "sans-serif"],
              },
-      ~hues=Css.{
-              primary: rgb(18, 120, 240),
-              secondary: rgb(100, 100, 100),
-              warning: rgb(214, 135, 5),
-              success: rgb(44, 173, 2),
-              error: rgb(230, 26, 26),
-              brand1: rgb(213, 54, 222),
-              brand2: rgb(54, 213, 222),
-              bodyBackground: rgb(255, 255, 255),
-              bodyText: rgb(40, 40, 40),
-              neutral: rgb(40, 40, 40),
-              quiet: rgb(130, 130, 130),
+      ~hues={
+              primary: `rgb((18, 120, 240)) |> Lab.fromRGB,
+              secondary: `rgb((100, 100, 100)) |> Lab.fromRGB,
+              warning: `rgb((214, 135, 5)) |> Lab.fromRGB,
+              success: `rgb((44, 173, 2)) |> Lab.fromRGB,
+              error: `rgb((230, 26, 26)) |> Lab.fromRGB,
+              brand1: `rgb((213, 54, 222)) |> Lab.fromRGB,
+              brand2: `rgb((54, 213, 222)) |> Lab.fromRGB,
+              bodyBackground: `lab((100., 0., 0.)),
+              bodyText: `lab((10., 0., 0.)),
+              neutral: `rgb((40, 40, 40)) |> Lab.fromRGB,
+              quiet: `rgb((130, 130, 130)) |> Lab.fromRGB,
             },
       ~gridWidth as width=960,
       (),
@@ -427,18 +423,17 @@ let createTheme =
   let baseLightness = Private.isLight(hues.bodyBackground) ? 70. : 70.;
   let colors =
     Lab.{
-      primary: hues.primary |> fromRGB |> lightness(baseLightness) |> toRGB,
-      secondary:
-        hues.secondary |> fromRGB |> lightness(baseLightness) |> toRGB,
-      warning: hues.warning |> fromRGB |> lightness(baseLightness) |> toRGB,
-      success: hues.success |> fromRGB |> lightness(baseLightness) |> toRGB,
-      error: hues.error |> fromRGB |> lightness(baseLightness) |> toRGB,
-      brand1: hues.brand1 |> fromRGB |> lightness(baseLightness) |> toRGB,
-      brand2: hues.brand2 |> fromRGB |> lightness(baseLightness) |> toRGB,
+      primary: hues.primary |> lightness(baseLightness),
+      secondary: hues.secondary |> lightness(baseLightness),
+      warning: hues.warning |> lightness(baseLightness),
+      success: hues.success |> lightness(baseLightness),
+      error: hues.error |> lightness(baseLightness),
+      brand1: hues.brand1 |> lightness(baseLightness),
+      brand2: hues.brand2 |> lightness(baseLightness),
       bodyBackground: hues.bodyBackground,
       bodyText: hues.bodyText,
       quiet: hues.quiet,
-      neutral: hues.neutral |> fromRGB |> lightness(80.) |> toRGB,
+      neutral: hues.neutral |> lightness(80.),
     };
   {colors, fonts, fontScale, baseFontSize, baseGridUnit, width, borderRadii};
 };
@@ -564,13 +559,14 @@ module Styles = {
   /** Width styles yo */
   let useWidth = w => widthStyles_(React.useContext(Context.context), w);
 
-  let useColor = (~highlight=0, ~alpha=?, c) => {
+  let useColor = (~highlight=?, ~alpha=?, c) => {
     Private.backgroundColor(
       ~theme=React.useContext(Context.context),
-      ~highlight,
+      ~highlight?,
       ~alpha?,
       c,
-    );
+    )
+    |> Lab.toCss;
   };
   let useTextColor =
       (
@@ -586,7 +582,8 @@ module Styles = {
       ~alpha?,
       ~tint?,
       background,
-    );
+    )
+    |> Lab.toCss;
   };
 
   let useBorderRadius = s => {

@@ -31,7 +31,7 @@ let make = () => {
   };
   Core.Styles.useBodyStyle(
     Css.[
-      backgroundColor(themeObj.colors.bodyBackground),
+      backgroundColor(themeObj.colors.bodyBackground |> Lab.toCss),
       margin(px(0)),
       padding(px(0)),
     ],

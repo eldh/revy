@@ -32,7 +32,7 @@ module ColorBox = {
       {[|0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10|]
        |> Array.map(n => {
             let c =
-              Lab.lightnessRGB(
+              Lab.lightness(
                 n * 10 |> float_of_int,
                 Core.Styles.useColor(color),
               );
@@ -52,8 +52,8 @@ module GradientBox = {
             let c =
               Lab.mix(
                 (n |> float_of_int) /. 10.,
-                Core.Styles.useColor(fromColor) |> Lab.fromRGB,
-                Core.Styles.useColor(toColor) |> Lab.fromRGB,
+                Core.Styles.useColor(fromColor),
+                Core.Styles.useColor(toColor),
               )
               |> Lab.toRGB;
             <Swatch color={`unsafeCustomColor(c)} key={n |> string_of_int} />;

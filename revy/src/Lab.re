@@ -203,9 +203,15 @@ let fromRGB = rgb => {
   switch (rgb) {
   | `rgb(r, g, b) => (r, g, b) |> rgbToXyz |> rgbxyzToLab
   | `rgba(r, g, b, _) => (r, g, b) |> rgbToXyz |> rgbxyzToLab
-  | t => (255, 0, 0) |> rgbToXyz |> rgbxyzToLab |> Log.pass(t)
   };
 };
+let toLab = c =>
+  switch (c) {
+  | `lab(_, _, _) as lab => lab
+  | `rgb(_, _, _) as rgb => rgb |> fromRGB
+  | `rgba(_, _, _, _) as rgba => rgba |> fromRGB
+  | `transparent => `rgb((255, 0, 0)) |> fromRGB |> Log.pass("ooopsie")
+  };
 
 let toCss = c => {
   switch (c) {
@@ -215,15 +221,20 @@ let toCss = c => {
   | `lab(_l, _a, _b) as lab => lab |> toRGB
   };
 };
-
-let lightness = (v, lab) => {
-  switch (lab) {
+let lightnessLab = (v, c) => {
+  switch (c) {
   | `lab(_l, a, b) => `lab((clamp(0., 100., v), a, b))
   };
 };
 
-let lightnessRGB = (v, rgb) => {
-  rgb |> fromRGB |> lightness(v) |> toRGB;
+let lightness = (v, c) => {
+  switch (c) {
+  | `lab(_l, _a, _b) as lab => lab |> lightnessLab(v)
+  | `rgb(_r, _g, _b) as rgb => rgb |> fromRGB |> lightnessLab(v) |> toRGB
+  | `rgba(r, g, b, _a) =>
+    `rgb((r, g, b)) |> fromRGB |> lightnessLab(v) |> toRGB
+  | `transparent as t => t
+  };
 };
 
 let lighten = (factor, lab) => {
@@ -262,12 +273,14 @@ let highlight = (factor, c) => {
   };
 };
 
-let mix = (f, lab1, lab2) => {
+let mixLab = (f, lab1, lab2) => {
   let (x1, y1, z1) = lab1 |> labToXyz;
   let (x2, y2, z2) = lab2 |> labToXyz;
   (x1 +. f *. (x2 -. x1), y1 +. f *. (y2 -. y1), z1 +. f *. (z2 -. z1))
   |> labxyzToLab;
 };
+
+let mix = (f, c1, c2) => mixLab(f, toLab(c1), toLab(c2));
 
 // Js.log2(
 //   "mix(0.5, `lab(0.,0.,0.), `lab(30., -40.,30.))",
@@ -341,11 +354,24 @@ let isContrastOk = (~level=AA, ~size=Normal, r1, r2) => {
 };
 
 let getContrastColorLab =
-    (~lightColor=`lab((100., 0., 0.)), ~darkColor=`lab((10., 0., 0.)), lab) => {
+    (
+      ~lightColor=`lab((100., 0., 0.)),
+      ~darkColor=`lab((10., 0., 0.)),
+      ~tint=?,
+      lab,
+    ) => {
   let contrastFn = lab |> toRGB |> rgbContrast;
-  let useDark =
-    darkColor |> toRGB |> contrastFn > (lightColor |> toRGB |> contrastFn);
-  useDark ? darkColor : lightColor;
+  let getL = lab =>
+    switch (lab) {
+    | `lab(l, _a, _b) => l
+    };
+  let baseColor =
+    darkColor |> toRGB |> contrastFn > (lightColor |> toRGB |> contrastFn)
+      ? darkColor : lightColor;
+  switch (tint) {
+  | None => baseColor
+  | Some(`lab(_l, a, b)) => `lab((getL(baseColor), a, b))
+  };
 };
 
 let getContrastColorRGB =
@@ -355,13 +381,14 @@ let getContrastColorRGB =
   useDark ? darkColor : lightColor;
 };
 
-let getContrastColor = c => {
+let getContrastColor = (~darkColor=?, ~lightColor=?, ~tint=?, c) => {
   switch (c) {
-  | `rgb(_r, _g, _b) as rgb => getContrastColorRGB(rgb)
-  | `lab(_l, _a, _b) as lab => getContrastColorLab(lab) |> toRGB
-  | `rgba(_,_,_,_) => `rgb((255, 0, 0)) |> Log.pass("rgba")
-  | _ => `rgb((255, 0, 0)) |> Log.pass("contrast")
-  } |> toCss;
+  | `rgb(_r, _g, _b) as rgb => getContrastColorRGB(rgb) |> toCss
+  | `lab(_l, _a, _b) as lab =>
+    getContrastColorLab(~darkColor?, ~lightColor?, ~tint?, lab) |> toCss
+  | `rgba(_, _, _, _) => `rgb((255, 0, 0))
+  | _ => `rgb((255, 0, 0))
+  };
 };
 
 let rgbToCssRGB = ((r, g, b)) => Css.rgb(r, g, b);

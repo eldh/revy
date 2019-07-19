@@ -32,10 +32,10 @@ let useInputStyles = () => {
           transition(~duration=200, "all"),
           backgroundColor(
             Lab.(
-              mix(
+              mixLab(
                 0.2,
                 `rgb((255, 255, 255)) |> fromRGB,
-                Styles.useColor(`secondary) |> fromRGB,
+                Styles.useColor(`secondary) |> toLab,
               )
               |> toRGB
             ),
@@ -57,7 +57,7 @@ let useInputStyles = () => {
                 mix(
                   0.2,
                   `rgb((255, 255, 255)) |> fromRGB,
-                  Styles.useColor(`primary) |> fromRGB,
+                  Styles.useColor(`primary) |> toLab,
                 )
                 |> toRGB
               ),
