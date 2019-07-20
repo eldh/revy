@@ -33,6 +33,15 @@ let make = () => {
         checked=baz
         onChange={_ => setBaz(v => !v)}
       />
+      <Checkbox
+        value="baz"
+        name="bar"
+        disabled=true
+        label="Baz"
+        id="baz"
+        checked=true
+        onChange={_ => setBaz(v => !v)}
+      />
     </Box>
   </ComponentsCard>;
 };

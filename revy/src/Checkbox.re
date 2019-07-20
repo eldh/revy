@@ -23,8 +23,8 @@ let useInputStyles = () => {
         width(px(16)),
         after([
           contentRule(""),
-          borderColor(Styles.useColor(`body)),
           borderLeftWidth(px(0)),
+          borderColor(`transparent),
           borderTopWidth(px(0)),
           borderRightWidth(px(2)),
           borderBottomWidth(px(2)),
@@ -45,13 +45,24 @@ let useInputStyles = () => {
         "& ~ div",
         [
           backgroundColor(Styles.useColor(`primary)),
-          after([transforms([rotate(deg(45.)), scale(1., 1.)])]),
+          after([
+            transforms([rotate(deg(45.)), scale(1., 1.)]),
+            borderColor(
+              Styles.useTextColor(~tint=`primary, ~background=`primary, ()),
+            ),
+          ]),
         ],
       ),
     ]),
     disabled([
       selector("& ~ *", [opacity(0.5)]),
-      selector("& ~ div", [borderColor(rgba(0, 0, 0, 0.5))]),
+      selector(
+        "& ~ div",
+        [
+          backgroundColor(Styles.useColor(~alpha=0.05, `bodyText)),
+          borderColor(Styles.useColor(~alpha=0.7, `bodyText)),
+        ],
+      ),
     ]),
   ];
 };

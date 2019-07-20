@@ -3,7 +3,7 @@ open UI;
 [@react.component]
 let make = () => {
   let (value, setValue) = React.useState(() => "bar");
-  
+
   <ComponentsCard title="Radiobutton">
     <Box
       direction=`column m={`margin4((`noSpace, `noSpace, `single, `single))}>
@@ -31,6 +31,15 @@ let make = () => {
         id="baz-radio"
         checked={value == "baz"}
         onChange={_ => setValue(_ => "baz")}
+      />
+      <Radiobutton
+        value="baz2"
+        name="bar-radio-2"
+        disabled=true
+        label="Baz cheked"
+        id="baz-radio-2"
+        checked={true}
+        onChange={_ => setValue(_ => "foo")}
       />
     </Box>
   </ComponentsCard>;

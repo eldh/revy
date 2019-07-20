@@ -75,12 +75,7 @@ let useButtonStyles =
       color(
         outline_
           ? Styles.useTextColor(~tint=bgVariant, ~highlight=-20, ())
-          : Styles.useTextColor(
-              ~background=bgVariant,
-              ~tint=bgVariant,
-              ~highlight=10,
-              (),
-            ),
+          : Styles.useTextColor(~background=bgVariant, ~highlight=10, ()),
       ),
       borderRadius(Styles.useBorderRadius(`medium)),
       textTransform(`uppercase),

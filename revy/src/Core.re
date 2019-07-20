@@ -132,6 +132,7 @@ module Color = {
     | `brand1
     | `brand2
     | `body
+    | `bodyText
     | `transparent
     | `highlight(int, backgroundColor)
     | `unsafeCustomColor(Lab.t)
@@ -239,9 +240,9 @@ module BackgroundColorContext = {
   };
 };
 module Private = {
-  let alphaFn = (_v, c) => {
-    switch (c) {
-    | _ => c |> Log.pass("add alpha support damnit")
+  let alphaFn = (alpha, lab) => {
+    switch (lab) {
+    | `lab(l, a, b, _) => `lab((l, a, b, alpha))
     };
   };
 
@@ -281,6 +282,7 @@ module Private = {
       | `brand1 => theme.colors.brand1
       | `brand2 => theme.colors.brand2
       | `body => theme.colors.bodyBackground
+      | `bodyText => theme.colors.bodyText
       | `highlight(i, c) => backgroundColor(~theme, ~highlight=i, c)
       | `transparent => `lab((100., 100., 100., 0.))
       | `unsafeCustomColor(c) => c
@@ -392,6 +394,7 @@ let createTheme =
     (
       ~fontScale=1.25,
       ~baseFontSize=16,
+      ~baseLightness=70.,
       ~baseGridUnit=4,
       ~borderRadii={small: 4, medium: 6, large: 8},
       ~fonts={
@@ -416,7 +419,6 @@ let createTheme =
       ~gridWidth as width=960,
       (),
     ) => {
-  let baseLightness = Private.isLight(hues.bodyBackground) ? 70. : 70.;
   let colors =
     Lab.{
       primary: hues.primary |> lightness(baseLightness),
