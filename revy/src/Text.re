@@ -4,25 +4,35 @@ exception InvalidValue(string);
 let useTextStyles =
     (
       ~size,
+      ~quiet=false,
       ~tintColor as tint=?,
+      ~backgroundColor as bg_=?,
       ~fontFamily as fontFamily_=`body,
       ~lineHeight as lineHeight_,
       ~weight as weight_,
       (),
     ) => {
   let sizeVal = Styles.useFontSize(size);
-  // Js.log2(
-  //   "BackgroundContext:",
-  //   React.useContext(BackgroundColorContext.context),
-  // );
+  let bgStyles = switch (bg_) {
+  | Some(p) => Css.[background(Styles.useColor(p))]
+  | None => []
+  };
   Css.[
-    color(Styles.useTextColor(~tint?, ()) /*  */),
+    color(
+      Styles.useTextColor(
+        ~highlight=?quiet ? Some(-30) : None,
+        ~tint?,
+        ~background=?bg_,
+        (),
+      ),
+    ),
     fontSize(sizeVal),
     fontFamily(Styles.useFontFamily(fontFamily_)),
     lineHeight(
       Styles.useLineHeight(~fontSize=sizeVal, ~extraHeight=lineHeight_, ()),
     ),
     fontWeight(Styles.useFontWeight(weight_)),
+    ...bgStyles,
   ];
 };
 
@@ -32,13 +42,15 @@ let make =
       ~weight=`normal,
       ~size=0,
       ~tag="span",
-      ~style=?,
       ~lineHeight=0,
+      ~quiet=false,
       ~tintColor=?,
+      ~style=?,
       ~children,
       (),
     ) => {
-  let styles = useTextStyles(~size, ~lineHeight, ~weight, ~tintColor?, ());
+  let styles =
+    useTextStyles(~size, ~quiet, ~lineHeight, ~weight, ~tintColor?, ());
   UnsafeCreateReactElement.use(
     tag,
     {
@@ -63,13 +75,15 @@ module String = {
         ~weight=`normal,
         ~tag="span",
         ~size=0,
+        ~quiet=false,
         ~style=?,
         ~lineHeight=0,
         ~tintColor=?,
         ~children,
         (),
       ) => {
-    let styles = useTextStyles(~size, ~lineHeight, ~weight, ~tintColor?, ());
+    let styles =
+      useTextStyles(~size, ~quiet, ~lineHeight, ~weight, ~tintColor?, ());
     UnsafeCreateReactElement.use(
       tag,
       {
@@ -95,23 +109,36 @@ module Block = {
         ~weight=`normal,
         ~tag="div",
         ~m=`margin(`auto),
+        ~p=`padding(`noSpace),
+        ~quiet=false,
         ~size=0,
-        ~style=?,
         ~lineHeight=0,
+        ~style=?,
         ~tintColor=?,
+        ~backgroundColor=?,
         ~children,
         (),
       ) => {
-    let styles = useTextStyles(~size, ~lineHeight, ~weight, ~tintColor?, ());
+    let styles =
+      useTextStyles(
+        ~size,
+        ~quiet,
+        ~lineHeight,
+        ~weight,
+        ~tintColor?,
+        ~backgroundColor?,
+        (),
+      );
     let margin = Styles.useMargin(m);
+    let padding = Styles.usePadding(p);
     UnsafeCreateReactElement.use(
       tag,
       {
         "className": {
           (
             switch (style) {
-            | Some(p) => [styles, margin, p]
-            | None => [styles, margin]
+            | Some(p) => [styles, margin, padding, p]
+            | None => [styles, margin, padding]
             }
           )
           |> List.concat
@@ -131,13 +158,15 @@ module Paragraph = {
         ~tag="p",
         ~m=`margin4((`noSpace, `noSpace, `noSpace, `double)),
         ~size=0,
+        ~quiet=false,
         ~lineHeight=0,
         ~style=?,
         ~tintColor=?,
         ~children,
         (),
       ) => {
-    let styles = useTextStyles(~size, ~lineHeight, ~weight, ~tintColor?, ());
+    let styles =
+      useTextStyles(~size, ~lineHeight, ~weight, ~quiet, ~tintColor?, ());
     let margin = Styles.useMargin(m);
     UnsafeCreateReactElement.use(
       tag,
@@ -166,6 +195,7 @@ module Code = {
         ~tag="pre",
         ~m=`margin2((`noSpace, `double)),
         ~size=0,
+        ~quiet=false,
         ~style=?,
         ~lineHeight=0,
         ~tintColor=?,
@@ -177,6 +207,7 @@ module Code = {
         ~size,
         ~lineHeight,
         ~weight,
+        ~quiet,
         ~tintColor?,
         ~fontFamily=`mono,
         (),

@@ -5,14 +5,9 @@ open UI;
 let make = (~toggleTheme=ignore, ()) => {
   <View>
     <>
+      <Box h={Styles.useSpace(`number(11))} />
       <Box
-        h={Styles.useSpace(`number(11))}
-      />
-      <Box
-        backgroundColor={
-          `highlight(
-            8, `body)
-        }
+        backgroundColor={`highlight((8, `body))}
         p={`padding(`single)}
         w={`unsafeCustomValue(Css.vw(100.))}
         direction=`row
@@ -38,9 +33,7 @@ let make = (~toggleTheme=ignore, ()) => {
               "Github"
             </Link>
             <Link.Button
-              m={`margin(`half)}
-              onClick={_ => toggleTheme()}
-              tintColor=`body>
+              m={`margin(`half)} onClick={_ => toggleTheme()} tintColor=`body>
               "Toggle dark theme"
             </Link.Button>
           </Box>

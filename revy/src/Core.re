@@ -356,7 +356,7 @@ module Private = {
     | `noSpace => Css.px(0)
     | `half => 1 |> length
     | `single => 2 |> length
-    | `double => 3 |> length
+    | `double => 4 |> length
     | `triple => 6 |> length
     | `quad => 8 |> length
     | `quint => 10 |> length
@@ -574,18 +574,17 @@ module Styles = {
       c,
     );
   };
-  let useTextColor =
-      (
-        ~tint=?,
-        ~highlight=0,
-        ~background=React.useContext(BackgroundColorContext.context),
-        (),
-      ) => {
+  let useTextColor = (~tint=?, ~highlight=0, ~background=?, ()) => {
+    let bg =
+      switch (background) {
+      | None => React.useContext(BackgroundColorContext.context)
+      | Some(v) => v
+      };
     Private.textColor(
       ~theme=React.useContext(Context.context),
       ~highlight,
       ~tint?,
-      background,
+      bg,
     )
     |> Lab.toCss;
   };
