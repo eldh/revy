@@ -11,8 +11,8 @@ The goal is to make it easy to build accessible, performant and beautiful Reason
 ## Getting started
 
 - Run `yarn` in the repo root.
-- Run `yarn start` in the `revy` folder to compile the main project.
-- Run `yarn start` in the `demo` folder to start the demo server.
+- Run `yarn start` in the root folder to compile reason files.
+- Run `yarn start` in the `demo` folder to start the demo app.
 - Explore the demo app at `demo/src/App.re`.
 
 ## Status
@@ -21,9 +21,8 @@ Pre-alpha. Still figuring out the details. No docs as of yet.
 
 ## Todos
 
-- Better high level color utils (makeReadable, mix, tint, etc)
-- Motion stuff
 - Elevation helpers (box-shadow etc)
+- Animation
 - Perf improvments
+- Better a11y helpers
 - More components
-- Figure out separation between theming and component library

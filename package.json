@@ -4,6 +4,10 @@
     "revy",
     "demo"
   ],
+  "scripts": {
+    "start": "bsb -clean-world -make-world -w",
+    "build": "bsb -clean-world -make-world"
+  },
   "private": true,
   "dependencies": {
     "bs-platform": "^5.0.6"

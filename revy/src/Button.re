@@ -44,10 +44,7 @@ let useButtonStyles =
       | Error => `error
       | Success => `success
       | Primary => `primary
-      | Secondary =>
-        `unsafeCustomColor(
-          isLight ? `lab((20., 0., 0., 1.)) : `lab((95., 0., 0., 1.)),
-        )
+      | Secondary => `highlight(50, `neutral)
       };
     let styleStyles = [
       outline_
@@ -56,7 +53,7 @@ let useButtonStyles =
             ~inset=true,
             ~spread=px(2),
             ~blur=px(0),
-            Styles.useTextColor(~tint=bgVariant, ~highlight=-30, ()),
+            Styles.useTextColor(~tint=bgVariant, ~highlight=-20, ()),
           )
         : boxShadow(
             ~y=px(0),
@@ -74,12 +71,12 @@ let useButtonStyles =
       fontFamily(Styles.useFontFamily(`body)),
       color(
         outline_
-          ? Styles.useTextColor(~tint=bgVariant, ~highlight=-20, ())
+          ? Styles.useTextColor(~tint=bgVariant, ~highlight=-30, ())
           : Styles.useTextColor(~background=bgVariant, ~highlight=10, ()),
       ),
       borderRadius(Styles.useBorderRadius(`medium)),
       textTransform(`uppercase),
-      backgroundColor(Styles.useColor(outline_ ? `body : bgVariant)),
+      backgroundColor(Styles.useColor(outline_ ? `transparent : bgVariant)),
       hover([
         backgroundColor(
           outline_

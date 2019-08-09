@@ -17,18 +17,14 @@ let useInputStyles = (~m, ()) => {
         borderColor(Styles.useColor(`transparent)),
         borderRadius(Css.px(6)),
         borderStyle(`solid),
-        backgroundColor(
-          Styles.useIsLight()
-            ? Css.rgba(0, 0, 0, 0.05) : Css.rgba(255, 255, 255, 0.05),
-        ),
+        backgroundColor(Styles.useColor(~alpha=0.07, `bodyText)),
         color(Styles.useTextColor()),
         boxShadow(
           ~y=px(0),
           ~blur=px(0),
           ~spread=px(1),
           ~inset=true,
-          Styles.useIsLight()
-            ? Css.rgba(0, 0, 0, 0.07) : Css.rgba(255, 255, 255, 0.07),
+          Styles.useColor(~alpha=0.07, `bodyText),
         ),
         focus([
           outlineStyle(`none),
@@ -96,7 +92,7 @@ module Label = {
       className={
         Text.useTextStyles(
           ~size=-1,
-          ~tintColor=`body, //quiet,
+          ~quiet=true,
           ~lineHeight=1,
           ~weight=`normal,
           (),

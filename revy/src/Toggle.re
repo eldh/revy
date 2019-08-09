@@ -30,16 +30,7 @@ let useInputStyles = () => {
           top(px(2)),
           position(`relative),
           transition(~duration=200, "all"),
-          backgroundColor(
-            Lab.(
-              mix(
-                0.2,
-                `lab((100., 0., 0., 1.)),
-                Styles.useColor(`secondary) |> toLab,
-              )
-              |> toCss
-            ),
-          ),
+          backgroundColor(Styles.useColor(~highlight=10, `body)),
           boxShadow(~y=px(1), ~blur=px(3), rgba(0, 0, 0, 0.3)),
         ]),
       ],
@@ -52,23 +43,14 @@ let useInputStyles = () => {
           borderColor(Styles.useColor(~highlight=10, `primary)),
           after([
             transform(translateX(px(14))),
-            backgroundColor(
-              Lab.(
-                mix(
-                  0.2,
-                  `rgb((255, 255, 255)) |> fromRGB,
-                  Styles.useColor(`primary) |> toLab,
-                )
-                |> toRGB
-              ),
-            ),
+            backgroundColor(Styles.useColor(~highlight=10, `body)),
           ]),
         ],
       ),
     ]),
     disabled([
       selector("& ~ *", [opacity(0.5)]),
-      selector("& ~ div", [borderColor(rgba(0, 0, 0, 0.5))]),
+      selector("& ~ div", [borderColor(Styles.useColor(~alpha=0.5, `bodyText))]),
     ]),
   ];
 };

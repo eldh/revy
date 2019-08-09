@@ -129,6 +129,7 @@ module Color = {
     | `success
     | `warning
     | `error
+    | `neutral
     | `brand1
     | `brand2
     | `body
@@ -246,20 +247,6 @@ module Private = {
     };
   };
 
-  // let lighten = Lab.lighten;
-  // switch (color) {
-  // | `rgb(_, _, _) as rgb => Lab.(rgb |> lightenRGB(factor))
-  // | `rgba(r, g, b, a) =>
-  //   Lab.(`rgb((r, g, b)) |> lightenRGB(factor) |> alphaFn(a))
-  // | `lab(_, _, _) as labC => Lab.lighten(factor, labC)
-
-  // | `transparent as t => t
-  // };
-
-  // let darken = (factor) => lighten(factor * (-1));
-
-  // let highlight = Lab.highlightLab;
-
   let isLight = bodyBackground => {
     Lab.luminance(bodyBackground) > 50.;
   };
@@ -275,6 +262,7 @@ module Private = {
     (
       switch (v) {
       | `primary => theme.colors.primary
+      | `neutral => theme.colors.neutral
       | `secondary => theme.colors.secondary
       | `success => theme.colors.success
       | `warning => theme.colors.warning

@@ -49,7 +49,7 @@ let useInputStyles = () => {
     ]),
     disabled([
       selector("& ~ *", [opacity(0.5)]),
-      selector("& ~ div", [borderColor(rgba(0, 0, 0, 0.5))]),
+      selector("& ~ div", [borderColor(Styles.useColor(~alpha=0.5, `bodyText))]),
     ]),
   ];
 };
