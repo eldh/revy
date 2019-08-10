@@ -11,8 +11,6 @@ let useLinkStyle = () =>
     focus([
       outlineStyle(`none),
       boxShadow(
-        ~y=px(0),
-        ~blur=px(0),
         ~spread=px(1),
         ~inset=true,
         Styles.useColor(`primary),

@@ -9,8 +9,7 @@ let useInputStyles = () => {
     selector(
       "& ~ div",
       [
-        backgroundColor(Styles.useColor(`body)),
-        borderColor(Styles.useColor(~highlight=10, `primary)),
+        borderColor(Styles.useColor(`primary)),
         borderRadius(px(5)),
         borderStyle(`solid),
         borderWidth(px(1)),
@@ -34,7 +33,7 @@ let useInputStyles = () => {
           left(px(5)),
           position(`relative),
           top(px(2)),
-          transforms([rotate(deg(-45.)), scale(0.6, 0.6)]),
+          transforms([rotate(deg(45.)), scale(1., 1.)]),
           transition(~duration=200, "all"),
           width(px(4)),
         ]),
@@ -43,27 +42,10 @@ let useInputStyles = () => {
     checked([
       selector(
         "& ~ div",
-        [
-          backgroundColor(Styles.useColor(`primary)),
-          after([
-            transforms([rotate(deg(45.)), scale(1., 1.)]),
-            borderColor(
-              Styles.useTextColor(~tint=`primary, ~background=`primary, ()),
-            ),
-          ]),
-        ],
+        [after([borderColor(Styles.useTextColor(~tint=`primary, ()))])],
       ),
     ]),
-    disabled([
-      selector("& ~ *", [opacity(0.5)]),
-      selector(
-        "& ~ div",
-        [
-          backgroundColor(Styles.useColor(~alpha=0.05, `bodyText)),
-          borderColor(Styles.useColor(~alpha=0.7, `bodyText)),
-        ],
-      ),
-    ]),
+    disabled([selector("& ~ *", [opacity(0.5)])]),
   ];
 };
 

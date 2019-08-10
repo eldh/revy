@@ -22,6 +22,7 @@ Pre-alpha. Still figuring out the details. No docs as of yet.
 ## Todos
 
 - Elevation helpers (box-shadow etc)
+- Output P3 colors
 - Animation
 - Perf improvments
 - Better a11y helpers

@@ -22,13 +22,13 @@ let hues = {
 let borderRadii = {small: 0, medium: 8, large: 8};
 let theme =
   createTheme(
-    ~fontScale=1.2,
-    ~baseFontSize=16,
-    ~baseGridUnit=5,
+    // ~fontScale=1.2,
+    // ~baseFontSize=16,
+    // ~baseGridUnit=5,
     ~baseLightness=80.,
     ~fonts,
     ~hues,
-    ~gridWidth=700,
+    // ~gridWidth=700,
     ~borderRadii,
     (),
   );

@@ -1,7 +1,4 @@
 exception InvalidValue(string);
-// let Constants = require('./lab-constants');
-// let {unpack} = require('../../utils');
-// let {pow} = Math;
 
 /*
  * L* [0..100]
@@ -90,7 +87,7 @@ let xyz_p3 = r => {
 };
 
 let xyzToP3 = ((x, y, z, alpha)) => {
-  (
+  `p3(
     xyz_p3(
       2.4041476775378706282
       *. x
@@ -203,53 +200,44 @@ let rgbxyzToLab = ((x, y, z, alpha: float)) => {
 
 /**
  Takes an (r, g, b, alpha?) color and returns the corresponding (l, a, b, alpha) color */
-let fromRGB = rgb => {
-  switch (rgb) {
+let fromRGB =
+  fun
   | `rgb(r, g, b) => (r, g, b, 1.) |> rgbToXyz |> rgbxyzToLab
-  | `rgba(r, g, b, a) => (r, g, b, a) |> rgbToXyz |> rgbxyzToLab
-  };
-};
-let toLab = c =>
-  switch (c) {
+  | `rgba(r, g, b, a) => (r, g, b, a) |> rgbToXyz |> rgbxyzToLab;
+let toLab =
+  fun
   | `lab(_, _, _, _) as lab => lab
   | `rgb(_, _, _) as rgb => rgb |> fromRGB
   | `rgba(_, _, _, _) as rgba => rgba |> fromRGB
-  | `transparent => `lab((0., 0., 0., 0.))
-  };
+  | `transparent => `lab((0., 0., 0., 0.));
 
-let toCss = c => {
-  switch (c) {
-  | `rgb(_r, _g, _b) as rgb => rgb
-  | `rgba(_r, _g, _b, _a) as rgba => rgba
-  | `transparent as t => t
+let toCss =
+  fun
   | `lab(_l, _a, _b, alpha) as lab =>
     switch (alpha) {
     | 0. => `transparent
-    | _ => lab |> toRGB
-    }
-  };
-};
-let lightness = (v, c) => {
-  switch (c) {
-  | `lab(_l, a, b, alpha) => `lab((clamp(0., 100., v), a, b, alpha))
-  };
+    | _ => toRGB(lab)
+    };
+
+let lightness = v => {
+  fun
+  | `lab(_l, a, b, alpha) => `lab((clamp(0., 100., v), a, b, alpha));
 };
 
-let lighten = (factor, lab) => {
-  switch (lab) {
+let lighten = factor => {
+  fun
   | `lab(l, a, b, alpha) =>
-    `lab((clamp(0., 100., l +. (factor |> float_of_int)), a, b, alpha))
-  };
+    `lab((clamp(0., 100., l +. (factor |> float_of_int)), a, b, alpha));
 };
 
 let darken = (factor, c) => {
   c |> lighten(factor * (-1));
 };
 
-let highlight = (factor, lab) => {
-  switch (lab) {
-  | `lab(l, _a, _b, _alpha) as c => lighten((l > 50. ? (-1) : 1) * factor, c)
-  };
+let highlight = factor => {
+  fun
+  | `lab(l, _a, _b, _alpha) as c =>
+    lighten((l > 50. ? (-1) : 1) * factor, c);
 };
 
 let mix = (f, lab1, lab2) => {
@@ -269,14 +257,9 @@ let luminance_x = x => {
   x1 <= 0.03928 ? x1 /. 12.92 : ((x1 +. 0.055) /. 1.055) ** 2.4;
 };
 
-let getL = lab =>
-  switch (lab) {
-  | `lab(l, _a, _b, _alpha) => l
-  };
-
-let luminance = lab => {
-  getL(lab);
-};
+let luminance =
+  fun
+  | `lab(l, _a, _b, _alpha) => l;
 
 let contrast = (lab1, lab2) => {
   let lum1 = lab1 |> luminance;
@@ -285,16 +268,15 @@ let contrast = (lab1, lab2) => {
   21. *. 0.01 *. abs_float(lum1 -. lum2);
 };
 
-let getContrastLimit = (level, size) =>
-  switch (level, size) {
+let getContrastLimit =
+  fun
   | (AA, Large) => 3.
   | (AA, Normal) => 4.5
   | (AAA, Large) => 4.5
-  | (AAA, Normal) => 7.
-  };
+  | (AAA, Normal) => 7.;
 
 let isContrastOk = (~level=AA, ~size=Normal, lab1, lab2) => {
-  contrast(lab1, lab2) > getContrastLimit(level, size);
+  contrast(lab1, lab2) > getContrastLimit((level, size));
 };
 
 let getContrastColor =
@@ -311,6 +293,7 @@ let getContrastColor =
       ? darkColor : lightColor;
   switch (tint) {
   | None => baseColor
-  | Some(`lab(_l, a, b, alpha)) => `lab((getL(baseColor), a, b, alpha))
+  | Some(`lab(_l, a, b, alpha)) =>
+    `lab((luminance(baseColor), a, b, alpha))
   };
 };

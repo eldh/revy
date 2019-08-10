@@ -53,7 +53,7 @@ let useButtonStyles =
             ~inset=true,
             ~spread=px(2),
             ~blur=px(0),
-            Styles.useTextColor(~tint=bgVariant, ~highlight=-20, ()),
+            Styles.useTextColor(~tint=bgVariant, ~highlight=-30, ()),
           )
         : boxShadow(
             ~y=px(0),
