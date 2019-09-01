@@ -442,6 +442,20 @@ module Context = {
     };
   };
 };
+module Animations = {
+  open Css;
+  let focusAnimation__ =
+    keyframes([
+      (0, [opacity(1.), filter([`saturate(100.)])]),
+      (50, [opacity(0.6), filter([`saturate(150.)])]),
+      (100, [opacity(1.), filter([`saturate(100.)])]),
+    ]);
+  let focus = [
+    animationName(focusAnimation__),
+    animationDuration(1000),
+    animationIterationCount(`infinite),
+  ];
+};
 module Styles = {
   let marginSpace = (theme, v) => Obj.magic(Private.space(~theme, v));
   let rec marginStyles_ = (theme, p) => {

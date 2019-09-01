@@ -1,5 +1,5 @@
 open Core;
-let useLinkStyle = () =>
+let useLinkStyle = () => {
   Css.[
     display(`inline),
     textDecoration(`underline),
@@ -10,11 +10,8 @@ let useLinkStyle = () =>
     hover([color(Styles.useTextColor(~highlight=-40, ()))]),
     focus([
       outlineStyle(`none),
-      boxShadow(
-        ~spread=px(1),
-        ~inset=true,
-        Styles.useColor(`primary),
-      ),
+      textShadow(~blur=px(3), Styles.useColor(~alpha=0.4, `primary)),
+      ...Animations.focus,
     ]),
     active([
       outlineStyle(`none),
@@ -27,7 +24,7 @@ let useLinkStyle = () =>
       ),
     ]),
   ];
-
+};
 [@react.component]
 let make =
     (

@@ -1,5 +1,5 @@
 open Core;
-let useInputStyles = () => {
+let useToggleStyles = () => {
   Css.[
     position(`absolute),
     cursor(`pointer),
@@ -30,7 +30,7 @@ let useInputStyles = () => {
           top(px(2)),
           position(`relative),
           transition(~duration=200, "all"),
-          backgroundColor(Styles.useColor(~highlight=10, `body)),
+          backgroundColor(Styles.useColor(`body)),
           boxShadow(~y=px(1), ~blur=px(3), rgba(0, 0, 0, 0.3)),
         ]),
       ],
@@ -43,7 +43,7 @@ let useInputStyles = () => {
           borderColor(Styles.useColor(~highlight=10, `primary)),
           after([
             transform(translateX(px(14))),
-            backgroundColor(Styles.useColor(~highlight=10, `body)),
+            backgroundColor(Styles.useColor(`body)),
           ]),
         ],
       ),
@@ -91,8 +91,8 @@ let make =
       className={
         (
           switch (styles) {
-          | None => useInputStyles()
-          | Some(v) => [useInputStyles(), v] |> List.concat
+          | None => useToggleStyles()
+          | Some(v) => [useToggleStyles(), v] |> List.concat
           }
         )
         |> Css.style

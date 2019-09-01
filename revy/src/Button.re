@@ -44,7 +44,7 @@ let useButtonStyles =
       | Error => `error
       | Success => `success
       | Primary => `primary
-      | Secondary => `highlight(50, `neutral)
+      | Secondary => `highlight((50, `neutral))
       };
     let styleStyles = [
       outline_
@@ -90,11 +90,7 @@ let useButtonStyles =
       ]),
       focus([
         outlineStyle(`none),
-        backgroundColor(
-          outline_
-            ? outlineHighlightBg(0.1)
-            : Styles.useColor(~highlight=10, bgVariant),
-        ),
+        ...Animations.focus
       ]),
       active([
         backgroundColor(
