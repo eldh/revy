@@ -111,6 +111,17 @@ module Converter = {
     ++ string_of_float(a)
     ++ ")";
 
+  let string_of_p3 = (r, g, b, a) =>
+    "color(display-p3 "
+    ++ string_of_float(r)
+    ++ " "
+    ++ string_of_float(g)
+    ++ " "
+    ++ string_of_float(b)
+    ++ " / "
+    ++ string_of_float(a)
+    ++ ")";
+
   let string_of_percent =
     fun
     | `percent(x) => Js.Float.toString(x) ++ "%";
@@ -131,6 +142,7 @@ module Converter = {
 
   let string_of_color =
     fun
+    | `p3(r, g, b, a) => string_of_p3(r, g, b, a)
     | `rgb(r, g, b) => string_of_rgb(r, g, b)
     | `rgba(r, g, b, a) => string_of_rgba(r, g, b, a)
     | `transparent => "transparent";
@@ -186,25 +198,9 @@ module Converter = {
     switch (bg) {
     | `none => "none"
     | `url(url) => "url(" ++ url ++ ")"
-    | `rgb(r, g, b) =>
-      "rgb("
-      ++ join(
-           ", ",
-           [string_of_int(r), string_of_int(g), string_of_int(b)],
-         )
-      ++ ")"
-    | `rgba(r, g, b, a) =>
-      "rgba("
-      ++ join(
-           ", ",
-           [
-             string_of_int(r),
-             string_of_int(g),
-             string_of_int(b),
-             string_of_float(a),
-           ],
-         )
-      ++ ")"
+    | `p3(r, g, b, a) => string_of_p3(r, g, b, a)
+    | `rgb(r, g, b) => string_of_rgb(r, g, b)
+    | `rgba(r, g, b, a) => string_of_rgba(r, g, b, a)
     | `transparent => "transparent"
     | `linearGradient(angle, stops) =>
       "linear-gradient("
@@ -1446,7 +1442,7 @@ let outlineOffset = x => d("outlineOffset", string_of_length(x));
  * Text
  */
 
-/** 
+/**
  * see https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight#Common_weight_name_mapping
  */
 type fontWeight = [
@@ -2039,7 +2035,8 @@ let animationTimingFunction = x =>
  * Selectors
  */
 
-let selector = (selector, rules: list(rule)) => `selector((selector, rules));
+let selector = (selector, rules: list(rule)) =>
+  `selector((selector, rules));
 
 let active = selector(":active");
 let after = selector("::after");

@@ -6,12 +6,41 @@ test("fromRGB", _ =>
     expect(fromRGB(`rgb((255, 255, 255))))
     |> toEqual(
          `lab((
-           100.00000386666655,
-           (-0.000016666666158293708),
-           0.000006666666463317483,
+           100.,
+           (-0.036993142251),
+           0.015189611659,
            1.,
          )),
        )
+  )
+);
+
+test("toP3", _ =>
+  Expect.(
+    expect(toP3(`lab((100., 0., 0., 1.))))
+    |> toEqual(`p3((1., 1., 1., 1.)))
+  )
+);
+let p_ = 100000000.;
+let ( ** ) = (a, b) => a *. p_ *. (b *. p_) /. (p_ *. p_);
+let (/) = (a, b) => a *. p_ /. (b *. p_);
+
+// Js.log2("0.0000000002 * 0.0000003", 1.0002 *. 0.03);
+// Js.log2("0.0000000002 * 0.0000003", 1.0002 ** 0.03);
+// Js.log2("0.0000000002 * 0.0000003", 0.3 / 0.2);
+// Js.log2("0.0000000002 * 0.0000003", 0.3 /. 0.2);
+
+test("labToXYZ", _ =>
+  Expect.(
+    expect(labToXyz(`lab((100., 0., 0., 1.))))
+    |> toEqual((0.964214, 1., 0.825188, 1.))
+  )
+);
+
+test("xyzToP3", _ =>
+  Expect.(
+    expect(xyzToP3((0.964214, 1., 0.825188, 1.)))
+    |> toEqual(`p3((1., 1., 1., 1.)))
   )
 );
 
@@ -46,7 +75,7 @@ describe("isContrastOk", () => {
 describe("getContrastColor", () => {
   open Expect;
   test("`rgb(94,94,94)", _ =>
-    getContrastColor(`rgb((94,94,94)) |> fromRGB)
+    getContrastColor(`rgb((94, 94, 94)) |> fromRGB)
     |> expect
     |> toEqual(`lab((100., 0., 0., 1.)))
   );

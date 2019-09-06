@@ -21,7 +21,7 @@ let make = () => {
         <Text.Paragraph m={`margin(`noSpace)} size=1>
           "Perfectly average"
         </Text.Paragraph>
-        <Text.Block backgroundColor=`highlight(20, `primary) p=`padding2(`single, `half) m={`margin(`noSpace)} weight=`bold>
+        <Text.Block backgroundColor=`highlight(10, `primary) p=`padding2(`single, `half) m={`margin(`noSpace)} weight=`bold>
           "Hey look I have a different background"
         </Text.Block>
         <Text.Paragraph m={`margin(`noSpace)} size=0>

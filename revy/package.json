@@ -8,7 +8,9 @@
     "type": "git",
     "url": "git+https://github.com/eldh/revy.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "emotion": "^10.0.17"
+  },
   "scripts": {
     "start": "bsb -clean-world -make-world -w",
     "test": "jest ./__tests__ --watch",
