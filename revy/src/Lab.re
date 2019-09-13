@@ -40,8 +40,8 @@ let clamp = (minVal, maxVal, v) =>
   };
 
 let p_ = 10000000.;
-let ( **. ) = (a, b) => a *. p_ *. (b *. p_) /. (p_ *. p_); // |> toPrecision(12);
-let (/) = (a, b) => a *. p_ /. (b *. p_); // |> toPrecision(12);
+let ( **. ) = ( *. ); //(a, b) => a *. p_ *. (b *. p_) /. (p_ *. p_); // |> toPrecision(12);
+let (/) = (/.); // (a, b) => a *. p_ /. (b *. p_); // |> toPrecision(12);
 
 let rgbClamp = clamp(0, 255);
 let p3Clamp = a => clamp(0., 1.0, a) |> toPrecision(4);
@@ -78,19 +78,19 @@ let labToXyz = lab => {
   (x, y, z, alpha);
 };
 
-let rgbGamma = r => {
+let srgbGamma = r => {
   255. **. (r <= 0.0031308 ? 12.92 **. r : 1.055 **. r ** (1. / 2.4) -. 0.055);
 };
 
 let xyzToRgb = ((x, y, z, alpha)) => {
   `rgba((
-    rgbGamma(3.2404542 **. x -. 1.5371385 **. y -. 0.4985314 **. z)
+    srgbGamma(3.2404542 **. x -. 1.5371385 **. y -. 0.4985314 **. z)
     |> toInt
     |> rgbClamp,
-    rgbGamma((-0.9692660) **. x +. 1.8760108 **. y +. 0.0415560 **. z)
+    srgbGamma((-0.9692660) **. x +. 1.8760108 **. y +. 0.0415560 **. z)
     |> toInt
     |> rgbClamp,
-    rgbGamma(0.0556434 **. x -. 0.2040259 **. y +. 1.0572252 **. z)
+    srgbGamma(0.0556434 **. x -. 0.2040259 **. y +. 1.0572252 **. z)
     |> toInt
     |> rgbClamp,
     alpha,
@@ -99,13 +99,13 @@ let xyzToRgb = ((x, y, z, alpha)) => {
 let toRGB = lab => {
   lab |> labToXyz |> xyzToRgb;
 };
-let xyz_p3 = r => {
-  r <= 0.00304 ? 12.92 **. r : 1.055 **. r ** (1. / 2.4) -. 0.055;
+let p3Gamma = r => {
+  r <= 0.0031308 ? 12.92 **. r : 1.055 **. r ** (1. / 2.4) -. 0.055;
 };
 
 let xyzToP3 = ((x, y, z, alpha)) => {
   `p3((
-    xyz_p3(
+    p3Gamma(
       2.4041476775378706282
       **. x
       -. 0.99010703944210726052
@@ -114,7 +114,7 @@ let xyzToP3 = ((x, y, z, alpha)) => {
       **. z,
     )
     |> p3Clamp,
-    xyz_p3(
+    p3Gamma(
       (-0.84239097992588684688)
       **. x
       +. 1.7990595398556119185
@@ -123,7 +123,7 @@ let xyzToP3 = ((x, y, z, alpha)) => {
       **. z,
     )
     |> p3Clamp,
-    xyz_p3(
+    p3Gamma(
       0.04838763487334053893
       **. x
       -. 0.097525459078352834297
@@ -140,7 +140,7 @@ let toP3 = lab => {
   lab |> labToXyz |> xyzToP3;
 };
 
-let p3_xyz = r => {
+let p3Linear = r => {
   let lab2 = r;
   if (lab2 <= 0.04045) {
     lab2 / 12.92;
@@ -149,7 +149,7 @@ let p3_xyz = r => {
   };
 };
 
-let rgbLinear = r => {
+let srgbLinear = r => {
   let lab2 = r / 255.;
   if (lab2 <= 0.04045) {
     lab2 / 12.92;
@@ -176,9 +176,9 @@ let labxyzToLab = ((x, y, z, alpha)) => {
 };
 
 let rgbToXyz = ((r_, g_, b_, alpha: float)) => {
-  let r = rgbLinear(r_ |> float_of_int);
-  let g = rgbLinear(g_ |> float_of_int);
-  let b = rgbLinear(b_ |> float_of_int);
+  let r = srgbLinear(r_ |> float_of_int);
+  let g = srgbLinear(g_ |> float_of_int);
+  let b = srgbLinear(b_ |> float_of_int);
   // D65
   //  [0.4124564,  0.3575761,  0.1804375],
   // [0.2126729,  0.7151522,  0.0721750],
@@ -204,9 +204,9 @@ let rgbToXyz = ((r_, g_, b_, alpha: float)) => {
 };
 
 let p3ToXyz = ((r_, g_, b_, alpha)) => {
-  let r = rgbLinear(r_ |> float_of_int);
-  let g = rgbLinear(g_ |> float_of_int);
-  let b = rgbLinear(b_ |> float_of_int);
+  let r = srgbLinear(r_ |> float_of_int);
+  let g = srgbLinear(g_ |> float_of_int);
+  let b = srgbLinear(b_ |> float_of_int);
   let x =
     xyz_lab((0.5151 **. r +. 0.292 **. g +. 0.1571 **. b) / Constants.xn);
   let y =
@@ -331,7 +331,7 @@ let multiplyMatrix =
 };
 
 let mapTriple = (fn, (a, b, c)) => (fn(a), fn(b), fn(c));
-let intOfFloat = f => (f +. 0.5) |> int_of_float
+let intOfFloat = f => f +. 0.5 |> int_of_float;
 
 module Rgb2 = {
   // Convert from linear sRGB to CIE XYZ
@@ -340,6 +340,13 @@ module Rgb2 = {
       (0.4124564, 0.3575761, 0.1804375),
       (0.2126729, 0.7151522, 0.0721750),
       (0.0193339, 0.1191920, 0.9503041),
+    ));
+
+  let linearP3ToXyz =
+    multiplyMatrix((
+      (0.4865709486482162, 0.26566769316909306, 0.1982172852343625),
+      (0.2289745640697488, 0.6917385218365064, 0.079286914093745),
+      (0.0000000000000000, 0.04511338185890264, 1.043944368900976),
     ));
 
   // Convert from a D65 whitepoint (used by sRGB) to the D50 whitepoint used in Lab, with the Bradford transform [Bradford-CAT]
@@ -373,20 +380,6 @@ module Rgb2 = {
     );
   };
 
-  let rgbToLab =
-    fun
-    | `rgb(r, g, b, alpha) => {
-        (r, g, b)
-        |> mapTriple(float_of_int)
-        // Convert from sRGB to linear-light sRGB (undo gamma encoding)
-        |> mapTriple(rgbLinear)
-        |> linearRgbToXyz
-        |> d65ToD50
-        |> xyzToLab
-        |> mapTriple(toFixed(4))
-        |> (((l, a, b)) => `lab((l, a, b, alpha)));
-      };
-
   let labToXyz = ((l, a, b)) => {
     // Convert Lab to D50-adapted XYZ
     // http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
@@ -419,21 +412,72 @@ module Rgb2 = {
       (0.0556434, (-0.2040259), 1.0572252),
     ));
 
-  let gammaEncoding = mapTriple(rgbGamma);
+  let xyzToP3 =
+    multiplyMatrix((
+        (
+        (2.4041476775378706282, 0.99010703944210726052, 0.39759019425373693677),
+        (
+          (-0.84239097992588684688),
+          1.7990595398556119185,
+          0.015970230317527190242,
+        ),
+        (
+          0.04838763487334053893,
+          0.097525459078352834297,
+          1.2739363577809163373,
+        ),
+      )
+    ));
+
+  let rec rgbToLab =
+    fun
+    | `rgb(r, g, b) => `rgba(r, g, b, 1.) |> rgbToLab
+    | `rgba(r, g, b, alpha) => {
+        (r, g, b)
+        |> mapTriple(float_of_int)
+        |> mapTriple(srgbLinear)
+        |> linearRgbToXyz
+        |> d65ToD50
+        |> xyzToLab
+        |> mapTriple(toFixed(4))
+        |> (((l, a, b)) => `lab((l, a, b, alpha)));
+      };
 
   let labToRgb =
     fun
     | `lab(l, a, b, alpha) => {
         (l, a, b)
-        // Convert Lab to (D50-adapted) XYZ
         |> labToXyz
-        // Convert from a D50 whitepoint (used by Lab) to the D65 whitepoint used in sRGB, with the Bradford transform
         |> d50ToD65
-        // Convert from (D65-adapted) CIE XYZ to linear sRGB
         |> xyzToRGB
-        // Convert from linear-light sRGB to sRGB (do gamma encoding)
-        |> gammaEncoding
+        |> mapTriple(srgbGamma)
         |> mapTriple(intOfFloat)
-        |> (((r, g, b)) => `rgb((r, g, b, alpha)));
+        |> mapTriple(rgbClamp)
+        |> (((r, g, b)) => `rgba((r, g, b, alpha)));
+      };
+
+  let p3ToLab =
+    fun
+    | `p3(r, g, b, alpha) => {
+        (r, g, b)
+        |> mapTriple(p3Linear)
+        |> linearP3ToXyz
+        |> d65ToD50
+        |> xyzToLab
+        |> mapTriple(toFixed(4))
+        |> (((l, a, b)) => `lab((l, a, b, alpha)));
+      };
+
+  let labToP3 =
+    fun
+    | `lab(l, a, b, alpha) => {
+        (l, a, b)
+        |> labToXyz
+        |> d50ToD65
+        |> xyzToP3
+        |> mapTriple(p3Gamma)
+        |> mapTriple(p3Clamp)
+        |> mapTriple(toFixed(4))
+        |> (((r, g, b)) => `p3((r, g, b, alpha)));
       };
 };
