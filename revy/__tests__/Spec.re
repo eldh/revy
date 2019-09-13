@@ -4,16 +4,29 @@ open Lab;
 test("fromRGB", _ =>
   Expect.(
     expect(fromRGB(`rgb((255, 255, 255))))
-    |> toEqual(
-         `lab((
-           100.,
-           (-0.036993142251),
-           0.015189611659,
-           1.,
-         )),
-       )
+    |> toEqual(`lab((100., (-0.036993142251), 0.015189611659, 1.)))
   )
 );
+test("rgbToXYZ", _ =>
+  Expect.(
+    expect(rgbToXyz((255, 255, 255, 1.)))
+    |> toEqual((0.9643, 1., 0.8251, 1.))
+  )
+);
+Only.describe("Rgb2", () => {
+  test("Rgb2.rgbToLab", _ =>
+    Expect.(
+      expect(Rgb2.rgbToLab(`rgb((255, 255, 255, 1.))))
+      |> toEqual(`lab((100., 0., 0., 1.)))
+    )
+  );
+  test("Rgb2.labToRgb", _ =>
+    Expect.(
+      expect(Rgb2.labToRgb(`lab((100., 0., 0., 1.))))
+      |> toEqual(`rgb((255, 255, 255, 1.)))
+    )
+  );
+});
 
 test("toP3", _ =>
   Expect.(

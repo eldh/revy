@@ -20,6 +20,16 @@ let toPrecision: (int, float) => float = [%raw
   (a, b) => "return Number(b.toPrecision(a))"
 ];
 
+let toFixed = (i0, f) => {
+  let i = i0 |> float_of_int;
+  if (f < 1.) {
+    let multiplier = 10. ** i;
+    float_of_int(int_of_float(multiplier *. f +. 0.5)) /. multiplier;
+  } else {
+    toPrecision(i0, f);
+  };
+};
+
 let clamp = (minVal, maxVal, v) =>
   if (v < minVal) {
     minVal;
@@ -29,18 +39,16 @@ let clamp = (minVal, maxVal, v) =>
     v;
   };
 
-let p_ = 10000000000.;
-let ( **. ) = (a, b) => a *. p_ *. (b *. p_) /. (p_ *. p_) |> toPrecision(12);
-let (/) = (a, b) => a *. p_ /. (b *. p_) |> toPrecision(12);
+let p_ = 10000000.;
+let ( **. ) = (a, b) => a *. p_ *. (b *. p_) /. (p_ *. p_); // |> toPrecision(12);
+let (/) = (a, b) => a *. p_ /. (b *. p_); // |> toPrecision(12);
 
 let rgbClamp = clamp(0, 255);
 let p3Clamp = a => clamp(0., 1.0, a) |> toPrecision(4);
 let toInt = f => f +. 0.5 |> int_of_float;
 
 module Constants = {
-  // Corresponds roughly to RGB brighter/darker
   let kn = 18;
-  // D65 standard referent
   let xn = 0.964214;
   let yn = 1.;
   let zn = 0.825188;
@@ -70,19 +78,19 @@ let labToXyz = lab => {
   (x, y, z, alpha);
 };
 
-let xyz_rgb = r => {
-  255. **. (r <= 0.00304 ? 12.92 **. r : 1.055 **. r ** (1. / 2.4) -. 0.055);
+let rgbGamma = r => {
+  255. **. (r <= 0.0031308 ? 12.92 **. r : 1.055 **. r ** (1. / 2.4) -. 0.055);
 };
 
 let xyzToRgb = ((x, y, z, alpha)) => {
   `rgba((
-    xyz_rgb(3.2404542 **. x -. 1.5371385 **. y -. 0.4985314 **. z)
+    rgbGamma(3.2404542 **. x -. 1.5371385 **. y -. 0.4985314 **. z)
     |> toInt
     |> rgbClamp,
-    xyz_rgb((-0.9692660) **. x +. 1.8760108 **. y +. 0.0415560 **. z)
+    rgbGamma((-0.9692660) **. x +. 1.8760108 **. y +. 0.0415560 **. z)
     |> toInt
     |> rgbClamp,
-    xyz_rgb(0.0556434 **. x -. 0.2040259 **. y +. 1.0572252 **. z)
+    rgbGamma(0.0556434 **. x -. 0.2040259 **. y +. 1.0572252 **. z)
     |> toInt
     |> rgbClamp,
     alpha,
@@ -141,7 +149,7 @@ let p3_xyz = r => {
   };
 };
 
-let rgb_xyz = r => {
+let rgbLinear = r => {
   let lab2 = r / 255.;
   if (lab2 <= 0.04045) {
     lab2 / 12.92;
@@ -168,29 +176,37 @@ let labxyzToLab = ((x, y, z, alpha)) => {
 };
 
 let rgbToXyz = ((r_, g_, b_, alpha: float)) => {
-  let r = rgb_xyz(r_ |> float_of_int);
-  let g = rgb_xyz(g_ |> float_of_int);
-  let b = rgb_xyz(b_ |> float_of_int);
+  let r = rgbLinear(r_ |> float_of_int);
+  let g = rgbLinear(g_ |> float_of_int);
+  let b = rgbLinear(b_ |> float_of_int);
+  // D65
+  //  [0.4124564,  0.3575761,  0.1804375],
+  // [0.2126729,  0.7151522,  0.0721750],
+  // [0.0193339,  0.1191920,  0.9503041]
 
+  // d65 -> d50
+  // 1.0478112  0.0228866 -0.0501270
+  //  0.0295424  0.9904844 -0.0170491
+  // -0.0092345  0.0150436  0.7521316
   let x =
     xyz_lab(
-      (0.436 **. r +. 0.385 **. g +. 0.143 **. b) / Constants.xn,
+      (0.4124564 **. r +. 0.3575761 **. g +. 0.1804375 **. b) / Constants.xn,
     );
   let y =
     xyz_lab(
-      (0.222 **. r +. 0.717 **. g +. 0.061 **. b) / Constants.yn,
+      (0.2126729 **. r +. 0.7151522 **. g +. 0.0721750 **. b) / Constants.yn,
     );
   let z =
     xyz_lab(
-      (0.014 **. r +. 0.097 **. g +. 0.714 **. b) / Constants.zn,
+      (0.0193339 **. r +. 0.1191920 **. g +. 0.9503041 **. b) / Constants.zn,
     );
   (x, y, z, alpha);
 };
 
 let p3ToXyz = ((r_, g_, b_, alpha)) => {
-  let r = rgb_xyz(r_ |> float_of_int);
-  let g = rgb_xyz(g_ |> float_of_int);
-  let b = rgb_xyz(b_ |> float_of_int);
+  let r = rgbLinear(r_ |> float_of_int);
+  let g = rgbLinear(g_ |> float_of_int);
+  let b = rgbLinear(b_ |> float_of_int);
   let x =
     xyz_lab((0.5151 **. r +. 0.292 **. g +. 0.1571 **. b) / Constants.xn);
   let y =
@@ -223,7 +239,7 @@ let toCss =
   | `lab(_l, _a, _b, alpha) as lab =>
     switch (alpha) {
     | 0. => `transparent
-    | _ => toP3(lab)
+    | _ => toRGB(lab)
     };
 
 let lightness = v => {
@@ -303,4 +319,121 @@ let getContrastColor =
   | Some(`lab(_l, a, b, alpha)) =>
     `lab((luminance(baseColor), a, b, alpha))
   };
+};
+
+let multiplyMatrix =
+    (((x1, x2, x3), (y1, y2, y3), (z1, z2, z3)), (a, b, c)) => {
+  (
+    x1 **. a +. x2 **. b +. x3 **. c,
+    y1 **. a +. y2 **. b +. y3 **. c,
+    z1 **. a +. z2 **. b +. z3 **. c,
+  );
+};
+
+let mapTriple = (fn, (a, b, c)) => (fn(a), fn(b), fn(c));
+let intOfFloat = f => (f +. 0.5) |> int_of_float
+
+module Rgb2 = {
+  // Convert from linear sRGB to CIE XYZ
+  let linearRgbToXyz =
+    multiplyMatrix((
+      (0.4124564, 0.3575761, 0.1804375),
+      (0.2126729, 0.7151522, 0.0721750),
+      (0.0193339, 0.1191920, 0.9503041),
+    ));
+
+  // Convert from a D65 whitepoint (used by sRGB) to the D50 whitepoint used in Lab, with the Bradford transform [Bradford-CAT]
+  let d65ToD50 =
+    multiplyMatrix((
+      (1.0478112, 0.0228866, (-0.0501270)),
+      (0.0295424, 0.9904844, (-0.0170491)),
+      ((-0.0092345), 0.0150436, 0.7521316),
+    ));
+
+  let e = 216. / 24389.; // 6^3/29^3
+  let k = 24389. / 27.; // 29^3/3^3
+  let d50White = (0.96422, 1., 0.82521); // D50 reference white
+  let xyzToLab = ((x1, y1, z1)) => {
+    // Assuming XYZ is relative to D50, convert to CIE Lab
+    // from CIE standard, which now defines these as a rational fraction
+    let (wX, wY, wZ) = d50White;
+
+    // compute xyz, which is XYZ scaled relative to reference white
+    // let xyz = XYZ.map((value, i) => value / white[i]);
+    let xyz = (x1 / wX, y1 / wY, z1 / wZ);
+
+    // now compute f
+    let (f0, f1, f2) =
+      mapTriple(v => v > e ? v ** (1. / 3.) : (k **. v +. 16.) / 116., xyz);
+
+    (
+      116. **. f1 -. 16., // L
+      500. **. (f0 -. f1), // a
+      200. **. (f1 -. f2) // b
+    );
+  };
+
+  let rgbToLab =
+    fun
+    | `rgb(r, g, b, alpha) => {
+        (r, g, b)
+        |> mapTriple(float_of_int)
+        // Convert from sRGB to linear-light sRGB (undo gamma encoding)
+        |> mapTriple(rgbLinear)
+        |> linearRgbToXyz
+        |> d65ToD50
+        |> xyzToLab
+        |> mapTriple(toFixed(4))
+        |> (((l, a, b)) => `lab((l, a, b, alpha)));
+      };
+
+  let labToXyz = ((l, a, b)) => {
+    // Convert Lab to D50-adapted XYZ
+    // http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
+
+    // compute f, starting with the luminance-related term
+    let f1 = (l +. 16.) / 116.;
+    let f0 = a / 500. +. f1;
+    let f2 = f1 -. b / 200.;
+
+    // compute xyz
+    let x = f0 ** 3. > e ? f0 ** 3. : (116. **. f0 -. 16.) / k;
+    let y = l > k **. e ? ((l +. 16.) / 116.) ** 3. : l / k;
+    let z = f2 ** 3. > e ? f2 ** 3. : (116. **. f2 -. 16.) / k;
+    let (wX, wY, wZ) = d50White;
+    // Compute XYZ by scaling xyz by reference white
+    (x *. wX, y *. wY, z *. wZ);
+  };
+
+  let d50ToD65 =
+    multiplyMatrix((
+      (0.9555766, (-0.0230393), 0.0631636),
+      ((-0.0282895), 1.0099416, 0.0210077),
+      (0.0122982, (-0.0204830), 1.3299098),
+    ));
+
+  let xyzToRGB =
+    multiplyMatrix((
+      (3.2404542, (-1.5371385), (-0.4985314)),
+      ((-0.9692660), 1.8760108, 0.0415560),
+      (0.0556434, (-0.2040259), 1.0572252),
+    ));
+
+  let gammaEncoding = mapTriple(rgbGamma);
+
+  let labToRgb =
+    fun
+    | `lab(l, a, b, alpha) => {
+        (l, a, b)
+        // Convert Lab to (D50-adapted) XYZ
+        |> labToXyz
+        // Convert from a D50 whitepoint (used by Lab) to the D65 whitepoint used in sRGB, with the Bradford transform
+        |> d50ToD65
+        // Convert from (D65-adapted) CIE XYZ to linear sRGB
+        |> xyzToRGB
+        // Convert from linear-light sRGB to sRGB (do gamma encoding)
+        |> gammaEncoding
+        |> mapTriple(intOfFloat)
+        |> (((r, g, b)) => `rgb((r, g, b, alpha)));
+      };
 };
