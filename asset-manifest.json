@@ -1,11 +1,13 @@
 {
-  "main.js": "/revy/static/js/main.f95a2a60.chunk.js",
-  "main.js.map": "/revy/static/js/main.f95a2a60.chunk.js.map",
-  "runtime~main.js": "/revy/static/js/runtime~main.30f44178.js",
-  "runtime~main.js.map": "/revy/static/js/runtime~main.30f44178.js.map",
-  "static/js/2.7d6610c2.chunk.js": "/revy/static/js/2.7d6610c2.chunk.js",
-  "static/js/2.7d6610c2.chunk.js.map": "/revy/static/js/2.7d6610c2.chunk.js.map",
-  "index.html": "/revy/index.html",
-  "precache-manifest.7f677d90a70a17237038ae3d3fc5f68e.js": "/revy/precache-manifest.7f677d90a70a17237038ae3d3fc5f68e.js",
-  "service-worker.js": "/revy/service-worker.js"
+  "files": {
+    "main.js": "/static/js/main.bda6bf6b.chunk.js",
+    "main.js.map": "/static/js/main.bda6bf6b.chunk.js.map",
+    "runtime~main.js": "/static/js/runtime~main.a8a9905a.js",
+    "runtime~main.js.map": "/static/js/runtime~main.a8a9905a.js.map",
+    "static/js/2.d5210c70.chunk.js": "/static/js/2.d5210c70.chunk.js",
+    "static/js/2.d5210c70.chunk.js.map": "/static/js/2.d5210c70.chunk.js.map",
+    "index.html": "/index.html",
+    "precache-manifest.e6db839992bad381c8cfe16b18f29483.js": "/precache-manifest.e6db839992bad381c8cfe16b18f29483.js",
+    "service-worker.js": "/service-worker.js"
+  }
 }
