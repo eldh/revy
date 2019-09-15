@@ -13,7 +13,9 @@
   },
   "scripts": {
     "start": "bsb -clean-world -make-world -w",
-    "test": "jest ./__tests__ --watch",
+    "test": "jest ./__tests__",
+    "test:watch": "jest ./__tests__",
+    "prepublish": "yarn build",
     "build": "bsb -clean-world -make-world"
   },
   "devDependencies": {

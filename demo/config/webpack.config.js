@@ -355,8 +355,8 @@ module.exports = function(webpackEnv) {
                 ),
                 // @remove-on-eject-end
                 plugins: [
-                  require.resolve('./react-fresh/babel'),
-                  require.resolve('./thing'),
+                  isEnvDevelopment ? require.resolve('./react-fresh/babel') : false,
+                  isEnvDevelopment ? require.resolve('./thing') : false,
                   [
                     require.resolve('babel-plugin-named-asset-import'),
                     {
@@ -367,7 +367,7 @@ module.exports = function(webpackEnv) {
                       },
                     },
                   ],
-                ],
+                ].filter(Boolean),
                 // This is a feature of `babel-loader` for webpack (not Babel itself).
                 // It enables caching results in ./node_modules/.cache/babel-loader/
                 // directory for faster rebuilds.
