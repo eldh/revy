@@ -32,7 +32,7 @@ let make =
       ~onClick=ignore,
       ~size=0,
       ~lineHeight=0,
-      ~m=`margin(`auto),
+      ~margin=`margin(`auto),
       ~weight=`normal,
       ~tintColor=?,
       ~children,
@@ -45,7 +45,7 @@ let make =
     href
     onClick
     className={
-      [textStyle, linkStyle, Styles.useMargin(m)] |> List.concat |> Css.style
+      [textStyle, linkStyle, Styles.useMargin(margin)] |> List.concat |> Css.style
     }>
     children->React.string
   </a>;
@@ -58,7 +58,7 @@ module Button = {
         ~onClick=ignore,
         ~size=0,
         ~lineHeight=0,
-        ~m=`margin(`auto),
+        ~margin=`margin(`auto),
         ~weight=`normal,
         ~tintColor=?,
         ~children,
@@ -71,7 +71,7 @@ module Button = {
       tag="button"
       grow=0.
       onPress=onClick
-      style={[textStyle, linkStyle, Styles.useMargin(m)] |> List.concat}>
+      style={[textStyle, linkStyle, Styles.useMargin(margin)] |> List.concat}>
       children->React.string
     </TouchableOpacity>;
   };

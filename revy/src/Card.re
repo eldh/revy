@@ -1,6 +1,6 @@
 open Core;
 
-let useCardStyle = (~p, ~m, ()) => {
+let useCardStyle = (~padding as p, ~margin as m, ()) => {
   [
     Css.[
       backgroundColor(Styles.useColor(`highlight((5, `body)))),
@@ -28,13 +28,13 @@ let make =
       ~a11yTitle as _a11yTitle=?,
       ~style as style_=[],
       ~grow=1.,
-      ~p=`padding(`single),
-      ~m=`margin(`noSpace),
+      ~padding=`padding(`single),
+      ~margin=`margin(`noSpace),
       ~domProps=?,
       ~children=?,
       (),
     ) => {
-  let style = [useCardStyle(~p, ~m, ()), style_] |> List.concat;
+  let style = [useCardStyle(~padding, ~margin, ()), style_] |> List.concat;
 
   <View tag style domProps> children </View>;
 };

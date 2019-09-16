@@ -13,10 +13,11 @@ let useTextStyles =
       (),
     ) => {
   let sizeVal = Styles.useFontSize(size);
-  let bgStyles = switch (bg_) {
-  | Some(p) => Css.[background(Styles.useColor(p))]
-  | None => []
-  };
+  let bgStyles =
+    switch (bg_) {
+    | Some(p) => Css.[background(Styles.useColor(p))]
+    | None => []
+    };
   Css.[
     color(
       Styles.useTextColor(
@@ -108,8 +109,8 @@ module Block = {
       (
         ~weight=`normal,
         ~tag="div",
-        ~m=`margin(`auto),
-        ~p=`padding(`noSpace),
+        ~margin as m=`margin(`auto),
+        ~padding as p=`padding(`noSpace),
         ~quiet=false,
         ~size=0,
         ~lineHeight=0,
@@ -156,7 +157,7 @@ module Paragraph = {
       (
         ~weight=`normal,
         ~tag="p",
-        ~m=`margin4((`noSpace, `noSpace, `noSpace, `double)),
+        ~margin=`margin4((`noSpace, `noSpace, `noSpace, `double)),
         ~size=0,
         ~quiet=false,
         ~lineHeight=0,
@@ -167,7 +168,7 @@ module Paragraph = {
       ) => {
     let styles =
       useTextStyles(~size, ~lineHeight, ~weight, ~quiet, ~tintColor?, ());
-    let margin = Styles.useMargin(m);
+    let margin = Styles.useMargin(margin);
     UnsafeCreateReactElement.use(
       tag,
       {
@@ -193,7 +194,7 @@ module Code = {
       (
         ~weight=`normal,
         ~tag="pre",
-        ~m=`margin2((`noSpace, `double)),
+        ~margin as m=`margin2((`noSpace, `double)),
         ~size=0,
         ~quiet=false,
         ~style=?,
@@ -215,7 +216,7 @@ module Code = {
     let margin = Styles.useMargin(`margin(`noSpace));
     let padding = Styles.usePadding(`padding(`double));
     <Box
-      m
+      margin=m
       backgroundColor={`highlight((7, `body))}
       borderRadius={Css.px(6)}
       style=Css.[width(pct(100.)), overflow(`scroll)]>

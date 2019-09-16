@@ -1,8 +1,8 @@
 [@react.component]
 let make = (~title, ~subtitle, ()) => {
   <Box
-    w=`full
-    h={Css.vh(80.)}
+    width=`full
+    height={Css.vh(80.)}
     justify=`center
     >
     <Text.String

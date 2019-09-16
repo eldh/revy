@@ -5,11 +5,11 @@ open UI;
 let make = (~toggleTheme=ignore, ()) => {
   <View>
     <>
-      <Box h={Styles.useSpace(`number(11))} />
+      <Box height={Styles.useSpace(`number(11))} />
       <Box
         backgroundColor={`highlight((8, `body))}
-        p={`padding(`single)}
-        w={`unsafeCustomValue(Css.vw(100.))}
+        padding={`padding(`single)}
+        width={`unsafeCustomValue(Css.vw(100.))}
         direction=`row
         align=`center
         alignContent=`center
@@ -27,13 +27,13 @@ let make = (~toggleTheme=ignore, ()) => {
           </Box>
           <Box direction=`row grow=0.>
             <Link
-              m={`margin(`half)}
+              margin={`margin(`half)}
               href="https://github.com/eldh/revy"
               tintColor=`body>
               "Github"
             </Link>
             <Link.Button
-              m={`margin(`half)} onClick={_ => toggleTheme()} tintColor=`body>
+              margin={`margin(`half)} onClick={_ => toggleTheme()} tintColor=`body>
               "Toggle dark theme"
             </Link.Button>
           </Box>

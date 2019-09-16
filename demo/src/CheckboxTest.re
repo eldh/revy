@@ -7,7 +7,7 @@ let make = () => {
   let (baz, setBaz) = React.useState(() => false);
   <ComponentsCard title="Checkbox">
     <Box
-      direction=`column m={`margin4((`noSpace, `noSpace, `single, `single))}>
+      direction=`column margin={`margin4((`noSpace, `noSpace, `single, `single))}>
       <Checkbox
         value="bar"
         name="bar"

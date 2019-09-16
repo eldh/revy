@@ -4,16 +4,16 @@ let make = (~toggleTheme=ignore, ()) => {
   <Box
     tag="main"
     backgroundColor=`body
-    p={`padding(`double)}
-    w=`full
+    padding={`padding(`double)}
+    width=`full
     align=`stretch
-    m={`margin(`auto)}>
+    margin={`margin(`auto)}>
     <>
       <Hero
         title="Revy"
         subtitle="A higher order design system for ReasonReact."
       />
-      <Box m={`marginBottom(`quint)} w=`full>
+      <Box margin={`marginBottom(`quint)} width=`full>
         <Heading> {"Revy.Core" |> React.string} </Heading>
         <Text.Paragraph>
           "Consistency, colors, typography, motion... A lot of things are hard to manage in a design system. Revy aims to make these things easier."
@@ -42,7 +42,7 @@ let make = () => {
         </Text.Code>
       </Box>
       <Heading> {"Revy.UI" |> React.string} </Heading>
-      <Box m={`marginBottom(`quint)}>
+      <Box margin={`marginBottom(`quint)}>
         <Text.Paragraph>
           "Revy makes it easy to build your own components, but it also comes with a set of components of its own. You can use them as a starting point for your design system, an inspiration or a cautionary example."
         </Text.Paragraph>

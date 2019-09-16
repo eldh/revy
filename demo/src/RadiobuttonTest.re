@@ -6,7 +6,7 @@ let make = () => {
 
   <ComponentsCard title="Radiobutton">
     <Box
-      direction=`column m={`margin4((`noSpace, `noSpace, `single, `single))}>
+      direction=`column margin={`margin4((`noSpace, `noSpace, `single, `single))}>
       <Radiobutton
         value="bar"
         name="bar-radio"

@@ -4,10 +4,10 @@ module Swatch = {
   let make = (~color: Lab.t, ()) => {
     let lum = Lab.luminance(color) |> int_of_float;
     <Box
-      w={`unsafeCustomValue(Css.px(80))}
+      width={`unsafeCustomValue(Css.px(80))}
       justify=`center
-      // m={`marginBottom(`unsafeCustomValue(Css.px()))}
-      p={`paddingLeft(`unsafeCustomValue(Css.em(0.5)))}
+      // margin={`marginBottom(`unsafeCustomValue(Css.px()))}
+      padding={`paddingLeft(`unsafeCustomValue(Css.em(0.5)))}
       backgroundColor={`unsafeCustomColor(color)}>
       <Text.String size=(-1) lineHeight=2>
         {lum |> string_of_int}
@@ -19,7 +19,7 @@ module Swatch = {
 module ColorBox = {
   [@react.component]
   let make = (~color, ~title, ()) => {
-    <Box m={`margin4((`noSpace, `noSpace, `double, `double))} grow=0.>
+    <Box margin={`margin4((`noSpace, `noSpace, `double, `double))} grow=0.>
       <Text.String size=(-1)> title </Text.String>
       {[|0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10|]
        |> Array.map(n => {
@@ -37,7 +37,7 @@ module ColorBox = {
 module GradientBox = {
   [@react.component]
   let make = (~toColor, ~fromColor, ()) => {
-    <Box m={`margin4((`noSpace, `noSpace, `double, `double))} grow=0.>
+    <Box margin={`margin4((`noSpace, `noSpace, `double, `double))} grow=0.>
       <Text.String size=(-1)> "Lab" </Text.String>
       {[|0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10|]
        |> Array.map(n => {
@@ -58,7 +58,7 @@ module GradientBox = {
 module RgbGradientBox = {
   [@react.component]
   let make = (~toColor, ~fromColor, ()) => {
-    <Box m={`margin4((`noSpace, `noSpace, `double, `double))} grow=0.>
+    <Box margin={`margin4((`noSpace, `noSpace, `double, `double))} grow=0.>
       <Text.String size=(-1)> "Rgb" </Text.String>
       {[|0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10|]
        |> Array.map(n => {
@@ -81,7 +81,7 @@ module RgbGradientBox = {
 let make = () => {
   Lab.(
     <ComponentsCard title="Colors">
-      <Box direction=`row align=`flexEnd wrap=`wrap w=`full>
+      <Box direction=`row align=`flexEnd wrap=`wrap width=`full>
         <ColorBox color=`primary title="Primary" />
         <ColorBox color=`secondary title="Secondary" />
         <ColorBox color=`brand1 title="Brand1" />

@@ -65,7 +65,7 @@ let make =
       ~styles=?,
       ~onFocus=ignore,
       ~onBlur=ignore,
-      ~m=`margin(`noSpace),
+      ~margin=`margin(`noSpace),
       ~checked,
       ~value,
       ~name="",

@@ -13,7 +13,14 @@ type size =
   | Large;
 
 let useButtonStyles =
-    (~variant, ~outline as outline_, ~m, ~size, ~disabled as _disabled_, ()) => {
+    (
+      ~variant,
+      ~outline as outline_,
+      ~margin as margin_,
+      ~size,
+      ~disabled as _disabled_,
+      (),
+    ) => {
   // TODO fix
   let (btnFontSize, paddingV, paddingH) =
     switch (size) {
@@ -88,10 +95,7 @@ let useButtonStyles =
         opacity(0.7),
         hover([backgroundColor(Styles.useColor(bgVariant))]),
       ]),
-      focus([
-        outlineStyle(`none),
-        ...Animations.focus
-      ]),
+      focus([outlineStyle(`none), ...Animations.focus]),
       active([
         backgroundColor(
           outline_
@@ -102,7 +106,8 @@ let useButtonStyles =
       ...styleStyles,
     ];
   };
-  [Styles.useMargin(m), sharedStyles, variantStyles(variant)] |> List.concat;
+  [Styles.useMargin(margin_), sharedStyles, variantStyles(variant)]
+  |> List.concat;
 };
 
 [@react.component]
@@ -114,14 +119,21 @@ let make =
       ~disabled=false,
       ~outline=false,
       ~onlyFocusOnTab=true,
-      ~m=`margin(`noSpace),
+      ~margin as m=`margin(`noSpace),
       ~children,
       (),
     ) => {
   <TouchableOpacity
     tag="button"
     onlyFocusOnTab
-    style={useButtonStyles(~variant, ~outline, ~m, ~size, ~disabled, ())}
+    style={useButtonStyles(
+      ~variant,
+      ~outline,
+      ~margin=m,
+      ~size,
+      ~disabled,
+      (),
+    )}
     onPress=onClick
     domProps={"disabled": disabled}>
     children
@@ -137,7 +149,7 @@ module Link = {
         ~disabled=false,
         ~outline=false,
         ~size=Medium,
-        ~m=`margin(`noSpace),
+        ~margin as m=`margin(`noSpace),
         ~onlyFocusOnTab=true,
         ~children,
         (),
@@ -145,7 +157,7 @@ module Link = {
     <a
       href
       className={
-        useButtonStyles(~variant, ~outline, ~m, ~size, ~disabled, ())
+        useButtonStyles(~variant, ~outline, ~margin=m, ~size, ~disabled, ())
         ->Css.style
       }
       onClick={e => {

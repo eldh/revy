@@ -1,4 +1,4 @@
-let useInputStyles = (~m, ()) => {
+let useInputStyles = (~margin as m, ()) => {
   Core.(
     [
       Css.[
@@ -57,7 +57,7 @@ module Input = {
         ~onFocus=ignore,
         ~onBlur=ignore,
         ~placeholder="",
-        ~m=`margin(`noSpace),
+        ~margin as m=`margin(`noSpace),
         ~value,
         (),
       ) => {
@@ -73,8 +73,8 @@ module Input = {
       className={
         (
           switch (styles) {
-          | None => useInputStyles(~m, ())
-          | Some(l) => [useInputStyles(~m, ()), l] |> List.concat
+          | None => useInputStyles(~margin=m, ())
+          | Some(l) => [useInputStyles(~margin=m, ()), l] |> List.concat
           }
         )
         |> Css.style
