@@ -6,3 +6,4 @@
 - Use border radii
 - Easier access to border styles
 - More font weights?
+- Same kindo of api for borders as for margin/padding

@@ -135,6 +135,7 @@ let make =
       ~disabled,
       (),
     )}
+    basis=`auto
     onPress=onClick
     domProps={"disabled": disabled}>
     children

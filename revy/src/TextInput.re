@@ -7,7 +7,6 @@ let useInputStyles = (~margin as m, ()) => {
           ~h=Styles.useSpace(~borderAdjust=0, `single),
         ),
         textDecoration(`none),
-        cursor(`pointer),
         lineHeight(
           Styles.useLineHeight(~fontSize=Styles.useFontSize(0), ()),
         ),

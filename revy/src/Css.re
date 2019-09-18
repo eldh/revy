@@ -187,6 +187,7 @@ module Converter = {
     | `auto => "auto"
     | `scroll => "scroll"
     | `hidden => "hidden"
+    | `initial => "initial"
     | `visible => "visible";
 
   let string_of_visibility =
