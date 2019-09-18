@@ -3,12 +3,13 @@ open Core;
 let useCardStyle = (~padding as p, ~margin as m, ()) => {
   [
     Css.[
-      backgroundColor(Styles.useColor(`highlight((5, `body)))),
+      backgroundColor(Styles.useColor(`highlight((3, `body)))),
       flexWrap(`wrap),
       borderRadius(Css.px(6)),
       borderWidth(px(1)),
-      borderColor(Styles.useColor(`highlight((10, `body)))),
+      borderColor(Styles.useColor(`highlight((8, `body)))),
       borderStyle(`solid),
+      unsafe("willChange", "transition"),
       boxShadow(
         ~y=px(4),
         ~blur=px(10),

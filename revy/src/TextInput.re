@@ -13,6 +13,7 @@ let useInputStyles = (~margin as m, ()) => {
         ),
         fontSize(Styles.useFontSize(0)),
         fontFamily(Styles.useFontFamily(`body)),
+        boxSizing(`borderBox),
         borderWidth(px(0)),
         borderColor(Styles.useColor(`transparent)),
         borderRadius(Css.px(6)),
@@ -50,15 +51,15 @@ module Input = {
         ~onClick as _=?,
         ~onChange,
         ~label,
+        ~value,
         ~id="",
         ~type_="text",
         ~disabled=false,
-        ~styles=?,
+        ~style=?,
         ~onFocus=ignore,
         ~onBlur=ignore,
         ~placeholder="",
         ~margin as m=`margin(`noSpace),
-        ~value,
         (),
       ) => {
     <input
@@ -72,7 +73,7 @@ module Input = {
       label
       className={
         (
-          switch (styles) {
+          switch (style) {
           | None => useInputStyles(~margin=m, ())
           | Some(l) => [useInputStyles(~margin=m, ()), l] |> List.concat
           }
@@ -86,9 +87,9 @@ module Input = {
 
 module Label = {
   [@react.component]
-  let make = (~children, ~htmlFor, ()) => {
+  let make = (~children, ~htmlFor=?, ()) => {
     <label
-      htmlFor
+      ?htmlFor
       className={
         Text.useTextStyles(
           ~size=-1,

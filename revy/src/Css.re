@@ -101,15 +101,17 @@ module Converter = {
     ++ ")";
 
   let string_of_rgba = (r, g, b, a) =>
-    "rgba("
-    ++ string_of_int(r)
-    ++ ", "
-    ++ string_of_int(g)
-    ++ ", "
-    ++ string_of_int(b)
-    ++ ", "
-    ++ string_of_float(a)
-    ++ ")";
+    a === 1.
+      ? string_of_rgb(r, g, b)
+      : "rgba("
+        ++ string_of_int(r)
+        ++ ", "
+        ++ string_of_int(g)
+        ++ ", "
+        ++ string_of_int(b)
+        ++ ", "
+        ++ string_of_float(a)
+        ++ ")";
 
   let string_of_p3 = (r, g, b, a) =>
     "color(display-p3 "
@@ -118,9 +120,7 @@ module Converter = {
     ++ string_of_float(g)
     ++ " "
     ++ string_of_float(b)
-    ++ " / "
-    ++ string_of_float(a)
-    ++ ")";
+    ++ (a === 1. ? ")" : " / " ++ string_of_float(a) ++ ")");
 
   let string_of_percent =
     fun

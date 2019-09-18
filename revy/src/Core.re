@@ -327,8 +327,9 @@ module Private = {
     switch (v) {
     | `extraLight => `extraLight
     | `light => `light
-    | `bold => `bold
     | `normal => `normal
+    | `medium => `medium
+    | `bold => `bold
     | `extraBold => `extraBold
     };
   };

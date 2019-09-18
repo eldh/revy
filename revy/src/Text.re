@@ -27,6 +27,7 @@ let useTextStyles =
         (),
       ),
     ),
+    overflowY(`visible),
     fontSize(sizeVal),
     fontFamily(Styles.useFontFamily(fontFamily_)),
     lineHeight(
@@ -47,7 +48,7 @@ let make =
       ~quiet=false,
       ~tintColor=?,
       ~style=?,
-      ~children,
+      ~children:React.element,
       (),
     ) => {
   let styles =
@@ -109,7 +110,7 @@ module Block = {
       (
         ~weight=`normal,
         ~tag="div",
-        ~margin as m=`margin(`auto),
+        ~margin as m=`margin(`noSpace),
         ~padding as p=`padding(`noSpace),
         ~quiet=false,
         ~size=0,

@@ -35,6 +35,7 @@ let useButtonStyles =
       textAlign(`center),
       alignContent(`center),
       flexGrow(0.),
+      overflow(`visible),
       cursor(`pointer),
       transition(~duration=200, "all"),
       fontSize(btnFontSize),
