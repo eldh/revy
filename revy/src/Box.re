@@ -1,7 +1,6 @@
-[@bs.config {jsx: 3}];
-
 let useBoxStyle =
     (
+      ~position as position_,
       ~align as align_,
       ~alignSelf as alignSelf_,
       ~alignContent as alignContent_,
@@ -24,6 +23,7 @@ let useBoxStyle =
 
   [
     Css.[
+      position(position_),
       alignSelf(alignSelf_),
       alignItems(align_),
       backgroundColor(Core.Styles.useColor(backgroundColor_)),
@@ -51,22 +51,25 @@ let make =
       ~tag="div",
       ~a11yTitle as _a11yTitle=?,
       ~style as style_=[],
+      ~position=`relative,
       ~align=`flexStart,
       ~alignSelf=`auto,
       ~alignContent=`flexStart,
       ~backgroundColor=`transparent,
       ~grow=1.,
       ~wrap=`wrap,
-      ~shrink=1.,
+      ~shrink=0.,
       ~basis=`auto,
       ~justify=`flexStart,
       ~direction=`column,
-      ~padding=`padding(`noSpace),
-      ~margin=`margin(`noSpace),
+      ~padding=?,
+      ~margin=?,
       ~height=`auto,
       ~width=`auto,
       ~overflow=`initial,
       ~borderRadius=Css.px(0),
+      ~onMouseOver=?,
+      ~onMouseOut=?,
       ~domProps=?,
       ~children=?,
       (),
@@ -74,6 +77,7 @@ let make =
   let style =
     [
       useBoxStyle(
+        ~position,
         ~align,
         ~alignSelf,
         ~alignContent,
@@ -97,6 +101,6 @@ let make =
     |> List.concat;
 
   <Core.BackgroundColorContext.Provider value=backgroundColor>
-    <View tag style domProps> children </View>
+    <View tag style domProps ?onMouseOut ?onMouseOver> children </View>
   </Core.BackgroundColorContext.Provider>;
 };

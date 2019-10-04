@@ -6,4 +6,5 @@
 - Use border radii
 - Easier access to border styles
 - More font weights?
+- Grid component
 - Same kindo of api for borders as for margin/padding

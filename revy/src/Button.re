@@ -16,7 +16,7 @@ let useButtonStyles =
     (
       ~variant,
       ~outline as outline_,
-      ~margin as margin_,
+      ~margin as margin_=?,
       ~size,
       ~disabled as _disabled_,
       (),
@@ -34,6 +34,7 @@ let useButtonStyles =
       textDecoration(`none),
       textAlign(`center),
       alignContent(`center),
+      position(`relative),
       flexGrow(0.),
       overflow(`visible),
       cursor(`pointer),
@@ -52,7 +53,7 @@ let useButtonStyles =
       | Error => `error
       | Success => `success
       | Primary => `primary
-      | Secondary => `highlight((50, `neutral))
+      | Secondary => `highlight((1, `body))
       };
     let styleStyles = [
       outline_
@@ -96,12 +97,13 @@ let useButtonStyles =
         opacity(0.7),
         hover([backgroundColor(Styles.useColor(bgVariant))]),
       ]),
-      focus([outlineStyle(`none), ...Animations.focus]),
+      focus([outlineStyle(`none)]),
+      selector(":focus:not(:active)", Animations.focus),
       active([
         backgroundColor(
           outline_
             ? outlineHighlightBg(0.15)
-            : Styles.useColor(~highlight=15, bgVariant),
+            : Styles.useColor(~highlight=5, bgVariant),
         ),
       ]),
       ...styleStyles,
@@ -171,5 +173,54 @@ module Link = {
       }}>
       children
     </a>;
+  };
+};
+module Round = {
+  [@react.component]
+  let make =
+      (
+        ~onClick,
+        ~variant=Secondary,
+        ~size=Medium,
+        ~disabled=false,
+        ~outline=false,
+        ~style=[],
+        ~onlyFocusOnTab=true,
+        ~margin=?,
+        ~children,
+        (),
+      ) => {
+    let w =
+      switch (size) {
+      | Small => `triple
+      | Medium => `quad
+      | Large => `number(6)
+      };
+    let btnStyle =
+      useButtonStyles(~variant, ~outline, ~margin?, ~size, ~disabled, ());
+    <TouchableOpacity
+      tag="button"
+      onlyFocusOnTab
+      justify=`center
+      align=`center
+      alignContent=`center
+      style={
+        [
+          btnStyle,
+          Css.[
+            width(Styles.useSpace(w)),
+            height(Styles.useSpace(w)),
+            padding(px(0)),
+            borderRadius(pct(50.)),
+          ],
+          style,
+        ]
+        |> List.concat
+      }
+      basis=`auto
+      onPress=onClick
+      domProps={"disabled": disabled}>
+      children
+    </TouchableOpacity>;
   };
 };

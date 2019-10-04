@@ -17,6 +17,7 @@ let make =
       ~tag="div",
       ~a11yTitle as _a11yTitle=?,
       ~style as style_=[],
+      ~position=`relative,
       ~align=`flexStart,
       ~alignSelf=`auto,
       ~alignContent=`flexStart,
@@ -27,12 +28,12 @@ let make =
       ~justify=`flexStart,
       ~direction=`column,
       ~onlyFocusOnTab=true,
-      ~padding=`padding(`noSpace),
-      ~margin=`margin(`noSpace),
-      ~basis=`zero,
+      ~padding=?,
+      ~margin=?,
+      ~basis=`auto,
       ~height=`auto,
       ~width=`auto,
-      ~overflow=`auto,
+      ~overflow=`initial,
       ~borderRadius=Css.px(0),
       ~onPress=?,
       ~domProps=?,
@@ -42,6 +43,7 @@ let make =
   let style =
     [
       Box.useBoxStyle(
+        ~position,
         ~align,
         ~alignSelf,
         ~alignContent,
@@ -68,7 +70,7 @@ let make =
       tag
       style
       domProps
-      onPress={
+      onPress=?{
         switch (onPress) {
         | Some(fn) =>
           Some(

@@ -1,5 +1,5 @@
 open Core;
-let useInputStyles = () => {
+let useRadiobuttonStyles = () => {
   Css.[
     position(`absolute),
     cursor(`pointer),
@@ -64,7 +64,6 @@ let make =
       ~styles=?,
       ~onFocus=ignore,
       ~onBlur=ignore,
-      ~margin=`margin(`noSpace),
       ~checked,
       ~value,
       ~name="",
@@ -90,8 +89,8 @@ let make =
       className={
         (
           switch (styles) {
-          | None => useInputStyles()
-          | Some(v) => [useInputStyles(), v] |> List.concat
+          | None => useRadiobuttonStyles()
+          | Some(v) => [useRadiobuttonStyles(), v] |> List.concat
           }
         )
         |> Css.style

@@ -48,7 +48,7 @@ let make =
       ~quiet=false,
       ~tintColor=?,
       ~style=?,
-      ~children:React.element,
+      ~children: React.element,
       (),
     ) => {
   let styles =
@@ -110,8 +110,8 @@ module Block = {
       (
         ~weight=`normal,
         ~tag="div",
-        ~margin as m=`margin(`noSpace),
-        ~padding as p=`padding(`noSpace),
+        ~margin as m=?,
+        ~padding as p=?,
         ~quiet=false,
         ~size=0,
         ~lineHeight=0,
@@ -169,7 +169,7 @@ module Paragraph = {
       ) => {
     let styles =
       useTextStyles(~size, ~lineHeight, ~weight, ~quiet, ~tintColor?, ());
-    let margin = Styles.useMargin(margin);
+    let margin = Styles.useMargin(Some(margin));
     UnsafeCreateReactElement.use(
       tag,
       {
@@ -214,8 +214,8 @@ module Code = {
         ~fontFamily=`mono,
         (),
       );
-    let margin = Styles.useMargin(`margin(`noSpace));
-    let padding = Styles.usePadding(`padding(`double));
+    let margin = Styles.useMargin(Some(`margin(`noSpace)));
+    let padding = Styles.usePadding(Some(`padding(`double)));
     <Box
       margin=m
       backgroundColor={`highlight((7, `body))}

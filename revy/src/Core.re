@@ -136,6 +136,7 @@ module Color = {
     | `bodyText
     | `transparent
     | `highlight(int, backgroundColor)
+    | `alpha(float, backgroundColor)
     | `unsafeCustomColor(Lab.t)
   ];
 
@@ -229,13 +230,15 @@ module BackgroundColorContext = {
   module Provider = {
     [@react.component]
     let make = (~value: Color.backgroundColor, ~children) => {
-      switch (value) {
-      | `transparent => children
-      | _ =>
+      let updateVal = value =>
         UnsafeCreateReactElement.use(
           Obj.magic(provider),
           {"value": value, "children": children},
-        )
+        );
+      switch (value) {
+      | `transparent => children
+      | `alpha(a, _) => a > 0.49 ? updateVal(value) : children
+      | _ => updateVal(value)
       };
     };
   };
@@ -272,6 +275,7 @@ module Private = {
       | `body => theme.colors.bodyBackground
       | `bodyText => theme.colors.bodyText
       | `highlight(i, c) => backgroundColor(~theme, ~highlight=i, c)
+      | `alpha(f, c) => backgroundColor(~theme, ~alpha=f, c)
       | `transparent => `lab((100., 100., 100., 0.))
       | `unsafeCustomColor(c) => c
       }
@@ -338,24 +342,28 @@ module Private = {
     test(i) ? i : findMinStep(test, i + 1);
   };
 
-  let space = (~theme, ~borderAdjust=0, v) => {
+  let space = (~negative=false, ~theme, ~borderAdjust=0, v) => {
     let length = v => Css.px(theme.baseGridUnit * v - borderAdjust);
+    let multiplier = negative ? (-1) : 1;
     switch (v) {
     | `auto => Obj.magic(Css.auto)
     | `noSpace => Css.px(0)
-    | `half => 1 |> length
-    | `single => 2 |> length
-    | `double => 4 |> length
-    | `triple => 6 |> length
-    | `quad => 8 |> length
-    | `quint => 10 |> length
-    | `number(i) => i |> length
+    | `half => 1 * multiplier |> length
+    | `single => 2 * multiplier |> length
+    | `double => 4 * multiplier |> length
+    | `triple => 6 * multiplier |> length
+    | `quad => 8 * multiplier |> length
+    | `quint => 10 * multiplier |> length
+    | `number(i) => i * multiplier |> length
     | `unsafeCustomValue(v) => v
     | `closest(pixels) =>
       let rem = pixels mod theme.baseGridUnit;
       let extra = rem == 0 ? 0 : 1;
-      (pixels / theme.baseGridUnit + extra) * theme.baseGridUnit |> Css.px;
-    | `responsive(_, _, _) => 6 |> length // TODO Fix
+      (pixels / theme.baseGridUnit + extra)
+      * theme.baseGridUnit
+      * multiplier
+      |> Css.px;
+    | `responsive(_, _, _) => 6 * multiplier |> length // TODO Fix
     };
   };
 
@@ -458,68 +466,76 @@ module Animations = {
   ];
 };
 module Styles = {
-  let marginSpace = (theme, v) => Obj.magic(Private.space(~theme, v));
+  let marginSpace = (theme, v) => Obj.magic(Private.space(~theme, v)); // TODO fix
   let rec marginStyles_ = (theme, p) => {
     let marginSpace = v => Private.space(~theme, v);
     switch (p) {
-    | `auto => [Css.margin(`auto)]
-    | `margin(i) => [Css.margin(marginSpace(i))]
-    | `marginTop(i) => [Css.marginTop(marginSpace(i))]
-    | `marginBottom(i) => [Css.marginBottom(marginSpace(i))]
-    | `marginLeft(i) => [Css.marginLeft(marginSpace(i))]
-    | `marginRight(i) => [Css.marginRight(marginSpace(i))]
-    | `margin2(x, y) => [
-        Css.margin2(~v=marginSpace(y), ~h=marginSpace(x)),
-      ]
-    | `margin4(l, t, r, b) => [
-        Css.margin4(
-          ~top=marginSpace(t),
-          ~bottom=marginSpace(b),
-          ~right=marginSpace(r),
-          ~left=marginSpace(l),
-        ),
-      ]
-    | `responsive(s, m, l) =>
-      responsive(
-        theme,
-        (
-          marginStyles_(theme, s),
-          marginStyles_(theme, m),
-          marginStyles_(theme, l),
-        ),
-      )
+    | None => []
+    | Some(value) =>
+      switch (value) {
+      | `auto => [Css.margin(`auto)]
+      | `margin(i) => [Css.margin(marginSpace(i))]
+      | `marginTop(i) => [Css.marginTop(marginSpace(i))]
+      | `marginBottom(i) => [Css.marginBottom(marginSpace(i))]
+      | `marginLeft(i) => [Css.marginLeft(marginSpace(i))]
+      | `marginRight(i) => [Css.marginRight(marginSpace(i))]
+      | `margin2(x, y) => [
+          Css.margin2(~v=marginSpace(y), ~h=marginSpace(x)),
+        ]
+      | `margin4(l, t, r, b) => [
+          Css.margin4(
+            ~top=marginSpace(t),
+            ~bottom=marginSpace(b),
+            ~right=marginSpace(r),
+            ~left=marginSpace(l),
+          ),
+        ]
+      | `responsive(s, m, l) =>
+        responsive(
+          theme,
+          (
+            marginStyles_(theme, s),
+            marginStyles_(theme, m),
+            marginStyles_(theme, l),
+          ),
+        )
+      }
     };
   };
   let rec paddingStyles_ = (theme, p) => {
     switch (p) {
-    | `padding(i) => [Css.padding(Private.space(~theme, i))]
-    | `paddingTop(i) => [Css.paddingTop(Private.space(~theme, i))]
-    | `paddingBottom(i) => [Css.paddingBottom(Private.space(~theme, i))]
-    | `paddingLeft(i) => [Css.paddingLeft(Private.space(~theme, i))]
-    | `paddingRight(i) => [Css.paddingRight(Private.space(~theme, i))]
-    | `padding2(x, y) => [
-        Css.padding2(
-          ~v=Private.space(~theme, y),
-          ~h=Private.space(~theme, x),
-        ),
-      ]
-    | `padding4(l, t, r, b) => [
-        Css.padding4(
-          ~top=Private.space(~theme, t),
-          ~bottom=Private.space(~theme, b),
-          ~right=Private.space(~theme, r),
-          ~left=Private.space(~theme, l),
-        ),
-      ]
-    | `responsive(s, m, l) =>
-      responsive(
-        theme,
-        (
-          paddingStyles_(theme, s),
-          paddingStyles_(theme, m),
-          paddingStyles_(theme, l),
-        ),
-      )
+    | None => []
+    | Some(value) =>
+      switch (value) {
+      | `padding(i) => [Css.padding(Private.space(~theme, i))]
+      | `paddingTop(i) => [Css.paddingTop(Private.space(~theme, i))]
+      | `paddingBottom(i) => [Css.paddingBottom(Private.space(~theme, i))]
+      | `paddingLeft(i) => [Css.paddingLeft(Private.space(~theme, i))]
+      | `paddingRight(i) => [Css.paddingRight(Private.space(~theme, i))]
+      | `padding2(x, y) => [
+          Css.padding2(
+            ~v=Private.space(~theme, y),
+            ~h=Private.space(~theme, x),
+          ),
+        ]
+      | `padding4(l, t, r, b) => [
+          Css.padding4(
+            ~top=Private.space(~theme, t),
+            ~bottom=Private.space(~theme, b),
+            ~right=Private.space(~theme, r),
+            ~left=Private.space(~theme, l),
+          ),
+        ]
+      | `responsive(s, m, l) =>
+        responsive(
+          theme,
+          (
+            paddingStyles_(theme, s),
+            paddingStyles_(theme, m),
+            paddingStyles_(theme, l),
+          ),
+        )
+      }
     };
   };
 
@@ -604,8 +620,9 @@ module Styles = {
     |> Css.px;
   };
 
-  let useSpace = (~borderAdjust=0, s) => {
+  let useSpace = (~negative=?, ~borderAdjust=0, s) => {
     Private.space(
+      ~negative?,
       ~theme=React.useContext(Context.context),
       ~borderAdjust,
       s,

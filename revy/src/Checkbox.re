@@ -57,9 +57,8 @@ let make =
       ~id="",
       ~disabled=false,
       ~styles=?,
-      ~onFocus=ignore,
-      ~onBlur=ignore,
-      ~margin=`margin(`noSpace),
+      ~onFocus=?,
+      ~onBlur=?,
       ~checked,
       ~value,
       ~name="",
@@ -79,8 +78,8 @@ let make =
       id
       disabled
       onChange
-      onFocus
-      onBlur
+      ?onFocus
+      ?onBlur
       label
       className={
         (

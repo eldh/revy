@@ -4,7 +4,9 @@ let defaultStyles = Css.[display(`flex), boxSizing(`borderBox)];
 let make =
     (
       ~tag="div",
-      ~onPress=None,
+      ~onPress=?,
+      ~onMouseOver=?,
+      ~onMouseOut=?,
       ~a11yTitle as _a11yTitle=?,
       ~style=[],
       ~domProps=None,
@@ -14,6 +16,8 @@ let make =
   let props = {
     "children": children,
     "onClick": onPress,
+    "onMouseOver": onMouseOver,
+    "onMouseOut": onMouseOut,
     "className": [style, defaultStyles] |> List.concat |> Css.style,
   };
 
