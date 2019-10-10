@@ -66,6 +66,7 @@ module Button = {
     <TouchableOpacity
       tag="button"
       grow=0.
+      padding=`padding(`noSpace)
       onPress=onClick
       style={[textStyle, linkStyle, Styles.useMargin(margin)] |> List.concat}>
       children->React.string

@@ -1,27 +1,27 @@
 open Core;
 
 let useCardStyle = (~padding as p=?, ~margin as m=?, ()) => {
-  let alpha = Styles.useIsLight() ? 0.05 : 0.2;
+  // let alpha = Styles.useIsLight() ? 0.05 : 0.2;
   [
     Css.[
       backgroundColor(
         Styles.(
-          useColor(useIsLight() ? `transparent : `highlight((4, `body)))
+          useColor(useIsLight() ? `highlight((4, `body)) : `highlight((4, `body)))
         ),
       ),
       flexWrap(`wrap),
       flexDirection(`column),
       alignItems(`stretch),
-      borderRadius(Css.px(6)),
+      borderRadius(Css.px(12)),
       // borderWidth(px(1)),
       // borderColor(Styles.useColor(`highlight((8, `body)))),
       // borderStyle(`solid),
       unsafe("willChange", "transition"),
-      boxShadows([
-        `shadow("0 0px 4px " ++ string_of_rgba(0, 0, 0, alpha)),
-        `shadow("0 5px 12px " ++ string_of_rgba(0, 0, 0, alpha)),
-        `shadow("0 10px 16px " ++ string_of_rgba(0, 0, 0, alpha)),
-      ]),
+      // boxShadows([
+      //   `shadow("0 0px 4px " ++ string_of_rgba(0, 0, 0, alpha)),
+      //   `shadow("0 5px 12px " ++ string_of_rgba(0, 0, 0, alpha)),
+      //   `shadow("0 10px 16px " ++ string_of_rgba(0, 0, 0, alpha)),
+      // ]),
     ],
     Styles.usePadding(p),
     Styles.useMargin(m),

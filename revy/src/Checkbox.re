@@ -10,7 +10,7 @@ let useInputStyles = () => {
       "& ~ div",
       [
         borderColor(Styles.useColor(`primary)),
-        borderRadius(px(5)),
+        borderRadius(px(4)),
         borderStyle(`solid),
         borderWidth(px(1)),
         height(pct(100.)),

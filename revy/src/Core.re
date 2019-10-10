@@ -258,8 +258,7 @@ module Private = {
           (~theme, ~alpha=?, ~highlight=?, v: Color.backgroundColor) => {
     let highlightFn =
       switch (highlight) {
-      | Some(h) =>
-        (theme.colors.bodyBackground |> isLight ? Lab.darken : Lab.lighten)(h)
+      | Some(h) => Lab.highlight(~baseColor=theme.colors.bodyBackground, h)
       | None => identity
       };
     (
@@ -342,8 +341,8 @@ module Private = {
     test(i) ? i : findMinStep(test, i + 1);
   };
 
-  let space = (~negative=false, ~theme, ~borderAdjust=0, v) => {
-    let length = v => Css.px(theme.baseGridUnit * v - borderAdjust);
+  let space = (~negative=false, ~theme, ~adjustPx=0, v) => {
+    let length = v => Css.px(theme.baseGridUnit * v - adjustPx);
     let multiplier = negative ? (-1) : 1;
     switch (v) {
     | `auto => Obj.magic(Css.auto)
@@ -620,11 +619,11 @@ module Styles = {
     |> Css.px;
   };
 
-  let useSpace = (~negative=?, ~borderAdjust=0, s) => {
+  let useSpace = (~negative=?, ~adjustPx=0, s) => {
     Private.space(
       ~negative?,
       ~theme=React.useContext(Context.context),
-      ~borderAdjust,
+      ~adjustPx,
       s,
     );
   };

@@ -245,12 +245,6 @@ let darken = (factor, c) => {
   c |> lighten(factor * (-1));
 };
 
-let highlight = factor => {
-  fun
-  | `lab(l, _a, _b, _alpha) as c =>
-    lighten((l > 50. ? (-1) : 1) * factor, c);
-};
-
 let getTuple =
   fun
   | `lab(l, a, b, al) => (l, a, b, al);
@@ -273,6 +267,17 @@ let luminance_x = x => {
 let luminance =
   fun
   | `lab(l, _a, _b, _alpha) => l;
+
+let highlight = (~baseColor, factor) => {
+  let baseL = luminance(baseColor);
+  fun
+  | `lab(l, _a, _b, _alpha) as c =>
+    lighten(
+      (baseL > 50. ? l +. (factor |> float_of_int) > 100. ? (-1) : 1 : 1)
+      * factor,
+      c,
+    );
+};
 
 let contrast = (lab1, lab2) => {
   let lum1 = lab1 |> luminance;

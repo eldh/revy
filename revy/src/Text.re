@@ -8,6 +8,7 @@ let useTextStyles =
       ~tintColor as tint=?,
       ~backgroundColor as bg_=?,
       ~fontFamily as fontFamily_=`body,
+      ~textDecoration as textDecoration_=`none,
       ~lineHeight as lineHeight_,
       ~weight as weight_,
       (),
@@ -29,6 +30,7 @@ let useTextStyles =
     ),
     overflowY(`visible),
     fontSize(sizeVal),
+    textDecoration(textDecoration_),
     fontFamily(Styles.useFontFamily(fontFamily_)),
     lineHeight(
       Styles.useLineHeight(~fontSize=sizeVal, ~extraHeight=lineHeight_, ()),
@@ -45,6 +47,7 @@ let make =
       ~size=0,
       ~tag="span",
       ~lineHeight=0,
+      ~textDecoration=?,
       ~quiet=false,
       ~tintColor=?,
       ~style=?,
@@ -52,7 +55,15 @@ let make =
       (),
     ) => {
   let styles =
-    useTextStyles(~size, ~quiet, ~lineHeight, ~weight, ~tintColor?, ());
+    useTextStyles(
+      ~size,
+      ~quiet,
+      ~lineHeight,
+      ~textDecoration?,
+      ~weight,
+      ~tintColor?,
+      (),
+    );
   UnsafeCreateReactElement.use(
     tag,
     {
@@ -80,12 +91,21 @@ module String = {
         ~quiet=false,
         ~style=?,
         ~lineHeight=0,
+        ~textDecoration=?,
         ~tintColor=?,
         ~children,
         (),
       ) => {
     let styles =
-      useTextStyles(~size, ~quiet, ~lineHeight, ~weight, ~tintColor?, ());
+      useTextStyles(
+        ~size,
+        ~quiet,
+        ~lineHeight,
+        ~textDecoration?,
+        ~weight,
+        ~tintColor?,
+        (),
+      );
     UnsafeCreateReactElement.use(
       tag,
       {
@@ -115,6 +135,7 @@ module Block = {
         ~quiet=false,
         ~size=0,
         ~lineHeight=0,
+        ~textDecoration=?,
         ~style=?,
         ~tintColor=?,
         ~backgroundColor=?,
@@ -127,6 +148,7 @@ module Block = {
         ~quiet,
         ~lineHeight,
         ~weight,
+        ~textDecoration?,
         ~tintColor?,
         ~backgroundColor?,
         (),
@@ -162,13 +184,22 @@ module Paragraph = {
         ~size=0,
         ~quiet=false,
         ~lineHeight=0,
+        ~textDecoration=?,
         ~style=?,
         ~tintColor=?,
         ~children,
         (),
       ) => {
     let styles =
-      useTextStyles(~size, ~lineHeight, ~weight, ~quiet, ~tintColor?, ());
+      useTextStyles(
+        ~size,
+        ~lineHeight,
+        ~textDecoration?,
+        ~weight,
+        ~quiet,
+        ~tintColor?,
+        (),
+      );
     let margin = Styles.useMargin(Some(margin));
     UnsafeCreateReactElement.use(
       tag,
@@ -200,6 +231,7 @@ module Code = {
         ~quiet=false,
         ~style=?,
         ~lineHeight=0,
+        ~textDecoration=?,
         ~tintColor=?,
         ~children,
         (),
@@ -210,6 +242,7 @@ module Code = {
         ~lineHeight,
         ~weight,
         ~quiet,
+        ~textDecoration?,
         ~tintColor?,
         ~fontFamily=`mono,
         (),

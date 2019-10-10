@@ -31,7 +31,6 @@ let useButtonStyles =
   let sharedStyles =
     Css.[
       padding2(~v=Styles.useSpace(paddingV), ~h=Styles.useSpace(paddingH)),
-      textDecoration(`none),
       textAlign(`center),
       alignContent(`center),
       position(`relative),
@@ -53,7 +52,7 @@ let useButtonStyles =
       | Error => `error
       | Success => `success
       | Primary => `primary
-      | Secondary => `highlight((1, `body))
+      | Secondary => `highlight((3, `body))
       };
     let styleStyles = [
       outline_
@@ -90,7 +89,7 @@ let useButtonStyles =
         backgroundColor(
           outline_
             ? outlineHighlightBg(0.05)
-            : Styles.useColor(~highlight=isLight ? (-8) : 10, bgVariant),
+            : Styles.useColor(~highlight=isLight ? (8) : 10, bgVariant),
         ),
       ]),
       disabled([

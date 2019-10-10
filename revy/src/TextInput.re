@@ -3,8 +3,8 @@ let useInputStyles = (~margin as m=?, ()) => {
     [
       Css.[
         Css.padding2(
-          ~v=Styles.useSpace(~borderAdjust=0, `single),
-          ~h=Styles.useSpace(~borderAdjust=0, `single),
+          ~v=Styles.useSpace(`single),
+          ~h=Styles.useSpace(`single),
         ),
         textDecoration(`none),
         lineHeight(
@@ -110,6 +110,7 @@ module Textarea = {
       (
         ~onChange as onChangeProp,
         ~value,
+        ~rows=1,
         ~id=?,
         ~label=?,
         ~disabled=?,
@@ -161,6 +162,7 @@ module Textarea = {
       value
       onChange
       onKeyDown
+      rows
       ?onKeyPress
       ?onKeyUp
       ?label
