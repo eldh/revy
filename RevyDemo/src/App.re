@@ -121,6 +121,14 @@ let app = () =>
             </Text>
           </View>
           <View style={styles##sectionContainer}>
+            <Text style={styles##sectionTitle}>
+              "Learn More"->React.string
+            </Text>
+            <Text style={styles##sectionDescription}>
+              "Read the docs to discover what to do next:"->React.string
+            </Text>
+          </View>
+          <View style={styles##sectionContainer}>
             <Text style={styles##sectionDescription}>
               <Text style={styles##highlight}>
                 "Reason React Native"->React.string
