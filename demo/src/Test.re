@@ -29,15 +29,13 @@ let make = (~toggleTheme=ignore, ()) => {
           "This is just a trivial example of how to create a theme and add it to your app. More examples are coming soon..."
         </Text.Paragraph>
         <Text.Code>
-          {|let theme = Revy.Core.createTheme();
+          {|Revy.Core.(setTheme(createTheme()));
 
 [@react.component]
 let make = () => {
-  <Revy.Core.Context.Provider value=theme>
     <Text.String size=2>
         "My first app"
     </Text.String>
-  </Revy.Core.Context.Provider>
 };|}
         </Text.Code>
       </Box>

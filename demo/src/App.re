@@ -1,47 +1,47 @@
 type themes =
   | Light
   | Dark;
+let getTheme =
+  fun
+  | Dark => DarkTheme.theme
+  | Light => Core.DefaultTheme.theme;
+
+let darkMode =
+  Core.Styles.matchMedia("(prefers-color-scheme: dark)")##matches;
+
+(darkMode ? Dark : Light) |> getTheme |> Core.setTheme;
 
 [@react.component]
 let make = () => {
   let default = Core.Styles.usePrefersDarkMode() ? Dark : Light;
-  let (theme, setTheme) = React.useState(() => None);
+  let (themeVariant, setThemeVariant) = React.useState(() => default);
+  let setTheme = themeVariant => {
+    Core.setTheme(themeVariant |> getTheme);
+    setThemeVariant(_ => themeVariant);
+  };
 
   let toggleTheme = () =>
-    setTheme(current =>
-      Some(
-        switch (default, current) {
-        | (Dark, None)
-        | (_, Some(Dark)) => Light
-        | (Light, None)
-        | (_, Some(Light)) => Dark
-        },
-      )
+    setTheme(
+      switch (themeVariant) {
+      | Dark => Light
+      | Light => Dark
+      },
     );
-  let selected =
-    switch (theme) {
-    | None => default
-    | Some(d) => d
-    };
-  let themeObj = {
-    switch (selected) {
-    | Dark => DarkTheme.theme
-    | Light => Core.DefaultTheme.theme
-    };
-  };
   Core.Styles.useBodyStyle(
     Css.[
-      backgroundColor(themeObj.colors.bodyBackground |> Lab.toCss),
+      backgroundColor(Core.getTheme().colors.bodyBackground |> Lab.toCss),
       margin(px(0)),
       padding(px(0)),
     ],
   );
-  <Core.Context.Provider value=themeObj>
+
   <>
     <Topbar toggleTheme />
-    <Box alignContent=`center margin={`margin(`auto)}>
+    <Box
+      key={themeVariant->Obj.magic}
+      alignContent=`center
+      margin={`margin(`auto)}>
       <Test toggleTheme />
     </Box>
-  </>
-  </Core.Context.Provider>;
+  </>;
 };

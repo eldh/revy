@@ -118,7 +118,6 @@ module Space = {
 
 module Type = {
   type font = [ | `body | `title | `mono | `alt];
-
   type fontWeight = [ | `extraLight | `light | `normal | `bold | `extraBold];
 };
 
@@ -436,20 +435,28 @@ module DefaultTheme = {
   let theme = createTheme();
 };
 
-module Context = {
-  let context = React.createContext(DefaultTheme.theme);
-  let provider = React.Context.provider(context);
-
-  module Provider = {
-    [@react.component]
-    let make = (~value, ~children) => {
-      UnsafeCreateReactElement.use(
-        Obj.magic(provider),
-        {"value": value, "children": children},
-      );
-    };
-  };
+let currentTheme = ref(DefaultTheme.theme);
+let setTheme = theme => {
+  currentTheme := theme;
 };
+let getTheme = () => {
+  currentTheme^;
+};
+
+// module Context = {
+//   let context = React.createContext(DefaultTheme.theme);
+//   let provider = React.Context.provider(context);
+
+//   module Provider = {
+//     [@react.component]
+//     let make = (~value, ~children) => {
+//       UnsafeCreateReactElement.use(
+//         Obj.magic(provider),
+//         {"value": value, "children": children},
+//       );
+//     };
+//   };
+// };
 module Animations = {
   open Css;
   let focusAnimation__ =
@@ -563,34 +570,22 @@ module Styles = {
   };
 
   let useMargin = m => {
-    let theme = React.useContext(Context.context);
-    marginStyles_(theme, m);
+    marginStyles_(getTheme(), m);
   };
 
   let usePadding = p => {
-    let theme = React.useContext(Context.context);
-    paddingStyles_(theme, p);
+    paddingStyles_(getTheme(), p);
   };
 
   /** Width styles yo */
-  let useWidth = w => widthStyles_(React.useContext(Context.context), w);
+  let useWidth = w => widthStyles_(getTheme(), w);
 
   let useColor = (~highlight=?, ~alpha=?, c: Color.backgroundColor) => {
-    Private.backgroundColor(
-      ~theme=React.useContext(Context.context),
-      ~highlight?,
-      ~alpha?,
-      c,
-    )
+    Private.backgroundColor(~theme=getTheme(), ~highlight?, ~alpha?, c)
     |> Lab.toCss;
   };
   let useLabColor = (~highlight=?, ~alpha=?, c: Color.backgroundColor) => {
-    Private.backgroundColor(
-      ~theme=React.useContext(Context.context),
-      ~highlight?,
-      ~alpha?,
-      c,
-    );
+    Private.backgroundColor(~theme=getTheme(), ~highlight?, ~alpha?, c);
   };
   let useTextColor = (~tint=?, ~highlight=0, ~background=?, ()) => {
     let bg =
@@ -598,17 +593,11 @@ module Styles = {
       | None => React.useContext(BackgroundColorContext.context)
       | Some(v) => v
       };
-    Private.textColor(
-      ~theme=React.useContext(Context.context),
-      ~highlight,
-      ~tint?,
-      bg,
-    )
-    |> Lab.toCss;
+    Private.textColor(~theme=getTheme(), ~highlight, ~tint?, bg) |> Lab.toCss;
   };
 
   let useBorderRadius = s => {
-    let theme = React.useContext(Context.context);
+    let theme = getTheme();
     (
       switch (s) {
       | `small => theme.borderRadii.small
@@ -620,37 +609,27 @@ module Styles = {
   };
 
   let useSpace = (~negative=?, ~adjustPx=0, s) => {
-    Private.space(
-      ~negative?,
-      ~theme=React.useContext(Context.context),
-      ~adjustPx,
-      s,
-    );
+    Private.space(~negative?, ~theme=getTheme(), ~adjustPx, s);
   };
 
   let useFontFamily = f => {
-    Private.fontFamily(~theme=React.useContext(Context.context), f);
+    Private.fontFamily(~theme=getTheme(), f);
   };
 
   let useFontSize = f => {
-    Private.fontSize(~theme=React.useContext(Context.context), f);
+    Private.fontSize(~theme=getTheme(), f);
   };
 
   let useFontWeight = f => {
-    Private.fontWeight(~theme=React.useContext(Context.context), f);
+    Private.fontWeight(~theme=getTheme(), f);
   };
 
   let useLineHeight = (~fontSize=Css.px(0), ~extraHeight=0, f) => {
-    Private.lineHeight(
-      ~theme=React.useContext(Context.context),
-      ~fontSize,
-      ~extraHeight,
-      f,
-    );
+    Private.lineHeight(~theme=getTheme(), ~fontSize, ~extraHeight, f);
   };
 
   let useIsLight = () => {
-    Private.isLight(React.useContext(Context.context).colors.bodyBackground);
+    Private.isLight(getTheme().colors.bodyBackground);
   };
 
   let setBodyStyle: Js.Json.t => unit = [%raw
