@@ -1,30 +1,30 @@
-let useInputStyles = (~margin as m=?, ()) => {
+let getInputStyles = (~margin as m=?, ()) => {
   Core.(
     [
       Css.[
         Css.padding2(
-          ~v=Styles.useSpace(`single),
-          ~h=Styles.useSpace(`single),
+          ~v=Styles.getSpace(`single),
+          ~h=Styles.getSpace(`single),
         ),
         textDecoration(`none),
         lineHeight(
-          Styles.useLineHeight(~fontSize=Styles.useFontSize(0), ()),
+          Styles.getLineHeight(~fontSize=Styles.getFontSize(0), ()),
         ),
-        fontSize(Styles.useFontSize(0)),
-        fontFamily(Styles.useFontFamily(`body)),
+        fontSize(Styles.getFontSize(0)),
+        fontFamily(Styles.getFontFamily(`body)),
         boxSizing(`borderBox),
         borderRadius(Css.px(6)),
         borderWidth(px(0)),
-        borderColor(Styles.useColor(`transparent)),
+        borderColor(Styles.getColor(`transparent)),
         borderStyle(`solid),
-        backgroundColor(Styles.useColor(~alpha=0.07, `bodyText)),
-        color(Styles.useTextColor()),
+        backgroundColor(Styles.getColor(`bodyDown1)),
+        color(Styles.getTextColor()),
         // boxShadow(
         //   ~y=px(0),
         //   ~blur=px(0),
         //   ~spread=px(1),
         //   ~inset=true,
-        //   Styles.useColor(~alpha=0.07, `bodyText),
+        //   Styles.getColor(~alpha=0.07, `bodyText),
         // ),
         focus([
           outlineStyle(`none),
@@ -33,12 +33,12 @@ let useInputStyles = (~margin as m=?, ()) => {
             ~blur=px(0),
             ~spread=px(1),
             ~inset=true,
-            Styles.useColor(`primary),
+            Styles.getColor(`primary),
           ),
         ]),
         disabled([opacity(0.7)]),
       ],
-      Styles.useMargin(m),
+      Styles.getMargin(m),
     ]
     |> List.concat
   );
@@ -81,8 +81,8 @@ module Input = {
       className={
         (
           switch (style) {
-          | None => useInputStyles(~margin?, ())
-          | Some(l) => [useInputStyles(~margin?, ()), l] |> List.concat
+          | None => getInputStyles(~margin?, ())
+          | Some(l) => [getInputStyles(~margin?, ()), l] |> List.concat
           }
         )
         |> Css.style
@@ -179,7 +179,7 @@ module Textarea = {
           | None => []
           | Some(l) => l
           },
-          useInputStyles(~margin?, ()),
+          getInputStyles(~margin?, ()),
         ]
         |> List.concat
         |> Css.style
@@ -193,7 +193,7 @@ module Label = {
     <label
       ?htmlFor
       className={
-        Text.useTextStyles(
+        Text.getTextStyles(
           ~size=-1,
           ~quiet=true,
           ~lineHeight=1,

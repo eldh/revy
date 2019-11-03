@@ -1,4 +1,4 @@
-let useBoxStyle =
+let getBoxStyle =
     (
       ~position as position_,
       ~align as align_,
@@ -19,14 +19,14 @@ let useBoxStyle =
       ~borderRadius as borderRadius_,
       (),
     ) => {
-  let widthStyles = Core.Styles.useWidth(width_);
+  let widthStyles = Core.Styles.getWidth(width_);
 
   [
     Css.[
       position(position_),
       alignSelf(alignSelf_),
       alignItems(align_),
-      backgroundColor(Core.Styles.useColor(backgroundColor_)),
+      backgroundColor(Core.Styles.getColor(backgroundColor_)),
       alignContent(alignContent_),
       height(height_),
       overflow(overflow_),
@@ -38,8 +38,8 @@ let useBoxStyle =
       flexWrap(wrap_),
       justifyContent(justify_),
     ],
-    Core.Styles.useMargin(margin_),
-    Core.Styles.usePadding(padding_),
+    Core.Styles.getMargin(margin_),
+    Core.Styles.getPadding(padding_),
     widthStyles,
   ]
   |> List.concat;
@@ -76,7 +76,7 @@ let make =
     ) => {
   let style =
     [
-      useBoxStyle(
+      getBoxStyle(
         ~position,
         ~align,
         ~alignSelf,

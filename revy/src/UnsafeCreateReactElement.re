@@ -5,4 +5,4 @@ external createElement: (string, Js.t({..})) => React.element =
 [@react.component]
 let make = (~tag="div", ~props, ()) => createElement(tag, props);
 
-let use = (tag, props) => createElement(tag, props);
+let create = (tag, props) => createElement(tag, props);

@@ -132,7 +132,12 @@ module Color = {
     | `brand1
     | `brand2
     | `body
-    | `bodyText
+    | `bodyDown1
+    | `bodyDown2
+    | `bodyDown3
+    | `bodyUp1
+    | `bodyUp2
+    | `bodyUp3
     | `transparent
     | `highlight(int, backgroundColor)
     | `alpha(float, backgroundColor)
@@ -203,7 +208,13 @@ type colors = {
   error: Lab.t,
   brand1: Lab.t,
   brand2: Lab.t,
-  bodyBackground: Lab.t,
+  body: Lab.t,
+  bodyDown1: Lab.t,
+  bodyDown2: Lab.t,
+  bodyDown3: Lab.t,
+  bodyUp1: Lab.t,
+  bodyUp2: Lab.t,
+  bodyUp3: Lab.t,
   bodyText: Lab.t,
   quiet: Lab.t,
 };
@@ -230,7 +241,7 @@ module BackgroundColorContext = {
     [@react.component]
     let make = (~value: Color.backgroundColor, ~children) => {
       let updateVal = value =>
-        UnsafeCreateReactElement.use(
+        UnsafeCreateReactElement.create(
           Obj.magic(provider),
           {"value": value, "children": children},
         );
@@ -249,15 +260,15 @@ module Private = {
     };
   };
 
-  let isLight = bodyBackground => {
-    Lab.luminance(bodyBackground) > 50.;
+  let isLight = body => {
+    Lab.luminance(body) > 50.;
   };
 
   let rec backgroundColor =
           (~theme, ~alpha=?, ~highlight=?, v: Color.backgroundColor) => {
     let highlightFn =
       switch (highlight) {
-      | Some(h) => Lab.highlight(~baseColor=theme.colors.bodyBackground, h)
+      | Some(h) => Lab.highlight(~baseColor=theme.colors.body, h)
       | None => identity
       };
     (
@@ -270,8 +281,13 @@ module Private = {
       | `error => theme.colors.error
       | `brand1 => theme.colors.brand1
       | `brand2 => theme.colors.brand2
-      | `body => theme.colors.bodyBackground
-      | `bodyText => theme.colors.bodyText
+      | `body => theme.colors.body
+      | `bodyDown1 => theme.colors.bodyDown1
+      | `bodyDown2 => theme.colors.bodyDown2
+      | `bodyDown3 => theme.colors.bodyDown3
+      | `bodyUp1 => theme.colors.bodyUp1
+      | `bodyUp2 => theme.colors.bodyUp2
+      | `bodyUp3 => theme.colors.bodyUp3
       | `highlight(i, c) => backgroundColor(~theme, ~highlight=i, c)
       | `alpha(f, c) => backgroundColor(~theme, ~alpha=f, c)
       | `transparent => `lab((100., 100., 100., 0.))
@@ -295,9 +311,9 @@ module Private = {
       | None => identity
       };
     let (lightColor, darkColor) =
-      isLight(theme.colors.bodyBackground)
-        ? (theme.colors.bodyBackground, theme.colors.bodyText)
-        : (theme.colors.bodyText, theme.colors.bodyBackground);
+      isLight(theme.colors.body)
+        ? (theme.colors.body, theme.colors.bodyText)
+        : (theme.colors.bodyText, theme.colors.body);
     let tintC =
       switch (tint) {
       | None => None
@@ -406,7 +422,13 @@ let createTheme =
               error: `rgb((230, 26, 26)) |> Lab.fromRGB,
               brand1: `rgb((213, 54, 222)) |> Lab.fromRGB,
               brand2: `rgb((54, 213, 222)) |> Lab.fromRGB,
-              bodyBackground: `lab((100., 0., 0., 1.)),
+              body: `lab((100., 0., 0., 1.)),
+              bodyUp1: `lab((100., 0., 0., 1.)),
+              bodyUp2: `lab((100., 0., 0., 1.)),
+              bodyUp3: `lab((100., 0., 0., 1.)),
+              bodyDown1: `lab((98., 0., 0., 1.)),
+              bodyDown2: `lab((96., 0., 0., 1.)),
+              bodyDown3: `lab((94., 0., 0., 1.)),
               bodyText: `lab((10., 0., 0., 1.)),
               neutral: `rgb((40, 40, 40)) |> Lab.fromRGB,
               quiet: `rgb((130, 130, 130)) |> Lab.fromRGB,
@@ -423,7 +445,13 @@ let createTheme =
       error: hues.error |> lightness(baseLightness),
       brand1: hues.brand1 |> lightness(baseLightness),
       brand2: hues.brand2 |> lightness(baseLightness),
-      bodyBackground: hues.bodyBackground,
+      body: hues.body,
+      bodyDown1: hues.bodyDown1,
+      bodyDown2: hues.bodyDown2,
+      bodyDown3: hues.bodyDown3,
+      bodyUp1: hues.bodyUp1,
+      bodyUp2: hues.bodyUp2,
+      bodyUp3: hues.bodyUp3,
       bodyText: hues.bodyText,
       quiet: hues.quiet,
       neutral: hues.neutral |> lightness(80.),
@@ -450,7 +478,7 @@ let getTheme = () => {
 //   module Provider = {
 //     [@react.component]
 //     let make = (~value, ~children) => {
-//       UnsafeCreateReactElement.use(
+//       UnsafeCreateReactElement.create(
 //         Obj.magic(provider),
 //         {"value": value, "children": children},
 //       );
@@ -569,25 +597,25 @@ module Styles = {
     };
   };
 
-  let useMargin = m => {
+  let getMargin = m => {
     marginStyles_(getTheme(), m);
   };
 
-  let usePadding = p => {
+  let getPadding = p => {
     paddingStyles_(getTheme(), p);
   };
 
   /** Width styles yo */
-  let useWidth = w => widthStyles_(getTheme(), w);
+  let getWidth = w => widthStyles_(getTheme(), w);
 
-  let useColor = (~highlight=?, ~alpha=?, c: Color.backgroundColor) => {
+  let getColor = (~highlight=?, ~alpha=?, c: Color.backgroundColor) => {
     Private.backgroundColor(~theme=getTheme(), ~highlight?, ~alpha?, c)
     |> Lab.toCss;
   };
-  let useLabColor = (~highlight=?, ~alpha=?, c: Color.backgroundColor) => {
+  let getLabColor = (~highlight=?, ~alpha=?, c: Color.backgroundColor) => {
     Private.backgroundColor(~theme=getTheme(), ~highlight?, ~alpha?, c);
   };
-  let useTextColor = (~tint=?, ~highlight=0, ~background=?, ()) => {
+  let getTextColor = (~tint=?, ~highlight=0, ~background=?, ()) => {
     let bg =
       switch (background) {
       | None => React.useContext(BackgroundColorContext.context)
@@ -596,7 +624,7 @@ module Styles = {
     Private.textColor(~theme=getTheme(), ~highlight, ~tint?, bg) |> Lab.toCss;
   };
 
-  let useBorderRadius = s => {
+  let getBorderRadius = s => {
     let theme = getTheme();
     (
       switch (s) {
@@ -608,28 +636,28 @@ module Styles = {
     |> Css.px;
   };
 
-  let useSpace = (~negative=?, ~adjustPx=0, s) => {
+  let getSpace = (~negative=?, ~adjustPx=0, s) => {
     Private.space(~negative?, ~theme=getTheme(), ~adjustPx, s);
   };
 
-  let useFontFamily = f => {
+  let getFontFamily = f => {
     Private.fontFamily(~theme=getTheme(), f);
   };
 
-  let useFontSize = f => {
+  let getFontSize = f => {
     Private.fontSize(~theme=getTheme(), f);
   };
 
-  let useFontWeight = f => {
+  let getFontWeight = f => {
     Private.fontWeight(~theme=getTheme(), f);
   };
 
-  let useLineHeight = (~fontSize=Css.px(0), ~extraHeight=0, f) => {
+  let getLineHeight = (~fontSize=Css.px(0), ~extraHeight=0, f) => {
     Private.lineHeight(~theme=getTheme(), ~fontSize, ~extraHeight, f);
   };
 
-  let useIsLight = () => {
-    Private.isLight(getTheme().colors.bodyBackground);
+  let getIsLight = () => {
+    Private.isLight(getTheme().colors.body);
   };
 
   let setBodyStyle: Js.Json.t => unit = [%raw

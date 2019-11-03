@@ -1,7 +1,7 @@
 open Core;
 exception InvalidValue(string);
 
-let useTextStyles =
+let getTextStyles =
     (
       ~size,
       ~quiet=false,
@@ -13,15 +13,15 @@ let useTextStyles =
       ~weight as weight_,
       (),
     ) => {
-  let sizeVal = Styles.useFontSize(size);
+  let sizeVal = Styles.getFontSize(size);
   let bgStyles =
     switch (bg_) {
-    | Some(p) => Css.[background(Styles.useColor(p))]
+    | Some(p) => Css.[background(Styles.getColor(p))]
     | None => []
     };
   Css.[
     color(
-      Styles.useTextColor(
+      Styles.getTextColor(
         ~highlight=?quiet ? Some(-30) : None,
         ~tint?,
         ~background=?bg_,
@@ -31,11 +31,11 @@ let useTextStyles =
     overflowY(`visible),
     fontSize(sizeVal),
     textDecoration(textDecoration_),
-    fontFamily(Styles.useFontFamily(fontFamily_)),
+    fontFamily(Styles.getFontFamily(fontFamily_)),
     lineHeight(
-      Styles.useLineHeight(~fontSize=sizeVal, ~extraHeight=lineHeight_, ()),
+      Styles.getLineHeight(~fontSize=sizeVal, ~extraHeight=lineHeight_, ()),
     ),
-    fontWeight(Styles.useFontWeight(weight_)),
+    fontWeight(Styles.getFontWeight(weight_)),
     ...bgStyles,
   ];
 };
@@ -55,7 +55,7 @@ let make =
       (),
     ) => {
   let styles =
-    useTextStyles(
+    getTextStyles(
       ~size,
       ~quiet,
       ~lineHeight,
@@ -64,7 +64,7 @@ let make =
       ~tintColor?,
       (),
     );
-  UnsafeCreateReactElement.use(
+  UnsafeCreateReactElement.create(
     tag,
     {
       "className": {
@@ -97,7 +97,7 @@ module String = {
         (),
       ) => {
     let styles =
-      useTextStyles(
+      getTextStyles(
         ~size,
         ~quiet,
         ~lineHeight,
@@ -106,7 +106,7 @@ module String = {
         ~tintColor?,
         (),
       );
-    UnsafeCreateReactElement.use(
+    UnsafeCreateReactElement.create(
       tag,
       {
         "className": {
@@ -143,7 +143,7 @@ module Block = {
         (),
       ) => {
     let styles =
-      useTextStyles(
+      getTextStyles(
         ~size,
         ~quiet,
         ~lineHeight,
@@ -153,9 +153,9 @@ module Block = {
         ~backgroundColor?,
         (),
       );
-    let margin = Styles.useMargin(m);
-    let padding = Styles.usePadding(p);
-    UnsafeCreateReactElement.use(
+    let margin = Styles.getMargin(m);
+    let padding = Styles.getPadding(p);
+    UnsafeCreateReactElement.create(
       tag,
       {
         "className": {
@@ -191,7 +191,7 @@ module Paragraph = {
         (),
       ) => {
     let styles =
-      useTextStyles(
+      getTextStyles(
         ~size,
         ~lineHeight,
         ~textDecoration?,
@@ -200,8 +200,8 @@ module Paragraph = {
         ~tintColor?,
         (),
       );
-    let margin = Styles.useMargin(Some(margin));
-    UnsafeCreateReactElement.use(
+    let margin = Styles.getMargin(Some(margin));
+    UnsafeCreateReactElement.create(
       tag,
       {
         "className": {
@@ -237,7 +237,7 @@ module Code = {
         (),
       ) => {
     let styles =
-      useTextStyles(
+      getTextStyles(
         ~size,
         ~lineHeight,
         ~weight,
@@ -247,14 +247,14 @@ module Code = {
         ~fontFamily=`mono,
         (),
       );
-    let margin = Styles.useMargin(Some(`margin(`noSpace)));
-    let padding = Styles.usePadding(Some(`padding(`double)));
+    let margin = Styles.getMargin(Some(`margin(`noSpace)));
+    let padding = Styles.getPadding(Some(`padding(`double)));
     <Box
       margin=m
       backgroundColor={`highlight((7, `body))}
       borderRadius={Css.px(6)}
       style=Css.[width(pct(100.)), overflow(`scroll)]>
-      {UnsafeCreateReactElement.use(
+      {UnsafeCreateReactElement.create(
          tag,
          {
            "className":

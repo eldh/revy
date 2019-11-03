@@ -5,7 +5,7 @@ open UI;
 let make = (~toggleTheme=ignore, ()) => {
   <View>
     <>
-      <Box height={Styles.useSpace(`number(11))} />
+      <Box height={Styles.getSpace(`number(11))} />
       <Box
         backgroundColor={`highlight((8, `body))}
         padding={`padding(`single)}

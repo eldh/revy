@@ -5,6 +5,10 @@ let getTheme =
   fun
   | Dark => DarkTheme.theme
   | Light => Core.DefaultTheme.theme;
+let getThemeKey =
+  fun
+  | Dark => "0"
+  | Light => "1";
 
 let darkMode =
   Core.Styles.matchMedia("(prefers-color-scheme: dark)")##matches;
@@ -35,13 +39,10 @@ let make = () => {
     ],
   );
 
-  <>
+  <React.Fragment key={themeVariant |> getThemeKey}>
     <Topbar toggleTheme />
-    <Box
-      key={themeVariant->Obj.magic}
-      alignContent=`center
-      margin={`margin(`auto)}>
+    <Box alignContent=`center margin={`margin(`auto)}>
       <Test toggleTheme />
     </Box>
-  </>;
+  </React.Fragment>;
 };

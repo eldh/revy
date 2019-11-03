@@ -1,5 +1,5 @@
 open Core;
-let useRadiobuttonStyles = () => {
+let getRadiobuttonStyles = () => {
   Css.[
     position(`absolute),
     cursor(`pointer),
@@ -12,7 +12,7 @@ let useRadiobuttonStyles = () => {
         position(`relative),
         height(pct(100.)),
         marginLeft(px(0)),
-        marginRight(Styles.useSpace(`half)),
+        marginRight(Styles.getSpace(`half)),
         after([
           contentRule(""),
           boxSizing(`borderBox),
@@ -27,8 +27,8 @@ let useRadiobuttonStyles = () => {
           transition(~duration=200, "all"),
           borderWidth(px(1)),
           borderStyle(`solid),
-          borderColor(Styles.useColor(~highlight=10, `primary)),
-          boxShadow(~inset=true, ~spread=px(0), Styles.useColor(`primary)),
+          borderColor(Styles.getColor(~highlight=10, `primary)),
+          boxShadow(~inset=true, ~spread=px(0), Styles.getColor(`primary)),
         ]),
       ],
     ),
@@ -41,7 +41,7 @@ let useRadiobuttonStyles = () => {
             boxShadow(
               ~inset=true,
               ~spread=px(6),
-              Styles.useColor(`primary),
+              Styles.getColor(`primary),
             ),
           ]),
         ],
@@ -49,7 +49,7 @@ let useRadiobuttonStyles = () => {
     ]),
     disabled([
       selector("& ~ *", [opacity(0.5)]),
-      selector("& ~ div", [borderColor(Styles.useColor(~alpha=0.5, `bodyText))]),
+      selector("& ~ div", [borderColor(Styles.getColor(~alpha=0.5, `body))]),
     ]),
   ];
 };
@@ -73,7 +73,7 @@ let make =
     direction=`row
     tag="label"
     align=`center
-    style=Css.[cursor(`pointer), height(Styles.useSpace(`closest(21)))]
+    style=Css.[cursor(`pointer), height(Styles.getSpace(`closest(21)))]
     onPress={disabled ? ignore : onChange |> Obj.magic}
     domProps={"htmlFor": id}>
     <input
@@ -89,15 +89,15 @@ let make =
       className={
         (
           switch (styles) {
-          | None => useRadiobuttonStyles()
-          | Some(v) => [useRadiobuttonStyles(), v] |> List.concat
+          | None => getRadiobuttonStyles()
+          | Some(v) => [getRadiobuttonStyles(), v] |> List.concat
           }
         )
         |> Css.style
       }
       type_="radio"
     />
-    <div />
+    <View />
     <Text.String> label </Text.String>
   </TouchableOpacity>;
 };

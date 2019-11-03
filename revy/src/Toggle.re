@@ -1,5 +1,5 @@
 open Core;
-let useToggleStyles = () => {
+let getToggleStyles = () => {
   Css.[
     position(`absolute),
     cursor(`pointer),
@@ -9,14 +9,14 @@ let useToggleStyles = () => {
     selector(
       "& ~ div",
       [
-        backgroundColor(Styles.useColor(`secondary)),
-        borderColor(Styles.useColor(~highlight=10, `secondary)),
+        backgroundColor(Styles.getColor(`secondary)),
+        borderColor(Styles.getColor(~highlight=10, `secondary)),
         borderRadius(px(25)),
         borderStyle(`solid),
         borderWidth(px(1)),
         height(px(24)),
         marginLeft(px(0)),
-        marginRight(Styles.useSpace(`half)),
+        marginRight(Styles.getSpace(`half)),
         position(`relative),
         transition(~duration=200, "all"),
         width(px(38)),
@@ -30,7 +30,7 @@ let useToggleStyles = () => {
           top(px(2)),
           position(`relative),
           transition(~duration=200, "all"),
-          backgroundColor(Styles.useColor(`body)),
+          backgroundColor(Styles.getColor(`body)),
           boxShadow(~y=px(1), ~blur=px(3), rgba(0, 0, 0, 0.3)),
         ]),
       ],
@@ -39,18 +39,18 @@ let useToggleStyles = () => {
       selector(
         "& ~ div",
         [
-          backgroundColor(Styles.useColor(`primary)),
-          borderColor(Styles.useColor(~highlight=10, `primary)),
+          backgroundColor(Styles.getColor(`primary)),
+          borderColor(Styles.getColor(~highlight=10, `primary)),
           after([
             transform(translateX(px(14))),
-            backgroundColor(Styles.useColor(`body)),
+            backgroundColor(Styles.getColor(`body)),
           ]),
         ],
       ),
     ]),
     disabled([
       selector("& ~ *", [opacity(0.5)]),
-      selector("& ~ div", [borderColor(Styles.useColor(~alpha=0.5, `bodyText))]),
+      selector("& ~ div", [borderColor(Styles.getColor(~alpha=0.5, `body))]),
     ]),
   ];
 };
@@ -74,7 +74,7 @@ let make =
     direction=`row
     tag="label"
     align=`center
-    style=Css.[cursor(`pointer), height(Styles.useSpace(`closest(26)))]
+    style=Css.[cursor(`pointer), height(Styles.getSpace(`closest(26)))]
     onPress={disabled ? ignore : onChange |> Obj.magic}
     domProps={"htmlFor": id}>
     <input
@@ -90,15 +90,15 @@ let make =
       className={
         (
           switch (styles) {
-          | None => useToggleStyles()
-          | Some(v) => [useToggleStyles(), v] |> List.concat
+          | None => getToggleStyles()
+          | Some(v) => [getToggleStyles(), v] |> List.concat
           }
         )
         |> Css.style
       }
       type_="checkbox"
     />
-    <div />
+    <View />
     <Text.String> label </Text.String>
   </TouchableOpacity>;
 };

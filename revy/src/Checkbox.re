@@ -9,14 +9,14 @@ let useInputStyles = () => {
     selector(
       "& ~ div",
       [
-        borderColor(Styles.useColor(`primary)),
+        borderColor(Styles.getColor(`primary)),
         borderRadius(px(4)),
         borderStyle(`solid),
         borderWidth(px(1)),
         height(pct(100.)),
         height(px(16)),
         marginLeft(px(0)),
-        marginRight(Styles.useSpace(`half)),
+        marginRight(Styles.getSpace(`half)),
         position(`relative),
         transition(~duration=200, "all"),
         width(px(16)),
@@ -42,7 +42,7 @@ let useInputStyles = () => {
     checked([
       selector(
         "& ~ div",
-        [after([borderColor(Styles.useTextColor(~tint=`primary, ()))])],
+        [after([borderColor(Styles.getTextColor(~tint=`primary, ()))])],
       ),
     ]),
     disabled([selector("& ~ *", [opacity(0.5)])]),
@@ -68,7 +68,7 @@ let make =
     direction=`row
     tag="label"
     align=`center
-    style=Css.[cursor(`pointer), height(Styles.useSpace(`closest(21)))]
+    style=Css.[cursor(`pointer), height(Styles.getSpace(`closest(21)))]
     onPress={disabled ? ignore : onChange |> Obj.magic}
     domProps={"htmlFor": id}>
     <input
@@ -92,7 +92,7 @@ let make =
       }
       type_="checkbox"
     />
-    <div />
+    <View />
     <Text.String> label </Text.String>
   </TouchableOpacity>;
 };

@@ -42,7 +42,7 @@ let make =
     ) => {
   let style =
     [
-      Box.useBoxStyle(
+      Box.getBoxStyle(
         ~position,
         ~align,
         ~alignSelf,

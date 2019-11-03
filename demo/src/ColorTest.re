@@ -26,7 +26,7 @@ module ColorBox = {
             let c =
               Lab.lightness(
                 n * 10 |> float_of_int,
-                color |> Core.Styles.useLabColor,
+                color |> Core.Styles.getLabColor,
               );
             <Swatch color=c key={n |> string_of_int} />;
           })
@@ -34,42 +34,27 @@ module ColorBox = {
     </Box>;
   };
 };
-module GradientBox = {
+module MixColorBox = {
+  let white = `lab((100., 0., 0., 1.));
+  let black = `lab((0., 0., 0., 1.));
   [@react.component]
-  let make = (~toColor, ~fromColor, ()) => {
+  let make = (~color, ~title) => {
+    let middleC = color |> Core.Styles.getLabColor |> Lab.lightness(50.);
     <Box margin={`margin4((`noSpace, `noSpace, `double, `double))} grow=0.>
-      <Text.String size=(-1)> "Lab" </Text.String>
+      <Text.String size=(-1)> title </Text.String>
       {[|0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10|]
        |> Array.map(n => {
             let c =
-              Lab.mix(
-                (n |> float_of_int) /. 10.,
-                fromColor |> Core.Styles.useLabColor,
-                toColor |> Core.Styles.useLabColor,
+              n > 5 ?  Lab.mix(
+                (n - 6 |> float_of_int) /. 8.,
+                middleC,
+                white,
+              ) : Lab.mix(
+                (n |> float_of_int) /. 7.,
+                black,
+                middleC,
               );
 
-            <Swatch color=c key={n |> string_of_int} />;
-          })
-       |> React.array}
-    </Box>;
-  };
-};
-
-module RgbGradientBox = {
-  [@react.component]
-  let make = (~toColor, ~fromColor, ()) => {
-    <Box margin={`margin4((`noSpace, `noSpace, `double, `double))} grow=0.>
-      <Text.String size=(-1)> "Rgb" </Text.String>
-      {[|0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10|]
-       |> Array.map(n => {
-            let c =
-              Lab.(
-                mix(
-                  (n |> float_of_int) /. 10.,
-                  fromColor |> Core.Styles.useLabColor,
-                  toColor |> Core.Styles.useLabColor,
-                )
-              );
             <Swatch color=c key={n |> string_of_int} />;
           })
        |> React.array}
@@ -89,6 +74,15 @@ let make = () => {
         <ColorBox color=`success title="Success" />
         <ColorBox color=`error title="Error" />
         <ColorBox color=`warning title="Warning" />
+      </Box>
+      <Box direction=`row align=`flexEnd wrap=`wrap width=`full>
+        <MixColorBox color=`primary title="Primary" />
+        <MixColorBox color=`secondary title="Secondary" />
+        <MixColorBox color=`brand1 title="Brand1" />
+        <MixColorBox color=`brand2 title="Brand2" />
+        <MixColorBox color=`success title="Success" />
+        <MixColorBox color=`error title="Error" />
+        <MixColorBox color=`warning title="Warning" />
       </Box>
     </ComponentsCard>
   );

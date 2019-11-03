@@ -21,7 +21,7 @@ let make =
     "className": [style, defaultStyles] |> List.concat |> Css.style,
   };
 
-  UnsafeCreateReactElement.use(
+  UnsafeCreateReactElement.create(
     tag,
     switch (domProps) {
     | Some(p) => Js.Obj.assign(p, props)

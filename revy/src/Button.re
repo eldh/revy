@@ -24,13 +24,13 @@ let useButtonStyles =
   // TODO fix
   let (btnFontSize, paddingV, paddingH) =
     switch (size) {
-    | Small => (Styles.useFontSize(-1), `half, `single)
-    | Medium => (Styles.useFontSize(0), `single, `double)
-    | Large => (Styles.useFontSize(1), `double, `triple)
+    | Small => (Styles.getFontSize(-1), `half, `single)
+    | Medium => (Styles.getFontSize(0), `single, `double)
+    | Large => (Styles.getFontSize(1), `double, `triple)
     };
   let sharedStyles =
     Css.[
-      padding2(~v=Styles.useSpace(paddingV), ~h=Styles.useSpace(paddingH)),
+      padding2(~v=Styles.getSpace(paddingV), ~h=Styles.getSpace(paddingH)),
       textAlign(`center),
       alignContent(`center),
       position(`relative),
@@ -39,12 +39,12 @@ let useButtonStyles =
       cursor(`pointer),
       transition(~duration=200, "all"),
       fontSize(btnFontSize),
-      lineHeight(Styles.useLineHeight(~fontSize=btnFontSize, ())),
+      lineHeight(Styles.getLineHeight(~fontSize=btnFontSize, ())),
       fontWeight(`bold),
     ];
   let variantStyles = v => {
     open Css;
-    let isLight = Styles.useIsLight();
+    let isLight = Styles.getIsLight();
 
     let bgVariant =
       switch (v) {
@@ -61,14 +61,14 @@ let useButtonStyles =
             ~inset=true,
             ~spread=px(2),
             ~blur=px(0),
-            Styles.useTextColor(~tint=bgVariant, ~highlight=-30, ()),
+            Styles.getTextColor(~tint=bgVariant, ~highlight=-30, ()),
           )
         : boxShadow(
             ~y=px(0),
             ~inset=true,
             ~spread=px(1),
             ~blur=px(0),
-            Styles.useColor(~highlight=5, bgVariant),
+            Styles.getColor(~highlight=5, bgVariant),
           ),
       borderWidth(px(0)),
       borderStyle(`solid),
@@ -76,25 +76,25 @@ let useButtonStyles =
     let outlineHighlightBg = isLight ? rgba(0, 0, 0) : rgba(255, 255, 255);
 
     [
-      fontFamily(Styles.useFontFamily(`body)),
+      fontFamily(Styles.getFontFamily(`body)),
       color(
         outline_
-          ? Styles.useTextColor(~tint=bgVariant, ~highlight=-30, ())
-          : Styles.useTextColor(~background=bgVariant, ~highlight=10, ()),
+          ? Styles.getTextColor(~tint=bgVariant, ~highlight=-30, ())
+          : Styles.getTextColor(~background=bgVariant, ~highlight=10, ()),
       ),
-      borderRadius(Styles.useBorderRadius(`medium)),
+      borderRadius(Styles.getBorderRadius(`medium)),
       textTransform(`uppercase),
-      backgroundColor(Styles.useColor(outline_ ? `transparent : bgVariant)),
+      backgroundColor(Styles.getColor(outline_ ? `transparent : bgVariant)),
       hover([
         backgroundColor(
           outline_
             ? outlineHighlightBg(0.05)
-            : Styles.useColor(~highlight=isLight ? (8) : 10, bgVariant),
+            : Styles.getColor(~highlight=isLight ? (8) : 10, bgVariant),
         ),
       ]),
       disabled([
         opacity(0.7),
-        hover([backgroundColor(Styles.useColor(bgVariant))]),
+        hover([backgroundColor(Styles.getColor(bgVariant))]),
       ]),
       focus([outlineStyle(`none)]),
       selector(":focus:not(:active)", Animations.focus),
@@ -102,13 +102,13 @@ let useButtonStyles =
         backgroundColor(
           outline_
             ? outlineHighlightBg(0.15)
-            : Styles.useColor(~highlight=5, bgVariant),
+            : Styles.getColor(~highlight=5, bgVariant),
         ),
       ]),
       ...styleStyles,
     ];
   };
-  [Styles.useMargin(margin_), sharedStyles, variantStyles(variant)]
+  [Styles.getMargin(margin_), sharedStyles, variantStyles(variant)]
   |> List.concat;
 };
 
@@ -207,8 +207,8 @@ module Round = {
         [
           btnStyle,
           Css.[
-            width(Styles.useSpace(w)),
-            height(Styles.useSpace(w)),
+            width(Styles.getSpace(w)),
+            height(Styles.getSpace(w)),
             padding(px(0)),
             borderRadius(pct(50.)),
           ],
